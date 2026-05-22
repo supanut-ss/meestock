@@ -1,0 +1,16 @@
+# Node
+node_modules/
+
+# .NET
+**/bin/
+**/obj/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
