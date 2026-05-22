@@ -1,10 +1,10 @@
-IF DB_ID('meestock') IS NULL
+IF DB_ID('thaipes_meestock') IS NULL
 BEGIN
-    CREATE DATABASE meestock;
+    CREATE DATABASE thaipes_meestock;
 END
 GO
 
-USE meestock;
+USE thaipes_meestock;
 GO
 
 IF OBJECT_ID('dbo.low_stock_alerts', 'U') IS NOT NULL DROP TABLE dbo.low_stock_alerts;
