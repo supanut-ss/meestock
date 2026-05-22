@@ -1,4 +1,3 @@
-using BCrypt.Net;
 using MeeStock.Api.Data;
 using MeeStock.Api.DTOs;
 using MeeStock.Api.Models;
@@ -22,12 +21,12 @@ public class AuthController(MeeStockDbContext dbContext, ITokenService tokenServ
             .Include(x => x.Merchant)
             .FirstOrDefaultAsync(x => x.Username == request.Username && x.IsActive);
 
-        if (user is null || user.Merchant is null || !user.Merchant.IsActive || !BCrypt.Verify(request.Password, user.PasswordHash))
+        if (user is null || user.Merchant is null || !user.Merchant.IsActive || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
             return Unauthorized("Invalid username or password");
         }
 
-        var roles = user.UserRoles.Select(x => x.Role!.Name).ToArray();
+        var roles = user.UserRoles.Where(x => x.Role is not null).Select(x => x.Role!.Name).ToArray();
         var (accessToken, expiresAt) = tokenService.CreateAccessToken(user, roles);
         var refreshToken = tokenService.CreateRefreshToken();
 
@@ -59,7 +58,7 @@ public class AuthController(MeeStockDbContext dbContext, ITokenService tokenServ
 
         currentToken.RevokedAt = DateTime.UtcNow;
 
-        var roles = currentToken.User.UserRoles.Select(x => x.Role!.Name).ToArray();
+        var roles = currentToken.User.UserRoles.Where(x => x.Role is not null).Select(x => x.Role!.Name).ToArray();
         var (accessToken, expiresAt) = tokenService.CreateAccessToken(currentToken.User, roles);
         var newRefreshToken = tokenService.CreateRefreshToken();
 

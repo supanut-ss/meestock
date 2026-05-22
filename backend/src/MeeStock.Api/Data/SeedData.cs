@@ -1,4 +1,3 @@
-using BCrypt.Net;
 using MeeStock.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,7 +22,7 @@ public static class SeedData
             Merchant = merchant,
             Username = "owner",
             DisplayName = "Demo Owner",
-            PasswordHash = BCrypt.HashPassword("P@ssw0rd!")
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("P@ssw0rd!")
         };
 
         dbContext.Users.Add(user);

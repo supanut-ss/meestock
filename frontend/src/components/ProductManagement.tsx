@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import JsBarcode from "jsbarcode";
 import { useReactToPrint } from "react-to-print";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 type Product = {
@@ -92,11 +92,13 @@ export default function ProductManagement() {
   ];
 
   return (
-    <Stack spacing={2}>
-      <Typography variant="h5" fontWeight={700}>Product Management</Typography>
+    <div className="space-y-4">
+      <Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>
+        Product Management
+      </Typography>
       <Typography color="text.secondary">Low stock items: {lowStockCount}</Typography>
 
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_180px] gap-3">
         <TextField
           fullWidth
           label="Scanner / Barcode"
@@ -113,7 +115,7 @@ export default function ProductManagement() {
           helperText="ใส่ + เพื่อรับเข้า, - เพื่อตัดออก"
           sx={{ minWidth: 180 }}
         />
-      </Stack>
+      </div>
 
       <Box sx={{ height: 480, bgcolor: "background.paper", borderRadius: 2, overflow: "hidden" }}>
         <DataGrid
@@ -129,11 +131,11 @@ export default function ProductManagement() {
         <DialogTitle>Barcode Label</DialogTitle>
         <DialogContent>
           {selected && (
-            <Stack spacing={2} alignItems="center" mt={1}>
-              <Typography fontWeight={600}>{selected.name}</Typography>
+            <div className="mt-2 flex flex-col items-center gap-2">
+              <Typography sx={{ fontWeight: 600 }}>{selected.name}</Typography>
               <svg ref={barcodeSvgRef} />
               <Typography variant="body2" color="text.secondary">{selected.sku}</Typography>
-            </Stack>
+            </div>
           )}
           <div style={{ position: "absolute", left: -9999, top: -9999 }}>
             <div ref={printRef} style={{ width: "80mm", height: "30mm", padding: "4mm" }}>
@@ -148,6 +150,6 @@ export default function ProductManagement() {
           <Button variant="contained" onClick={printLabel}>Print Label</Button>
         </DialogActions>
       </Dialog>
-    </Stack>
+    </div>
   );
 }

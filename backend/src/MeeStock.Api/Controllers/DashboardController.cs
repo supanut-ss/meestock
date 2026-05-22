@@ -46,7 +46,7 @@ public class DashboardController(MeeStockDbContext dbContext, ICurrentUserContex
             .OrderBy(x => x.date)
             .ToListAsync();
 
-        var monthly = await dbContext.Orders
+        var monthly = dbContext.Orders
             .Where(x => x.MerchantId == currentUser.MerchantId && x.CreatedAt >= startMonthly)
             .AsEnumerable()
             .GroupBy(x => new { x.CreatedAt.Year, x.CreatedAt.Month })
