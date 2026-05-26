@@ -14,17 +14,17 @@ export default function Home() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            พร้อมใช้งานสำหรับร้านค้าของคุณ
+            พร้อมใช้งานสำหรับร้านค้าออนไลน์ของคุณ
           </div>
           
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
-            จัดการสต็อกได้ง่ายๆ <br/>
-            <span className="bg-gradient-to-r from-indigo-300 to-violet-200 bg-clip-text text-transparent">
-              ฉลาด รวดเร็ว เรียบหรู
+            ระบบบริหารคลังสินค้า <br/>
+            <span className="bg-gradient-to-r from-indigo-300 to-violet-200 bg-clip-text text-transparent font-black">
+              MeeStock Pro
             </span>
           </h1>
           <p className="text-slate-300 text-sm sm:text-base max-w-lg leading-relaxed">
-            MeeStock ช่วยลดความยุ่งยากในการนับสต็อก พิมพ์บาร์โค้ดสินค้า และแกะข้อมูลที่อยู่ลูกค้าเพื่อจัดส่ง ได้อย่างรวดเร็วผ่านมือถือของคุณ
+            ระบบ Mini Stock ครบวงจรสำหรับร้านค้าออนไลน์ จัดการสินค้า หมวดหมู่ รับเข้า จ่ายออก จัดส่ง และรายงานกำไร-ขาดทุนครบในที่เดียว
           </p>
         </div>
       </div>
@@ -32,29 +32,27 @@ export default function Home() {
       {/* Highlights Quick Counters */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "รายการสินค้าทั้งหมด", value: "17 รายการ", color: "border-indigo-100 text-indigo-600 bg-indigo-50/30" },
-          { label: "สินค้าสต็อกต่ำกว่าเกณฑ์", value: "3 รายการ", color: "border-amber-100 text-amber-600 bg-amber-50/30" },
-          { label: "ระบบแกะที่อยู่อัจฉริยะ", value: "พร้อมใช้งาน", color: "border-emerald-100 text-emerald-600 bg-emerald-50/30" },
-          { label: "เครื่องพิมพ์บาร์โค้ด", value: "รองรับ 100x150", color: "border-violet-100 text-violet-600 bg-violet-50/30" },
+          { label: "รายการสินค้าทั้งหมด", value: "พร้อมใช้งาน", color: "border-indigo-100 text-indigo-600 bg-indigo-50/30" },
+          { label: "ระบบรับเข้า/จ่ายออก", value: "Real-time", color: "border-violet-100 text-violet-600 bg-violet-50/30" },
+          { label: "แกะที่อยู่อัจฉริยะ", value: "พิมพ์ใบปะหน้า", color: "border-emerald-100 text-emerald-600 bg-emerald-50/30" },
+          { label: "รายงานยอดขาย", value: "กำไร-ขาดทุน", color: "border-sky-100 text-sky-600 bg-sky-50/30" },
         ].map((item, idx) => (
           <div key={idx} className={`rounded-2xl border p-4 text-center transition-all duration-300 hover:shadow-sm ${item.color}`}>
             <p className="text-xs text-slate-500 font-medium mb-1">{item.label}</p>
-            <p className="text-lg font-bold">{item.value}</p>
+            <p className="text-base sm:text-lg font-bold">{item.value}</p>
           </div>
         ))}
       </div>
 
-      {/* Main Interactive Feature Cards */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
-          <svg className="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
-          </svg>
-          เครื่องมือจัดการหลัก
+      {/* 6 Main Modules Interactive Grid */}
+      <div className="space-y-6">
+        <h2 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2.5">
+          <div className="h-2 w-2 rounded-full bg-indigo-500"></div>
+          ระบบงานหลัก 6 โมดูล
         </h2>
         
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {/* Card 1: Product Management */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* 1. Product Management */}
           <Link 
             href="/products" 
             className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-md hover:shadow-indigo-100/40"
@@ -67,22 +65,106 @@ export default function Home() {
               </div>
               <div className="space-y-1.5">
                 <h3 className="font-bold text-slate-800 text-lg group-hover:text-indigo-600 transition-colors">
-                  จัดการสต็อก & บาร์โค้ด
+                  📦 จัดการสินค้า & สต็อก
                 </h3>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  เพิ่ม/ลดสต็อกแบบ Real-time ด้วยการสแกนบาร์โค้ด รองรับระบบแจ้งเตือนเมื่อสต็อกต่ำ
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  เพิ่ม/แก้ไข/ลบสินค้า รหัสสินค้า บาร์โค้ด กำหนดจุดแจ้งเตือนสต็อกต่ำ และดูประวัติราคาทุนแยกตาม role ได้
                 </p>
               </div>
             </div>
             <div className="mt-6 flex items-center text-xs font-semibold text-indigo-600 gap-1">
-              เริ่มใช้งานคลังสินค้า
+              เข้าสู่ระบบสินค้า
               <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </div>
           </Link>
 
-          {/* Card 2: Smart Address Parser */}
+          {/* 2. Stock In */}
+          <Link 
+            href="/stock-in" 
+            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-violet-200 hover:shadow-md hover:shadow-violet-100/40"
+          >
+            <div className="space-y-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 transition-colors duration-300 group-hover:bg-violet-600 group-hover:text-white">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z" />
+                </svg>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="font-bold text-slate-800 text-lg group-hover:text-violet-600 transition-colors">
+                  📥 รับสินค้าเข้า (Stock In)
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  บันทึกสินค้าเข้าคลังแยกตาม Lot, วันหมดอายุ, ข้อมูล Supplier และปรับต้นทุนราคาสินค้าเฉลี่ยอัตโนมัติ
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex items-center text-xs font-semibold text-violet-600 gap-1">
+              บันทึกสินค้าเข้า
+              <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </Link>
+
+          {/* 3. Stock Out / Sale */}
+          <Link 
+            href="/stock-out" 
+            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-pink-200 hover:shadow-md hover:shadow-pink-100/40"
+          >
+            <div className="space-y-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pink-50 text-pink-600 transition-colors duration-300 group-hover:bg-pink-600 group-hover:text-white">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 13l-3 3m0 0l-3-3m3 3V8m0-5a9 9 0 110 18 9 9 0 010-18z" />
+                </svg>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="font-bold text-slate-800 text-lg group-hover:text-pink-600 transition-colors">
+                  📤 จ่ายสินค้าออก / บันทึกขาย
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  เพิ่มรายการสินค้าในบิลเดียวแบบตระกร้าสินค้า ตัดสต็อก Real-time พิมพ์ใบเสร็จ/Invoice ขนาด 80มม. ได้ทันที
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex items-center text-xs font-semibold text-pink-600 gap-1">
+              ทำรายการขายสินค้า
+              <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </Link>
+
+          {/* 4. Stock Movements */}
+          <Link 
+            href="/movements" 
+            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-amber-200 hover:shadow-md hover:shadow-amber-100/40"
+          >
+            <div className="space-y-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-colors duration-300 group-hover:bg-amber-600 group-hover:text-white">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="font-bold text-slate-800 text-lg group-hover:text-amber-600 transition-colors">
+                  📃 ประวัติและรายการเคลื่อนไหว
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  ตรวจสอบความเคลื่อนไหวคลังสินค้า (Stock Movements) เข้า-ออก-คืนสินค้า พร้อมเหตุผลการปรับคลังสินค้าแบบละเอียด
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex items-center text-xs font-semibold text-amber-600 gap-1">
+              ตรวจสอบความเคลื่อนไหว
+              <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </Link>
+
+          {/* 5. Smart Airway Bill Parser */}
           <Link 
             href="/shipping" 
             className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-100/40"
@@ -95,43 +177,43 @@ export default function Home() {
               </div>
               <div className="space-y-1.5">
                 <h3 className="font-bold text-slate-800 text-lg group-hover:text-emerald-600 transition-colors">
-                  ระบบแกะที่อยู่ & ใบปะหน้า
+                  🚚 ปะหน้ากล่อง & จัดส่ง
                 </h3>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  คัดลอกข้อความยาวๆ มาวางเพื่อดึงข้อมูล ชื่อ เบอร์โทร ที่อยู่ อัตโนมัติ พร้อมพิมพ์ใบแปะหน้ากล่อง 100x150มม.
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  แกะข้อมูลที่อยู่ลูกค้าอัจฉริยะ (Airway Bill Parser) จากข้อความยาวๆ พร้อมระบบพิมพ์ใบปะหน้าและบันทึกเลขพัสดุ
                 </p>
               </div>
             </div>
             <div className="mt-6 flex items-center text-xs font-semibold text-emerald-600 gap-1">
-              แกะที่อยู่และปริ้นท์
+              แกะที่อยู่และปะหน้ากล่อง
               <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </div>
           </Link>
 
-          {/* Card 3: Dashboard & Reports */}
+          {/* 6. Dashboard & Reports */}
           <Link 
             href="/dashboard" 
-            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-violet-200 hover:shadow-md hover:shadow-violet-100/40"
+            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-md hover:shadow-sky-100/40"
           >
             <div className="space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 transition-colors duration-300 group-hover:bg-violet-600 group-hover:text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 transition-colors duration-300 group-hover:bg-sky-600 group-hover:text-white">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
               <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-800 text-lg group-hover:text-violet-600 transition-colors">
-                  แดชบอร์ด & รายงานยอดขาย
+                <h3 className="font-bold text-slate-800 text-lg group-hover:text-sky-600 transition-colors">
+                  📊 แดชบอร์ด & รายงานยอดขาย
                 </h3>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  ดูรายงานยอดขายรายวันและรายเดือน สินค้ายอดนิยมอันดับต้นๆ และเช็ครายการสินค้าค้างคลังได้อย่างสวยงาม
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  ดูสถิติวิเคราะห์ ยอดขายรายวันและรายเดือน สินค้ายอดนิยมอันดับต้นๆ และวิเคราะห์อัตราการหมุนเวียนสินค้า
                 </p>
               </div>
             </div>
-            <div className="mt-6 flex items-center text-xs font-semibold text-violet-600 gap-1">
-              ดูรายงานภาพรวม
+            <div className="mt-6 flex items-center text-xs font-semibold text-sky-600 gap-1">
+              วิเคราะห์รายงานธุรกิจ
               <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>

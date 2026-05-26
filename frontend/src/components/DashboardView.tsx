@@ -9,6 +9,8 @@ type Snapshot = {
   total_stock_qty: number;
   low_stock_count: number;
   low_stock_items: { id: string; name: string; stockQty: number; lowStockThreshold: number }[];
+  total_sales: number;
+  total_profit: number;
 };
 
 type DashboardState = {
@@ -57,11 +59,35 @@ export default function DashboardView() {
     if (!data) return [];
     return [
       { 
-        title: "สินค้าทั้งหมด", 
-        value: data.snapshot.total_products, 
-        unit: "รายการ",
-        trend: "สินค้าในแคตตาล็อก",
+        title: "ยอดขายรวมสะสม", 
+        value: `฿${data.snapshot.total_sales.toLocaleString()}`, 
+        unit: "",
+        trend: "รายได้ขายทั้งหมด",
         bg: "from-indigo-500/5 to-indigo-600/5 border-indigo-100/70 text-indigo-600",
+        icon: (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        )
+      },
+      { 
+        title: "กำไรรวมสะสม", 
+        value: `฿${data.snapshot.total_profit.toLocaleString()}`, 
+        unit: "",
+        trend: "ยอดขายลบต้นทุนรวม",
+        bg: "from-violet-500/5 to-violet-600/5 border-violet-100/70 text-violet-600",
+        icon: (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        )
+      },
+      { 
+        title: "สินค้าทั้งหมด", 
+        value: String(data.snapshot.total_products), 
+        unit: "รายการ",
+        trend: "ในแคตตาล็อก",
+        bg: "from-sky-500/5 to-sky-600/5 border-sky-100/70 text-sky-600",
         icon: (
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -69,10 +95,10 @@ export default function DashboardView() {
         )
       },
       { 
-        title: "จำนวนสต็อกสินค้าคงเหลือรวม", 
-        value: data.snapshot.total_stock_qty, 
+        title: "สต็อกคงเหลือรวม", 
+        value: data.snapshot.total_stock_qty.toLocaleString(), 
         unit: "ชิ้น",
-        trend: "ระดับปริมาณคงเหลือเฉลี่ย",
+        trend: "ปริมาณสินค้าในคลัง",
         bg: "from-emerald-500/5 to-emerald-600/5 border-emerald-100/70 text-emerald-600",
         icon: (
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -81,10 +107,10 @@ export default function DashboardView() {
         )
       },
       { 
-        title: "สินค้าที่ระดับสต็อกต่ำกว่าเกณฑ์", 
-        value: data.snapshot.low_stock_count, 
+        title: "สินค้าที่สต็อกต่ำ", 
+        value: String(data.snapshot.low_stock_count), 
         unit: "รายการ",
-        trend: "ต้องจัดเตรียมสั่งซื้อของเพิ่ม",
+        trend: "ต้องจัดซื้อของเพิ่ม",
         bg: data.snapshot.low_stock_count > 0 
           ? "from-rose-500/5 to-rose-600/5 border-rose-100/70 text-rose-600 animate-pulse" 
           : "from-slate-500/5 to-slate-600/5 border-slate-100 text-slate-500",
@@ -112,18 +138,18 @@ export default function DashboardView() {
   return (
     <div className="space-y-6">
       {/* Key Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {cards.map((card) => (
           <div key={card.title} className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br bg-white p-5 shadow-sm hover:shadow transition-all duration-300 ${card.bg}`}>
             <div className="flex justify-between items-start">
-              <div className="space-y-2">
-                <p className="text-xxs font-semibold text-slate-400 uppercase tracking-wider">{card.title}</p>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-3xl font-extrabold text-slate-800 tracking-tight">{card.value}</span>
-                  <span className="text-xs font-semibold text-slate-500">{card.unit}</span>
+              <div className="space-y-2 min-w-0">
+                <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider truncate" title={card.title}>{card.title}</p>
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className="text-xl font-extrabold text-slate-800 tracking-tight break-all">{card.value}</span>
+                  {card.unit && <span className="text-[10px] font-semibold text-slate-500">{card.unit}</span>}
                 </div>
               </div>
-              <div className="p-2.5 rounded-xl bg-white border border-slate-100 shadow-sm text-slate-600">
+              <div className="p-2 rounded-xl bg-white border border-slate-100 shadow-sm text-slate-600 flex-shrink-0">
                 {card.icon}
               </div>
             </div>
