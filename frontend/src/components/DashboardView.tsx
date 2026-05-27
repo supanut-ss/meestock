@@ -20,8 +20,17 @@ type DashboardState = {
   bestSellers: { name: string; total_qty: number; price: number }[];
 };
 
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    name?: string;
+  }>;
+  label?: string;
+};
+
 // Custom elegant Tooltip for charts
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-2xl border border-slate-100 bg-white/95 p-3.5 shadow-xl backdrop-blur-md text-xs space-y-1">
@@ -40,14 +49,18 @@ export default function DashboardView() {
   const [loading, setLoading] = useState(true);
 
   const loadDashboard = async () => {
-    setLoading(true);
     try {
       const dbData = await getDashboardData();
-      setData(dbData);
+      // Defer state updates to avoid synchronous cascading renders inside the effect
+      setTimeout(() => {
+        setData(dbData);
+        setLoading(false);
+      }, 0);
     } catch (err) {
       console.error("Failed to load dashboard data from database:", err);
-    } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 0);
     }
   };
 

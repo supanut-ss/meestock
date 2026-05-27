@@ -119,5 +119,22 @@ public class MeeStockDbContext(DbContextOptions<MeeStockDbContext> options) : Db
             .WithMany()
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure precision and scale for decimal properties
+        modelBuilder.Entity<Product>()
+            .Property(x => x.UnitPrice)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Order>()
+            .Property(x => x.TotalAmount)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<OrderItem>()
+            .Property(x => x.UnitPrice)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<OrderItem>()
+            .Property(x => x.LineAmount)
+            .HasPrecision(18, 2);
     }
 }

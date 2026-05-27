@@ -17,6 +17,10 @@ type ParsedItem = {
   errors: string[];
 };
 
+type ExcelRow = {
+  [key: string]: string | number | boolean | undefined | null;
+};
+
 export default function ImportExcelModal({
   onClose,
   onSuccess,
@@ -63,7 +67,7 @@ export default function ImportExcelModal({
         const workbook = XLSX.read(data, { type: "binary" });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const rows: any[] = XLSX.utils.sheet_to_json(worksheet);
+        const rows = XLSX.utils.sheet_to_json(worksheet) as ExcelRow[];
 
         if (rows.length === 0) {
           setError("ไฟล์ไม่มีข้อมูลสำหรับการนำเข้า");

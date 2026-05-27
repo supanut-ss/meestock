@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import JsBarcode from "jsbarcode";
 import { useReactToPrint } from "react-to-print";
 import * as XLSX from "xlsx";
@@ -29,10 +29,10 @@ import {
 } from "@/lib/dbActions";
 import CameraScannerModal from "./CameraScannerModal";
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  active: { label: "ใช้งาน", color: "bg-emerald-50 text-emerald-700 ring-emerald-600/10" },
-  inactive: { label: "ปิดใช้งาน", color: "bg-slate-100 text-slate-500 ring-slate-500/10" },
-  discontinued: { label: "ยกเลิก", color: "bg-rose-50 text-rose-700 ring-rose-600/10" },
+const STATUS_LABELS: Record<string, { label: string; color: string; dot: string }> = {
+  active: { label: "ใช้งาน", color: "text-emerald-600", dot: "bg-emerald-500" },
+  inactive: { label: "ปิดใช้งาน", color: "text-slate-400", dot: "bg-slate-400" },
+  discontinued: { label: "ยกเลิก", color: "text-rose-600", dot: "bg-rose-500" },
 };
 
 const BLANK_PRODUCT = {
@@ -220,7 +220,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
 
   const handleExportExcel = () => {
     const dataToExport = processedProducts.map((p) => {
-      const row: any = {
+      const row: Record<string, string | number> = {
         "SKU": p.sku,
         "บาร์โค้ด": p.barcode || "",
         "ชื่อสินค้า": p.name,
@@ -248,6 +248,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
   };
 
   const barcodeSvgRef = useRef<SVGSVGElement>(null);
+  const printBarcodeSvgRef = useRef<SVGSVGElement>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
   const printLabel = useReactToPrint({
@@ -255,7 +256,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
     documentTitle: selected?.sku ? `barcode-${selected.sku}` : "barcode-label",
   });
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getProducts(searchTerm, categoryFilter || undefined, statusFilter || "active");
@@ -266,30 +267,40 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, categoryFilter, statusFilter]);
 
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     const cats = await getCategoriesFlat();
-    setCategories(cats);
-  };
+    setTimeout(() => {
+      setCategories(cats);
+    }, 0);
+  }, []);
 
   useEffect(() => {
     void loadCategories();
-  }, []);
+  }, [loadCategories]);
 
   useEffect(() => {
     const timer = setTimeout(() => { void loadProducts(); }, 300);
     return () => clearTimeout(timer);
-  }, [searchTerm, categoryFilter, statusFilter]);
+  }, [loadProducts]);
 
   // Render Barcode in Modal
   useEffect(() => {
-    if (!selected || !barcodeSvgRef.current || !openBarcode) return;
+    if (!selected || !openBarcode) return;
     try {
-      JsBarcode(barcodeSvgRef.current, selected.barcode || selected.sku, {
-        format: "CODE128", displayValue: true, width: 2, height: 64,
-        margin: 8, fontSize: 14, lineColor: "#0f172a",
-      });
+      if (barcodeSvgRef.current) {
+        JsBarcode(barcodeSvgRef.current, selected.barcode || selected.sku, {
+          format: "CODE128", displayValue: true, width: 2, height: 64,
+          margin: 8, fontSize: 14, lineColor: "#0f172a",
+        });
+      }
+      if (printBarcodeSvgRef.current) {
+        JsBarcode(printBarcodeSvgRef.current, selected.barcode || selected.sku, {
+          format: "CODE128", displayValue: true, width: 2, height: 64,
+          margin: 8, fontSize: 14, lineColor: "#0f172a",
+        });
+      }
     } catch (err) {
       console.error("Barcode generation error:", err);
     }
@@ -309,7 +320,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
       }
     }, 250);
     return () => clearTimeout(timer);
-  }, [scannerValue, adjustQty, products]);
+  }, [scannerValue, adjustQty, products, loadProducts]);
 
   const handleBarcodeScanned = async (code: string) => {
     if (scannerTarget === "stock_adjust") {
@@ -364,7 +375,12 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
 
   // SKU real-time check (debounced)
   useEffect(() => {
-    if (!newProduct.sku.trim()) { setSkuExists(false); return; }
+    if (!newProduct.sku.trim()) {
+      const timer = setTimeout(() => {
+        setSkuExists(false);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
     const timer = setTimeout(async () => {
       const exists = await checkSkuExists(newProduct.sku, editingProduct?.id);
       setSkuExists(exists);
@@ -471,7 +487,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
   };
 
   // Filter & Sort Logic
-  const processedProducts = useMemo(() => {
+  const processedProducts = (() => {
     let result = [...products];
 
     // Filter by Stock Level
@@ -514,13 +530,13 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
     }
 
     return result;
-  }, [products, stockLevelFilter, priceMin, priceMax, sortField, sortDirection]);
+  })();
 
   // Paginated Products
-  const paginatedProducts = useMemo(() => {
+  const paginatedProducts = (() => {
     const startIdx = (currentPage - 1) * itemsPerPage;
     return processedProducts.slice(startIdx, startIdx + itemsPerPage);
-  }, [processedProducts, currentPage]);
+  })();
 
   const totalPages = Math.ceil(processedProducts.length / itemsPerPage);
 
@@ -655,7 +671,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
               <select
                 className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
                 value={stockLevelFilter}
-                onChange={(e: any) => setStockLevelFilter(e.target.value)}
+                onChange={(e) => setStockLevelFilter(e.target.value as "all" | "normal" | "low" | "out")}
               >
                 <option value="all">ระดับสต็อกทั้งหมด</option>
                 <option value="normal">สต็อกปกติ</option>
@@ -732,7 +748,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
             {!editingProduct && (
               <div className="space-y-1">
                 <label className="text-[10px] font-semibold text-slate-500">ประเภทสินค้า</label>
-                <select className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none bg-white font-semibold text-slate-700" value={newProductType} onChange={(e: any) => setNewProductType(e.target.value)}>
+                <select className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none bg-white font-semibold text-slate-700" value={newProductType} onChange={(e) => setNewProductType(e.target.value as "standard" | "bundle")}>
                   <option value="standard">📦 สินค้าทั่วไป</option>
                   <option value="bundle">🎁 จัดชุดเซ็ต / Combo</option>
                 </select>
@@ -840,26 +856,26 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/70 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
-                    <th onClick={() => handleSort("sku")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none">
+                    <th onClick={() => handleSort("sku")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none min-w-[130px]">
                       SKU / บาร์โค้ด <span className="font-sans ml-1 text-slate-400">{getSortIcon("sku")}</span>
                     </th>
-                    <th onClick={() => handleSort("name")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none">
+                    <th onClick={() => handleSort("name")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none min-w-[240px]">
                       ชื่อสินค้า <span className="font-sans ml-1 text-slate-400">{getSortIcon("name")}</span>
                     </th>
-                    <th className="px-5 py-4">หมวดหมู่</th>
-                    <th onClick={() => handleSort("unitPrice")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none text-right">
+                    <th className="px-5 py-4 min-w-[140px]">หมวดหมู่</th>
+                    <th onClick={() => handleSort("unitPrice")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none text-right min-w-[100px]">
                       ราคาขาย <span className="font-sans ml-1 text-slate-400">{getSortIcon("unitPrice")}</span>
                     </th>
                     {isAdmin && (
-                      <th onClick={() => handleSort("costPrice")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none text-right">
+                      <th onClick={() => handleSort("costPrice")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none text-right min-w-[100px]">
                         ราคาทุน <span className="font-sans ml-1 text-slate-400">{getSortIcon("costPrice")}</span>
                       </th>
                     )}
-                    <th className="px-5 py-4 text-center">สถานะ</th>
-                    <th onClick={() => handleSort("stockQty")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none text-center">
+                    <th className="px-5 py-4 text-center min-w-[90px]">สถานะ</th>
+                    <th onClick={() => handleSort("stockQty")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none text-center min-w-[150px]">
                       สต็อก / ปรับ <span className="font-sans ml-1 text-slate-400">{getSortIcon("stockQty")}</span>
                     </th>
-                    <th className="px-5 py-4 text-center">จัดการ</th>
+                    <th className="px-5 py-4 text-center min-w-[210px]">จัดการ</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700 text-sm">
@@ -873,52 +889,57 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                       const st = STATUS_LABELS[p.status] ?? STATUS_LABELS.active;
                       return (
                         <tr key={p.id} className={`transition-colors ${isLow ? "bg-rose-50/30" : "hover:bg-slate-50/40"}`}>
-                          <td className="px-5 py-4">
+                          <td className="px-5 py-4 min-w-[130px]">
                             <p className="font-mono text-xs font-semibold text-slate-600">{p.sku}</p>
                             <p className="font-mono text-[10px] text-slate-400">{p.barcode}</p>
                           </td>
-                          <td className="px-5 py-4">
-                            <div className="flex items-center gap-1.5">
-                              <p className="font-semibold text-slate-800">{p.name}</p>
+                          <td className="px-5 py-4 min-w-[240px]">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <p className="font-semibold text-slate-800 break-words max-w-[220px]">{p.name}</p>
                               {p.productType === "bundle" && (
                                 <span className="inline-flex items-center rounded-md bg-purple-50 px-1.5 py-0.5 text-[9px] font-bold text-purple-700 ring-1 ring-inset ring-purple-700/10">
                                   Combo Set
                                 </span>
                               )}
                             </div>
-                            {p.notes && <p className="text-[10px] text-slate-400 truncate max-w-[160px]">{p.notes}</p>}
+                            {p.notes && <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{p.notes}</p>}
                           </td>
-                          <td className="px-5 py-4">
+                          <td className="px-5 py-4 min-w-[140px]">
                             {p.categoryName ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-600">
+                              <span className="text-xs font-bold text-indigo-600">
                                 {p.categoryName}
                               </span>
                             ) : (
-                              <span className="text-slate-300 text-xs">—</span>
+                              <span className="text-slate-300 text-xs font-semibold">—</span>
                             )}
                           </td>
-                          <td className="px-5 py-4 text-right font-semibold">฿{p.unitPrice.toLocaleString()}</td>
+                          <td className="px-5 py-4 text-right font-semibold min-w-[100px]">฿{p.unitPrice.toLocaleString()}</td>
                           {isAdmin && (
-                            <td className="px-5 py-4 text-right text-xs font-mono text-indigo-600">
+                            <td className="px-5 py-4 text-right text-xs font-mono text-indigo-600 min-w-[100px]">
                               ฿{p.costPrice.toLocaleString()}
                             </td>
                           )}
-                          <td className="px-5 py-4 text-center">
-                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${st.color}`}>{st.label}</span>
+                          <td className="px-5 py-4 text-center min-w-[90px]">
+                            <div className="inline-flex items-center justify-center gap-1.5">
+                              <span className={`h-1.5 w-1.5 rounded-full ${st.dot}`}></span>
+                              <span className={`text-xs font-bold ${st.color}`}>{st.label}</span>
+                            </div>
                           </td>
-                          <td className="px-5 py-4">
-                            <div className="flex flex-col items-center gap-1.5">
-                              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${isLow ? "bg-rose-50 text-rose-700 ring-1 ring-rose-600/10 animate-pulse" : "bg-slate-50 text-slate-700 ring-1 ring-slate-600/10"}`}>
-                                <span className={`h-1.5 w-1.5 rounded-full ${isLow ? "bg-rose-500" : "bg-emerald-500"}`}></span>
-                                {p.stockQty} {p.unit}
-                              </span>
-                              <div className="flex items-center gap-1">
-                                <button onClick={() => handleUpdateStock(p.id, -1)} className="w-5 h-5 flex items-center justify-center rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] transition-all font-bold">-</button>
-                                <button onClick={() => handleUpdateStock(p.id, 1)} className="w-5 h-5 flex items-center justify-center rounded bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-[10px] transition-all font-bold">+</button>
+                          <td className="px-5 py-4 min-w-[150px]">
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="flex items-center gap-1.5">
+                                <span className={`h-1.5 w-1.5 rounded-full ${isLow ? "bg-rose-500 animate-pulse" : "bg-emerald-500"}`}></span>
+                                <span className={`text-sm font-bold ${isLow ? "text-rose-600" : "text-slate-700"} whitespace-nowrap`}>
+                                  {p.stockQty} {p.unit}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <button onClick={() => handleUpdateStock(p.id, -1)} className="w-5 h-5 flex items-center justify-center rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] transition-all font-bold cursor-pointer">-</button>
+                                <button onClick={() => handleUpdateStock(p.id, 1)} className="w-5 h-5 flex items-center justify-center rounded bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-[10px] transition-all font-bold cursor-pointer">+</button>
                               </div>
                             </div>
                           </td>
-                          <td className="px-5 py-4">
+                          <td className="px-5 py-4 min-w-[210px]">
                             <div className="flex items-center justify-center gap-1.5">
                               {/* Edit */}
                               <button onClick={() => openEditModal(p)} className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 transition-all shadow-sm cursor-pointer" title="แก้ไข">
@@ -1062,7 +1083,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
             <div style={{ position: "absolute", left: -9999, top: -9999 }}>
               <div ref={printRef} style={{ width: "80mm", height: "30mm", padding: "4mm 6mm", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "white" }}>
                 <p style={{ margin: "0 0 1mm 0", fontSize: "11px", fontWeight: "bold", width: "100%", textAlign: "center" }}>{selected.name}</p>
-                <svg ref={barcodeSvgRef} style={{ width: "100%", height: "16mm" }} />
+                <svg ref={printBarcodeSvgRef} style={{ width: "100%", height: "16mm" }} />
                 <p style={{ margin: "1mm 0 0 0", fontSize: "9px", fontFamily: "monospace", width: "100%", textAlign: "center" }}>SKU: {selected.sku}</p>
               </div>
             </div>

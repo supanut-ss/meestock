@@ -51,15 +51,21 @@ export default function StockOutView() {
 
   useEffect(() => {
     if (addProductId) {
-      setLoadingVariants(true);
+      setTimeout(() => {
+        setLoadingVariants(true);
+      }, 0);
       getProductVariants(addProductId).then((data) => {
-        setVariants(data);
-        setSelectedVariantId(data[0]?.id || "");
-        setLoadingVariants(false);
+        setTimeout(() => {
+          setVariants(data);
+          setSelectedVariantId(data[0]?.id || "");
+          setLoadingVariants(false);
+        }, 0);
       });
     } else {
-      setVariants([]);
-      setSelectedVariantId("");
+      setTimeout(() => {
+        setVariants([]);
+        setSelectedVariantId("");
+      }, 0);
     }
   }, [addProductId]);
 
@@ -238,9 +244,9 @@ export default function StockOutView() {
       {/* Invoice Success */}
       {invoice && (
         <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 space-y-4 animate-in slide-in-from-top-2 duration-300">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+              <div className="h-10 w-10 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
               <div>
@@ -248,16 +254,16 @@ export default function StockOutView() {
                 <p className="text-xs text-emerald-600">เลขที่: <strong>{invoice.orderNo}</strong></p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 self-end sm:self-auto">
               <button
                 onClick={() => setInvoice(null)}
-                className="text-xs text-emerald-600 hover:text-emerald-800 underline"
+                className="text-xs text-emerald-600 hover:text-emerald-800 underline px-2 py-1"
               >
                 ปิด
               </button>
               <button
                 onClick={printInvoice}
-                className="py-2 px-4 rounded-xl bg-emerald-600 text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-emerald-700 transition-all"
+                className="py-2 px-4 rounded-xl bg-emerald-600 text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-emerald-700 transition-all shadow-sm active:scale-95"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                 พิมพ์ Invoice
@@ -313,20 +319,27 @@ export default function StockOutView() {
             </div>
 
             {/* Variants Select */}
-            {variants.length > 0 && (
+            {(loadingVariants || variants.length > 0) && (
               <div className="space-y-1 animate-in fade-in duration-200 mt-2">
-                <label className="text-[10px] font-bold text-slate-500">เลือกตัวเลือกย่อย *</label>
+                <label className="text-[10px] font-bold text-slate-500">
+                  {loadingVariants ? "กำลังโหลดตัวเลือกย่อย..." : "เลือกตัวเลือกย่อย *"}
+                </label>
                 <select
                   required
-                  className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold text-slate-700"
+                  disabled={loadingVariants}
+                  className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold text-slate-700 disabled:opacity-50"
                   value={selectedVariantId}
                   onChange={(e) => setSelectedVariantId(e.target.value)}
                 >
-                  {variants.map((v) => (
-                    <option key={v.id} value={v.id}>
-                      {v.name} (คงเหลือ: {v.stockQty} ชิ้น) | ราคา: ฿{v.unitPrice}
-                    </option>
-                  ))}
+                  {loadingVariants ? (
+                    <option>กำลังโหลด...</option>
+                  ) : (
+                    variants.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.name} (คงเหลือ: {v.stockQty} ชิ้น) | ราคา: ฿{v.unitPrice}
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
             )}
@@ -343,49 +356,66 @@ export default function StockOutView() {
                   const itemKey = item.variant ? `${item.product.id}-${item.variant.id}` : item.product.id;
                   const maxStock = item.variant ? item.variant.stockQty : item.product.stockQty;
                   return (
-                    <div key={itemKey} className="p-4 flex items-center gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="font-semibold text-slate-800 text-sm truncate">{item.product.name}</p>
-                          {item.variant && (
-                            <span className="inline-flex items-center rounded-md bg-indigo-50 px-1.5 py-0.5 text-[9px] font-bold text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
-                              {item.variant.name}
-                            </span>
-                          )}
+                    <div key={itemKey} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                      {/* Top section: Title, Variant, SKU & Remove Button on Mobile */}
+                      <div className="flex items-start justify-between sm:flex-1 min-w-0 gap-2">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="font-semibold text-slate-800 text-sm truncate max-w-[200px] sm:max-w-none">{item.product.name}</p>
+                            {item.variant && (
+                              <span className="inline-flex items-center rounded-md bg-indigo-50 px-1.5 py-0.5 text-[9px] font-bold text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+                                {item.variant.name}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                            SKU: {item.variant ? item.variant.sku : item.product.sku}
+                          </p>
                         </div>
-                        <p className="text-[10px] text-slate-400 font-mono">
-                          SKU: {item.variant ? item.variant.sku : item.product.sku}
-                        </p>
+                        {/* Remove button (Only visible on mobile here, hidden on desktop here) */}
+                        <button type="button" onClick={() => removeFromCart(itemKey)} className="text-slate-300 hover:text-rose-500 transition-colors p-1 sm:hidden">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
                       </div>
-                      {/* Qty */}
-                      <div className="flex items-center gap-1 border border-slate-200 rounded-xl px-1 py-0.5 bg-slate-50">
-                        <button type="button" onClick={() => updateQty(itemKey, item.qty - 1)} className="w-6 h-6 rounded-lg bg-white text-slate-600 hover:bg-slate-100 text-xs font-bold border border-slate-200 transition-all">-</button>
-                        <input
-                          type="number" min="1" max={maxStock}
-                          className="w-10 text-center bg-transparent text-sm font-bold border-none focus:outline-none"
-                          value={item.qty}
-                          onChange={(e) => updateQty(itemKey, Number(e.target.value))}
-                        />
-                        <button type="button" onClick={() => updateQty(itemKey, item.qty + 1)} className="w-6 h-6 rounded-lg bg-white text-slate-600 hover:bg-slate-100 text-xs font-bold border border-slate-200 transition-all">+</button>
+
+                      {/* Bottom section (controls): Qty, Price, Line Total, and Remove Button on Desktop */}
+                      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+                        {/* Qty */}
+                        <div className="flex items-center gap-1 border border-slate-200 rounded-xl px-1 py-0.5 bg-slate-50">
+                          <button type="button" onClick={() => updateQty(itemKey, item.qty - 1)} className="w-6 h-6 rounded-lg bg-white text-slate-600 hover:bg-slate-100 text-xs font-bold border border-slate-200 transition-all">-</button>
+                          <input
+                            type="number" min="1" max={maxStock}
+                            className="w-10 text-center bg-transparent text-sm font-bold border-none focus:outline-none"
+                            value={item.qty}
+                            onChange={(e) => updateQty(itemKey, Number(e.target.value))}
+                          />
+                          <button type="button" onClick={() => updateQty(itemKey, item.qty + 1)} className="w-6 h-6 rounded-lg bg-white text-slate-600 hover:bg-slate-100 text-xs font-bold border border-slate-200 transition-all">+</button>
+                        </div>
+
+                        {/* Price & Line total Group */}
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          {/* Price */}
+                          <div className="flex items-center gap-1 text-sm">
+                            <span className="text-slate-400 text-xs">฿</span>
+                            <input
+                              type="number" min="0" step="1"
+                              className="w-16 sm:w-20 text-right font-bold text-slate-800 bg-transparent border-b border-slate-200 focus:outline-none focus:border-violet-500 text-sm py-0.5 transition-all"
+                              value={item.unitPrice}
+                              onChange={(e) => updatePrice(itemKey, Number(e.target.value))}
+                            />
+                          </div>
+
+                          {/* Line total */}
+                          <span className="text-sm font-bold text-violet-700 w-16 sm:w-20 text-right">
+                            ฿{(item.qty * item.unitPrice).toLocaleString()}
+                          </span>
+                        </div>
+
+                        {/* Remove Button for Desktop */}
+                        <button type="button" onClick={() => removeFromCart(itemKey)} className="text-slate-300 hover:text-rose-500 transition-colors p-1 hidden sm:block">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
                       </div>
-                      {/* Price */}
-                      <div className="flex items-center gap-1 text-sm">
-                        <span className="text-slate-400 text-xs">฿</span>
-                        <input
-                          type="number" min="0" step="1"
-                          className="w-20 text-right font-bold text-slate-800 bg-transparent border-b border-slate-200 focus:outline-none focus:border-violet-500 text-sm py-0.5 transition-all"
-                          value={item.unitPrice}
-                          onChange={(e) => updatePrice(itemKey, Number(e.target.value))}
-                        />
-                      </div>
-                      {/* Line total */}
-                      <span className="text-sm font-bold text-violet-700 w-20 text-right">
-                        ฿{(item.qty * item.unitPrice).toLocaleString()}
-                      </span>
-                      {/* Remove */}
-                      <button type="button" onClick={() => removeFromCart(itemKey)} className="text-slate-300 hover:text-rose-500 transition-colors p-1">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                      </button>
                     </div>
                   );
                 })}

@@ -12,17 +12,23 @@ type NavUser = {
   role: string;
 } | null;
 
-const links = [
+const mainLinks = [
   { href: "/", label: "หน้าแรก", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
-  { href: "/products", label: "สินค้า", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
-  { href: "/categories", label: "หมวดหมู่", icon: "M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" },
-  { href: "/stock-in", label: "รับสินค้า", icon: "M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z" },
-  { href: "/stock-out", label: "จ่ายสินค้า", icon: "M15 13l-3 3m0 0l-3-3m3 3V8m0-5a9 9 0 110 18 9 9 0 010-18z" },
-  { href: "/movements", label: "ประวัติสต็อก", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
-  { href: "/orders", label: "จัดส่ง", icon: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" },
-  { href: "/shipping", label: "ใบปะหน้า", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
   { href: "/dashboard", label: "แดชบอร์ด", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
-  { href: "/reports", label: "รายงาน", icon: "M9 17v-2a4 4 0 00-4-4H3m14 0h-2a4 4 0 00-4 4v2m4-6a2 2 0 10-4 0v4m0 0H5a2 2 0 00-2 2v2h14v-2a2 2 0 00-2-2h-3" },
+];
+
+const inventoryLinks = [
+  { href: "/products", label: "สินค้า", desc: "รายการสินค้าและระดับสต็อก", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
+  { href: "/categories", label: "หมวดหมู่", desc: "จัดกลุ่มสินค้าและป้ายสี", icon: "M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" },
+  { href: "/stock-in", label: "รับสินค้า", desc: "นำเข้าสินค้าใหม่เข้าคลัง", icon: "M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z" },
+  { href: "/stock-out", label: "จ่ายสินค้า", desc: "เบิกจ่ายสินค้าออก", icon: "M15 13l-3 3m0 0l-3-3m3 3V8m0-5a9 9 0 110 18 9 9 0 010-18z" },
+  { href: "/movements", label: "ประวัติสต็อก", desc: "บันทึกการเคลื่อนไหวสินค้า", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+];
+
+const salesLinks = [
+  { href: "/orders", label: "จัดส่ง", desc: "รายการสั่งซื้อและการจัดส่ง", icon: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" },
+  { href: "/shipping", label: "ใบปะหน้า", desc: "พิมพ์ใบแปะกล่องพัสดุ", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
+  { href: "/reports", label: "รายงาน", desc: "สรุปยอดขายและกำไร", icon: "M9 17v-2a4 4 0 00-4-4H3m14 0h-2a4 4 0 00-4 4v2m4-6a2 2 0 10-4 0v4m0 0H5a2 2 0 00-2 2v2h14v-2a2 2 0 00-2-2h-3" },
 ];
 
 export default function Navigation({ user }: { user?: NavUser }) {
@@ -30,7 +36,11 @@ export default function Navigation({ user }: { user?: NavUser }) {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const isInventoryActive = inventoryLinks.some(link => pathname === link.href);
+  const isSalesActive = salesLinks.some(link => pathname === link.href);
 
   const [unreadCount, setUnreadCount] = useState(0);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -87,9 +97,9 @@ export default function Navigation({ user }: { user?: NavUser }) {
             </Link>
           </div>
 
-          {/* Desktop Navigation - scrollable */}
-          <nav className="hidden lg:flex items-center gap-0.5 overflow-x-auto flex-1 justify-center">
-            {links.map((link) => {
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-1.5 flex-1 justify-center">
+            {mainLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
@@ -108,6 +118,120 @@ export default function Navigation({ user }: { user?: NavUser }) {
                 </Link>
               );
             })}
+
+            {/* คลังสินค้า Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setActiveDropdown(activeDropdown === "inventory" ? null : "inventory")}
+                className={`flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-xl transition-all duration-200 whitespace-nowrap ${
+                  isInventoryActive
+                    ? "text-indigo-600 bg-indigo-50/50"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
+                }`}
+              >
+                <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                คลังสินค้า
+                <svg className={`w-3 h-3 text-slate-400 transition-transform ${activeDropdown === "inventory" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {activeDropdown === "inventory" && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setActiveDropdown(null)} />
+                  <div className="absolute left-0 top-full mt-2 w-72 rounded-2xl border border-slate-200/80 bg-white shadow-xl z-20 p-2 animate-in slide-in-from-top-2 duration-150 flex flex-col gap-0.5">
+                    {inventoryLinks.map((link) => {
+                      const isLinkActive = pathname === link.href;
+                      return (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setActiveDropdown(null)}
+                          className={`group flex items-start gap-3 p-2 rounded-xl transition-all duration-200 ${
+                            isLinkActive
+                              ? "bg-indigo-50/80 text-indigo-600"
+                              : "hover:bg-slate-50 text-slate-700 hover:text-slate-900"
+                          }`}
+                        >
+                          <div className={`p-1.5 rounded-lg transition-colors ${
+                            isLinkActive
+                              ? "bg-indigo-100 text-indigo-600"
+                              : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700"
+                          }`}>
+                            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
+                            </svg>
+                          </div>
+                          <div className="text-left">
+                            <p className="text-xs font-semibold leading-normal">{link.label}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5 leading-normal">{link.desc}</p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* ขาย & ขนส่ง Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setActiveDropdown(activeDropdown === "sales" ? null : "sales")}
+                className={`flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-xl transition-all duration-200 whitespace-nowrap ${
+                  isSalesActive
+                    ? "text-indigo-600 bg-indigo-50/50"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
+                }`}
+              >
+                <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                ขาย & ขนส่ง
+                <svg className={`w-3 h-3 text-slate-400 transition-transform ${activeDropdown === "sales" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {activeDropdown === "sales" && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setActiveDropdown(null)} />
+                  <div className="absolute left-0 top-full mt-2 w-72 rounded-2xl border border-slate-200/80 bg-white shadow-xl z-20 p-2 animate-in slide-in-from-top-2 duration-150 flex flex-col gap-0.5">
+                    {salesLinks.map((link) => {
+                      const isLinkActive = pathname === link.href;
+                      return (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setActiveDropdown(null)}
+                          className={`group flex items-start gap-3 p-2 rounded-xl transition-all duration-200 ${
+                            isLinkActive
+                              ? "bg-indigo-50/80 text-indigo-600"
+                              : "hover:bg-slate-50 text-slate-700 hover:text-slate-900"
+                          }`}
+                        >
+                          <div className={`p-1.5 rounded-lg transition-colors ${
+                            isLinkActive
+                              ? "bg-indigo-100 text-indigo-600"
+                              : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700"
+                          }`}>
+                            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
+                            </svg>
+                          </div>
+                          <div className="text-left">
+                            <p className="text-xs font-semibold leading-normal">{link.label}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5 leading-normal">{link.desc}</p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
           </nav>
 
           {/* Right side: User menu + Mobile toggle */}
@@ -221,27 +345,93 @@ export default function Navigation({ user }: { user?: NavUser }) {
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-b border-slate-200 bg-white/95 backdrop-blur-md animate-in slide-in-from-top duration-200">
-          <div className="space-y-1 px-3 py-4">
-            {links.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? "text-indigo-600 bg-indigo-50"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
-                  </svg>
-                  {link.label}
-                </Link>
-              );
-            })}
+          <div className="space-y-4 px-4 py-4 max-h-[75vh] overflow-y-auto">
+            {/* ภาพรวม */}
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">ภาพรวม</p>
+              <div className="space-y-0.5 flex flex-col">
+                {mainLinks.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? "text-indigo-600 bg-indigo-50/80"
+                          : "text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
+                      </svg>
+                      {link.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* คลังสินค้า */}
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">คลังสินค้า</p>
+              <div className="space-y-0.5 flex flex-col">
+                {inventoryLinks.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-start gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? "text-indigo-600 bg-indigo-50/80"
+                          : "text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      <svg className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
+                      </svg>
+                      <div className="text-left">
+                        <p className="font-semibold text-xs leading-normal">{link.label}</p>
+                        <p className="text-[10px] text-slate-400 font-normal leading-normal">{link.desc}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ขาย & ขนส่ง */}
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">ขาย & ขนส่ง</p>
+              <div className="space-y-0.5 flex flex-col">
+                {salesLinks.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-start gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? "text-indigo-600 bg-indigo-50/80"
+                          : "text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      <svg className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
+                      </svg>
+                      <div className="text-left">
+                        <p className="font-semibold text-xs leading-normal">{link.label}</p>
+                        <p className="text-[10px] text-slate-400 font-normal leading-normal">{link.desc}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       )}
