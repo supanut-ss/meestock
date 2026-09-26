@@ -8,6 +8,13 @@ import {
   deleteCategory,
   DBCategory
 } from "@/lib/dbActions";
+import { useNotification } from "@/components/ui/NotificationProvider";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const PRESET_COLORS = [
   { hex: "#6366f1", label: "Indigo" },
@@ -28,10 +35,12 @@ export default function CategoryManager() {
   const [categories, setCategories] = useState<DBCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
+  const { notifySuccess, notifyError, notifyWarning } = useNotification();
 
   // Modal control
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DBCategory | null>(null);
 
   // Form fields
   const [name, setName] = useState("");
@@ -102,42 +111,47 @@ export default function CategoryManager() {
       }
 
       if (success) {
-        setSuccessMsg(editingId ? "แก้ไขหมวดหมู่สำเร็จ!" : "เพิ่มหมวดหมู่สำเร็จ!");
-        setTimeout(() => {
-          setIsOpen(false);
-          void loadData();
-        }, 800);
+        notifySuccess(editingId ? "แก้ไขหมวดหมู่สำเร็จ!" : "เพิ่มหมวดหมู่สำเร็จ!");
+        setIsOpen(false);
+        void loadData();
       } else {
         setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+        notifyError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
       }
     });
   };
 
-  const handleDelete = async (cat: DBCategory) => {
+  const requestDelete = (cat: DBCategory) => {
     const hasChildren = cat.children && cat.children.length > 0;
     const hasProducts = cat.productCount > 0;
 
     if (hasChildren) {
-      alert(`ไม่สามารถลบหมวดหมู่ "${cat.name}" ได้ เนื่องจากยังมีหมวดหมู่ย่อยอยู่ภายใน`);
+      notifyWarning(`ไม่สามารถลบหมวดหมู่ "${cat.name}" ได้ เนื่องจากยังมีหมวดหมู่ย่อยอยู่ภายใน`);
       return;
     }
     if (hasProducts) {
-      alert(`ไม่สามารถลบหมวดหมู่ "${cat.name}" ได้ เนื่องจากยังมีสินค้าในหมวดหมู่นี้จำนวน ${cat.productCount} ชิ้น`);
+      notifyWarning(`ไม่สามารถลบหมวดหมู่ "${cat.name}" ได้ เนื่องจากยังมีสินค้าในหมวดหมู่นี้จำนวน ${cat.productCount} ชิ้น`);
       return;
     }
 
-    if (!confirm(`คุณต้องการลบหมวดหมู่ "${cat.name}" ใช่หรือไม่?`)) return;
+    setDeleteTarget(cat);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
 
     try {
-      const res = await deleteCategory(cat.id);
+      const res = await deleteCategory(deleteTarget.id);
       if (res.success) {
+        notifySuccess(`ลบหมวดหมู่ "${deleteTarget.name}" เรียบร้อยแล้ว`);
+        setDeleteTarget(null);
         void loadData();
       } else {
-        alert(res.error || "เกิดข้อผิดพลาดในการลบหมวดหมู่");
+        notifyError(res.error || "เกิดข้อผิดพลาดในการลบหมวดหมู่");
       }
     } catch (err) {
       console.error(err);
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล");
+      notifyError("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล");
     }
   };
 
@@ -148,9 +162,7 @@ export default function CategoryManager() {
         <div>
           <h1 className="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
+              <CategoryOutlinedIcon sx={{ fontSize: 22 }} />
             </div>
             จัดการหมวดหมู่สินค้า
           </h1>
@@ -159,27 +171,20 @@ export default function CategoryManager() {
 
         <button
           onClick={() => openAddModal("")}
-          className="py-2.5 px-5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-sm font-semibold shadow-md shadow-indigo-100 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+          className="py-2.5 px-5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-sm font-semibold shadow-md shadow-indigo-100 flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
+          <AddRoundedIcon sx={{ fontSize: 18 }} />
           เพิ่มหมวดหมู่หลัก
         </button>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-24">
-          <svg className="animate-spin h-8 w-8 text-indigo-500" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
+          <CircularProgress size={36} sx={{ color: "#4f46e5" }} />
         </div>
       ) : categories.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50/50 p-16 flex flex-col items-center gap-3 text-slate-400">
-          <svg className="w-12 h-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
+          <CategoryOutlinedIcon sx={{ fontSize: 48, color: "#cbd5e1" }} />
           <p className="text-sm font-medium">ยังไม่มีหมวดหมู่สินค้า</p>
           <p className="text-xs">กดปุ่มด้านบนเพื่อเพิ่มหมวดหมู่สินค้าชิ้นแรก</p>
         </div>
@@ -216,29 +221,25 @@ export default function CategoryManager() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openAddModal(parent.id)}
-                    className="py-1.5 px-3 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-semibold hover:bg-indigo-100 transition-colors flex items-center gap-1"
+                    className="py-1.5 px-3 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-semibold hover:bg-indigo-100 transition-colors flex items-center gap-1 cursor-pointer"
                   >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
+                    <AddRoundedIcon sx={{ fontSize: 15 }} />
                     เพิ่มหมวดหมู่ย่อย
                   </button>
                   <button
                     onClick={() => openEditModal(parent)}
-                    className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all"
+                    className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all cursor-pointer"
                     title="แก้ไข"
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
+                    <EditOutlinedIcon sx={{ fontSize: 16 }} />
                   </button>
                   <button
-                    onClick={() => handleDelete(parent)}
-                    disabled={parent.productCount > 0 || (parent.children && parent.children.length > 0)}
+                    onClick={() => requestDelete(parent)}
+                    disabled={parent.productCount > 0 || Boolean(parent.children && parent.children.length > 0)}
                     className={`p-2 rounded-xl transition-all ${
                       parent.productCount > 0 || (parent.children && parent.children.length > 0)
                         ? "text-slate-200 cursor-not-allowed"
-                        : "text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                        : "text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
                     }`}
                     title={
                       parent.productCount > 0 || (parent.children && parent.children.length > 0)
@@ -246,9 +247,7 @@ export default function CategoryManager() {
                         : "ลบหมวดหมู่"
                     }
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
+                    <DeleteOutlineOutlinedIcon sx={{ fontSize: 16 }} />
                   </button>
                 </div>
               </div>
@@ -280,26 +279,22 @@ export default function CategoryManager() {
                         <div className="flex items-center gap-1 flex-shrink-0">
                           <button
                             onClick={() => openEditModal(child)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white transition-all"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white transition-all cursor-pointer"
                             title="แก้ไข"
                           >
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
+                            <EditOutlinedIcon sx={{ fontSize: 14 }} />
                           </button>
                           <button
-                            onClick={() => handleDelete(child)}
+                            onClick={() => requestDelete(child)}
                             disabled={child.productCount > 0}
                             className={`p-1.5 rounded-lg transition-all ${
                               child.productCount > 0
                                 ? "text-slate-200 cursor-not-allowed"
-                                : "text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                                : "text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
                             }`}
                             title={child.productCount > 0 ? "ไม่สามารถลบได้เนื่องจากมีสินค้า" : "ลบ"}
                           >
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                            <DeleteOutlineOutlinedIcon sx={{ fontSize: 14 }} />
                           </button>
                         </div>
                       </div>
@@ -454,6 +449,18 @@ export default function CategoryManager() {
           </div>
         </div>
       )}
+
+      {/* Confirm Category Deletion Dialog */}
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="ยืนยันการลบหมวดหมู่"
+        message={`คุณต้องการลบหมวดหมู่ "${deleteTarget?.name}" ใช่หรือไม่? ข้อมูลหมวดหมู่นี้จะถูกลบออกจากระบบ`}
+        confirmText="ลบหมวดหมู่"
+        cancelText="ยกเลิก"
+        isDestructive
+        onConfirm={confirmDelete}
+        onClose={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

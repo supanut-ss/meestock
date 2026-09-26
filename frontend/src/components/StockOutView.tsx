@@ -3,6 +3,11 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useReactToPrint } from "react-to-print";
 import { getProducts, createSaleOrder, getProductVariants, findProductOrVariantByBarcode, DBProduct, DBProductVariant } from "@/lib/dbActions";
+import { useNotification } from "@/components/ui/NotificationProvider";
+import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
+import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import CircularProgress from "@mui/material/CircularProgress";
 import CameraScannerModal from "./CameraScannerModal";
 
 type CartItem = {
@@ -31,6 +36,7 @@ export default function StockOutView() {
   const [invoice, setInvoice] = useState<InvoiceData | null>(null);
   const [error, setError] = useState("");
   const [showScanner, setShowScanner] = useState(false);
+  const { notifySuccess, notifyError, notifyWarning } = useNotification();
 
   const printRef = useRef<HTMLDivElement>(null);
   const printInvoice = useReactToPrint({
@@ -180,7 +186,11 @@ export default function StockOutView() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (cart.length === 0) { setError("กรุณาเพิ่มสินค้าอย่างน้อย 1 รายการ"); return; }
+    if (cart.length === 0) {
+      setError("กรุณาเพิ่มสินค้าอย่างน้อย 1 รายการ");
+      notifyWarning("กรุณาเพิ่มสินค้าอย่างน้อย 1 รายการ");
+      return;
+    }
     setError("");
     startTransition(async () => {
       const result = await createSaleOrder({
@@ -196,6 +206,7 @@ export default function StockOutView() {
       });
 
       if (result.success) {
+        notifySuccess(`บันทึกการขายสำเร็จ! เลขที่ ${result.orderNo}`);
         setInvoice({
           orderNo: result.orderNo!,
           createdAt: new Date().toLocaleString("th-TH"),
@@ -211,6 +222,7 @@ export default function StockOutView() {
         setNote("");
       } else {
         setError(result.error ?? "เกิดข้อผิดพลาดในการบันทึกการขาย");
+        notifyError(result.error ?? "เกิดข้อผิดพลาดในการบันทึกการขาย");
       }
     });
   };
@@ -218,10 +230,7 @@ export default function StockOutView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-24">
-        <svg className="animate-spin h-8 w-8 text-indigo-500" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-        </svg>
+        <CircularProgress size={36} sx={{ color: "#7c3aed" }} />
       </div>
     );
   }
@@ -232,9 +241,7 @@ export default function StockOutView() {
       <div>
         <h1 className="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 border border-violet-100">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+            <PointOfSaleOutlinedIcon sx={{ fontSize: 22 }} />
           </div>
           บันทึกการขาย / จ่ายสินค้าออก
         </h1>
@@ -373,8 +380,8 @@ export default function StockOutView() {
                           </p>
                         </div>
                         {/* Remove button (Only visible on mobile here, hidden on desktop here) */}
-                        <button type="button" onClick={() => removeFromCart(itemKey)} className="text-slate-300 hover:text-rose-500 transition-colors p-1 sm:hidden">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        <button type="button" onClick={() => removeFromCart(itemKey)} className="text-slate-300 hover:text-rose-500 transition-colors p-1 sm:hidden cursor-pointer" title="ลบออกจากรายการ">
+                          <DeleteOutlineOutlinedIcon sx={{ fontSize: 16 }} />
                         </button>
                       </div>
 
@@ -382,14 +389,14 @@ export default function StockOutView() {
                       <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto flex-wrap sm:flex-nowrap">
                         {/* Qty */}
                         <div className="flex items-center gap-1 border border-slate-200 rounded-xl px-1 py-0.5 bg-slate-50">
-                          <button type="button" onClick={() => updateQty(itemKey, item.qty - 1)} className="w-6 h-6 rounded-lg bg-white text-slate-600 hover:bg-slate-100 text-xs font-bold border border-slate-200 transition-all">-</button>
+                          <button type="button" onClick={() => updateQty(itemKey, item.qty - 1)} className="w-6 h-6 rounded-lg bg-white text-slate-600 hover:bg-slate-100 text-xs font-bold border border-slate-200 transition-all cursor-pointer">-</button>
                           <input
                             type="number" min="1" max={maxStock}
                             className="w-10 text-center bg-transparent text-sm font-bold border-none focus:outline-none"
                             value={item.qty}
                             onChange={(e) => updateQty(itemKey, Number(e.target.value))}
                           />
-                          <button type="button" onClick={() => updateQty(itemKey, item.qty + 1)} className="w-6 h-6 rounded-lg bg-white text-slate-600 hover:bg-slate-100 text-xs font-bold border border-slate-200 transition-all">+</button>
+                          <button type="button" onClick={() => updateQty(itemKey, item.qty + 1)} className="w-6 h-6 rounded-lg bg-white text-slate-600 hover:bg-slate-100 text-xs font-bold border border-slate-200 transition-all cursor-pointer">+</button>
                         </div>
 
                         {/* Price & Line total Group */}
@@ -412,8 +419,8 @@ export default function StockOutView() {
                         </div>
 
                         {/* Remove Button for Desktop */}
-                        <button type="button" onClick={() => removeFromCart(itemKey)} className="text-slate-300 hover:text-rose-500 transition-colors p-1 hidden sm:block">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        <button type="button" onClick={() => removeFromCart(itemKey)} className="text-slate-300 hover:text-rose-500 transition-colors p-1 hidden sm:block cursor-pointer" title="ลบออกจากรายการ">
+                          <DeleteOutlineOutlinedIcon sx={{ fontSize: 16 }} />
                         </button>
                       </div>
                     </div>

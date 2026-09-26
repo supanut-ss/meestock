@@ -3,6 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { getDashboardData } from "@/lib/dbActions";
+import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
+import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
+import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
+import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
+import CircularProgress from "@mui/material/CircularProgress";
+import LinearProgress from "@mui/material/LinearProgress";
 
 type Snapshot = {
   total_products: number;
@@ -51,7 +60,6 @@ export default function DashboardView() {
   const loadDashboard = async () => {
     try {
       const dbData = await getDashboardData();
-      // Defer state updates to avoid synchronous cascading renders inside the effect
       setTimeout(() => {
         setData(dbData);
         setLoading(false);
@@ -77,11 +85,7 @@ export default function DashboardView() {
         unit: "",
         trend: "รายได้ขายทั้งหมด",
         bg: "from-indigo-500/5 to-indigo-600/5 border-indigo-100/70 text-indigo-600",
-        icon: (
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        )
+        icon: <PaymentsOutlinedIcon sx={{ fontSize: 20, color: "#4f46e5" }} />
       },
       { 
         title: "กำไรรวมสะสม", 
@@ -89,11 +93,7 @@ export default function DashboardView() {
         unit: "",
         trend: "ยอดขายลบต้นทุนรวม",
         bg: "from-violet-500/5 to-violet-600/5 border-violet-100/70 text-violet-600",
-        icon: (
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        )
+        icon: <TrendingUpOutlinedIcon sx={{ fontSize: 20, color: "#7c3aed" }} />
       },
       { 
         title: "สินค้าทั้งหมด", 
@@ -101,11 +101,7 @@ export default function DashboardView() {
         unit: "รายการ",
         trend: "ในแคตตาล็อก",
         bg: "from-sky-500/5 to-sky-600/5 border-sky-100/70 text-sky-600",
-        icon: (
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-          </svg>
-        )
+        icon: <Inventory2OutlinedIcon sx={{ fontSize: 20, color: "#0284c7" }} />
       },
       { 
         title: "สต็อกคงเหลือรวม", 
@@ -113,11 +109,7 @@ export default function DashboardView() {
         unit: "ชิ้น",
         trend: "ปริมาณสินค้าในคลัง",
         bg: "from-emerald-500/5 to-emerald-600/5 border-emerald-100/70 text-emerald-600",
-        icon: (
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-        )
+        icon: <WarehouseOutlinedIcon sx={{ fontSize: 20, color: "#059669" }} />
       },
       { 
         title: "สินค้าที่สต็อกต่ำ", 
@@ -127,11 +119,7 @@ export default function DashboardView() {
         bg: data.snapshot.low_stock_count > 0 
           ? "from-rose-500/5 to-rose-600/5 border-rose-100/70 text-rose-600 animate-pulse" 
           : "from-slate-500/5 to-slate-600/5 border-slate-100 text-slate-500",
-        icon: (
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-        )
+        icon: <WarningAmberOutlinedIcon sx={{ fontSize: 20, color: data.snapshot.low_stock_count > 0 ? "#e11d48" : "#94a3b8" }} />
       },
     ];
   }, [data]);
@@ -139,10 +127,7 @@ export default function DashboardView() {
   if (loading || !data) {
     return (
       <div className="p-24 flex flex-col items-center justify-center gap-3">
-        <svg className="animate-spin h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-        </svg>
+        <CircularProgress size={36} sx={{ color: "#4f46e5" }} />
         <p className="text-xs font-semibold text-slate-400">กำลังดึงข้อมูลวิเคราะห์และการเงินเชิงลึก...</p>
       </div>
     );
@@ -168,9 +153,7 @@ export default function DashboardView() {
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100/60 flex items-center justify-between text-xxs font-semibold text-slate-400">
               <span>{card.trend}</span>
-              <svg className="w-3 h-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
+              <ArrowForwardIosRoundedIcon sx={{ fontSize: 10, color: "#cbd5e1" }} />
             </div>
           </div>
         ))}
@@ -261,13 +244,20 @@ export default function DashboardView() {
                           {item.stockQty} / {item.lowStockThreshold} ชิ้น
                         </span>
                       </div>
-                      {/* Visual Progress percentage */}
-                      <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                        <div 
-                          className="h-full rounded-full bg-gradient-to-r from-rose-500 to-amber-500" 
-                          style={{ width: `${ratio}%` }}
-                        ></div>
-                      </div>
+                      {/* Visual Progress bar */}
+                      <LinearProgress
+                        variant="determinate"
+                        value={ratio}
+                        sx={{
+                          height: 6,
+                          borderRadius: 3,
+                          backgroundColor: "#f1f5f9",
+                          "& .MuiLinearProgress-bar": {
+                            borderRadius: 3,
+                            backgroundColor: ratio < 30 ? "#f43f5e" : ratio < 70 ? "#f59e0b" : "#10b981",
+                          },
+                        }}
+                      />
                     </div>
                   );
                 })
@@ -283,9 +273,7 @@ export default function DashboardView() {
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 className="font-bold text-slate-800 text-sm tracking-tight flex items-center gap-2">
-              <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
+              <EmojiEventsOutlinedIcon sx={{ fontSize: 18, color: "#f59e0b" }} />
               สินค้าขายดี 5 อันดับแรก (วิเคราะห์ยอดขายสะสม)
             </h3>
             <span className="text-xxs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">สถิติท็อปฮิต</span>

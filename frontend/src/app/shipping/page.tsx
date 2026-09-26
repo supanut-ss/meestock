@@ -5,6 +5,7 @@ import { useReactToPrint } from "react-to-print";
 import ShippingLabel from "@/components/ShippingLabel";
 import { smartAddressParser } from "@/lib/addressParser";
 import { saveShipmentOrder } from "@/lib/dbActions";
+import { useNotification } from "@/components/ui/NotificationProvider";
 
 const sampleText = "ส่งที่ นายสมชาย ใจดี 0812345678 บ้านเลขที่ 1/99 หมู่บ้านสุขใจ ซอย 3 ถนนพหลโยธิน แขวงจอมพล เขตจตุจักร กรุงเทพ 10900";
 
@@ -20,13 +21,14 @@ export default function ShippingPage() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState<boolean | null>(null);
+  const { notifySuccess, notifyError, notifyWarning } = useNotification();
 
   const printRef = useRef<HTMLDivElement>(null);
   const print = useReactToPrint({ contentRef: printRef, documentTitle: `shipping-${orderNo}` });
 
   const handleSaveOrder = async () => {
     if (!receiverName || !receiverPhone || !receiverAddress) {
-      alert("กรุณาระบุข้อมูลผู้รับให้ครบถ้วนก่อนบันทึก");
+      notifyWarning("กรุณาระบุข้อมูลผู้รับให้ครบถ้วนก่อนบันทึก");
       return;
     }
     setIsSaving(true);
@@ -42,17 +44,16 @@ export default function ShippingPage() {
       });
       setSaveSuccess(success);
       if (success) {
-        // Auto reset success state after 3 seconds
+        notifySuccess(`บันทึกคำสั่งจัดส่ง ${orderNo} สำเร็จ!`);
         setTimeout(() => setSaveSuccess(null), 3000);
-        // Generate next order number sequence for convenience
         const nextSeq = Math.floor(1000 + Math.random() * 9000);
         setOrderNo(`MS-20260522${nextSeq}`);
       } else {
-        alert("ไม่สามารถบันทึกข้อมูลลงฐานข้อมูลได้");
+        notifyError("ไม่สามารถบันทึกข้อมูลลงฐานข้อมูลได้");
       }
     } catch (err) {
       console.error(err);
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล");
+      notifyError("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล");
     } finally {
       setIsSaving(false);
     }

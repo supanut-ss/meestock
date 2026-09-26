@@ -28,6 +28,18 @@ import {
   findProductOrVariantByBarcode,
 } from "@/lib/dbActions";
 import CameraScannerModal from "./CameraScannerModal";
+import MeeDataGrid from "@/components/ui/MeeDataGrid";
+import StatusBadge from "@/components/ui/StatusBadge";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { useNotification } from "@/components/ui/NotificationProvider";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { Box, Tooltip, IconButton } from "@mui/material";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import QrCode2OutlinedIcon from "@mui/icons-material/QrCode2Outlined";
+import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+import AccountTreeOutlinedIcon from "@mui/icons-material/AccountTreeOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 
 const STATUS_LABELS: Record<string, { label: string; color: string; dot: string }> = {
   active: { label: "ใช้งาน", color: "text-emerald-600", dot: "bg-emerald-500" },
@@ -458,13 +470,22 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
     }
   };
 
-  const handleDeleteProduct = async (p: DBProduct) => {
-    if (!confirm(`ปิดสินค้า "${p.name}"? สินค้าจะถูก soft-delete (ไม่ลบข้อมูลจริง)`)) return;
-    const result = await deleteProduct(p.id);
-    if (result.success) {
-      void loadProducts();
-    } else {
-      alert(result.error || "ไม่สามารถปิดสินค้าได้");
+  const { notifySuccess, notifyError, notifyWarning } = useNotification();
+  const [deleteTarget, setDeleteTarget] = useState<DBProduct | null>(null);
+
+  const confirmDeleteProduct = async () => {
+    if (!deleteTarget) return;
+    try {
+      const result = await deleteProduct(deleteTarget.id);
+      if (result.success) {
+        notifySuccess(`ปิดสินค้า "${deleteTarget.name}" เรียบร้อยแล้ว`);
+        setDeleteTarget(null);
+        void loadProducts();
+      } else {
+        notifyError(result.error || "ไม่สามารถปิดสินค้าได้");
+      }
+    } catch (err) {
+      notifyError("เกิดข้อผิดพลาดในการปิดสินค้า");
     }
   };
 
@@ -476,18 +497,8 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
     setHistoryLoading(false);
   };
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortDirection("asc");
-    }
-    setCurrentPage(1);
-  };
-
-  // Filter & Sort Logic
-  const processedProducts = (() => {
+  // Filter products by additional criteria before passing to DataGrid
+  const processedProducts = useMemo(() => {
     let result = [...products];
 
     // Filter by Stock Level
@@ -508,48 +519,567 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
       result = result.filter((p) => p.unitPrice <= Number(priceMax));
     }
 
-    // Sorting
-    if (sortField) {
-      result.sort((a, b) => {
-        let valA = a[sortField];
-        let valB = b[sortField];
+    return result;
+  }, [products, stockLevelFilter, priceMin, priceMax]);
 
-        if (typeof valA === "string" && typeof valB === "string") {
-          return sortDirection === "asc"
-            ? valA.localeCompare(valB, "th")
-            : valB.localeCompare(valA, "th");
-        } else {
-          // Numbers or nulls
-          valA = valA ?? 0;
-          valB = valB ?? 0;
-          return sortDirection === "asc"
-            ? (valA as number) - (valB as number)
-            : (valB as number) - (valA as number);
-        }
+  const columns = useMemo<GridColDef<DBProduct>[]>(() => {
+    const cols: GridColDef<DBProduct>[] = [
+      {
+        field: "sku",
+        headerName: "SKU / บาร์โค้ด",
+        minWidth: 160,
+        flex: 1.1,
+        renderCell: (params: GridRenderCellParams<DBProduct, string>) => (
+          <div className="flex flex-col justify-center min-w-0 py-0.5">
+            <span className="font-mono text-xs font-bold text-slate-800 tracking-tight leading-snug">
+              {params.value || "-"}
+            </span>
+            {params.row.barcode ? (
+              <div className="flex items-center gap-1.5 mt-0.5 text-slate-400">
+                <svg className="w-3.5 h-3 text-slate-400 shrink-0" viewBox="0 0 24 16" fill="currentColor">
+                  <rect x="0" y="0" width="2.5" height="16" />
+                  <rect x="4" y="0" width="1.5" height="16" />
+                  <rect x="7" y="0" width="3" height="16" />
+                  <rect x="11.5" y="0" width="1.5" height="16" />
+                  <rect x="14.5" y="0" width="2.5" height="16" />
+                  <rect x="18.5" y="0" width="1.5" height="16" />
+                  <rect x="21.5" y="0" width="2.5" height="16" />
+                </svg>
+                <span className="font-mono text-[11px] text-slate-500 leading-none">
+                  {params.row.barcode}
+                </span>
+              </div>
+            ) : (
+              <span className="text-[10px] text-slate-300 leading-none mt-0.5 font-mono">—</span>
+            )}
+          </div>
+        ),
+      },
+      {
+        field: "name",
+        headerName: "ชื่อสินค้า",
+        minWidth: 260,
+        flex: 2.2,
+        renderCell: (params: GridRenderCellParams<DBProduct, string>) => (
+          <div className="flex items-center gap-2.5 min-w-0 py-1 overflow-hidden">
+            <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-xs shrink-0 border border-slate-200/60 shadow-2xs">
+              {params.row.productType === "bundle" ? "🎁" : "📦"}
+            </div>
+            <div className="flex flex-col justify-center min-w-0">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="font-semibold text-slate-900 text-xs truncate leading-normal" title={params.value}>
+                  {params.value}
+                </span>
+                {params.row.productType === "bundle" && (
+                  <span className="inline-flex items-center rounded-md bg-purple-50 px-1.5 py-0.5 text-[9px] font-bold text-purple-700 ring-1 ring-inset ring-purple-700/10 shrink-0">
+                    Combo Set
+                  </span>
+                )}
+              </div>
+              {params.row.notes ? (
+                <span className="text-[11px] text-slate-400 truncate leading-normal mt-0.5" title={params.row.notes}>
+                  {params.row.notes}
+                </span>
+              ) : null}
+            </div>
+          </div>
+        ),
+      },
+      {
+        field: "categoryName",
+        headerName: "หมวดหมู่",
+        minWidth: 130,
+        flex: 1,
+        renderCell: (params: GridRenderCellParams<DBProduct, string>) => {
+          const cat = categories.find((c) => c.name === params.value);
+          const dotColor = cat?.color || "#6366f1";
+          return params.value ? (
+            <span
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
+              style={{
+                backgroundColor: `${dotColor}12`,
+                borderColor: `${dotColor}35`,
+                color: dotColor,
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
+              <span className="truncate max-w-[95px]">{params.value}</span>
+            </span>
+          ) : (
+            <span className="text-slate-300 text-xs">—</span>
+          );
+        },
+      },
+      {
+        field: "unitPrice",
+        headerName: "ราคาขาย",
+        type: "number",
+        minWidth: 100,
+        headerAlign: "right",
+        align: "right",
+        renderCell: (params: GridRenderCellParams<DBProduct, number>) => (
+          <div className="text-right w-full font-mono">
+            <span className="text-slate-400 text-xs mr-0.5 font-normal">฿</span>
+            <span className="font-bold text-slate-900 text-xs">
+              {(params.value ?? 0).toLocaleString()}
+            </span>
+          </div>
+        ),
+      },
+    ];
+
+    if (isAdmin) {
+      cols.push({
+        field: "costPrice",
+        headerName: "ราคาทุน",
+        type: "number",
+        minWidth: 100,
+        headerAlign: "right",
+        align: "right",
+        renderCell: (params: GridRenderCellParams<DBProduct, number>) => (
+          <div className="text-right w-full font-mono">
+            <span className="text-slate-400 text-xs mr-0.5 font-normal">฿</span>
+            <span className="text-xs text-slate-500 font-medium">
+              {(params.value ?? 0).toLocaleString()}
+            </span>
+          </div>
+        ),
       });
     }
 
-    return result;
-  })();
+    cols.push(
+      {
+        field: "status",
+        headerName: "สถานะ",
+        minWidth: 100,
+        headerAlign: "center",
+        align: "center",
+        renderCell: (params: GridRenderCellParams<DBProduct, string>) => {
+          const st = STATUS_LABELS[params.value || "active"] ?? STATUS_LABELS.active;
+          const variantMap: Record<string, "success" | "default" | "error"> = {
+            active: "success",
+            inactive: "default",
+            discontinued: "error",
+          };
+          return (
+            <StatusBadge
+              label={st.label}
+              variant={variantMap[params.value || "active"] || "default"}
+            />
+          );
+        },
+      },
+      {
+        field: "stockQty",
+        headerName: "คงเหลือ / ปรับสต็อก",
+        minWidth: 155,
+        headerAlign: "center",
+        align: "center",
+        renderCell: (params: GridRenderCellParams<DBProduct, number>) => {
+          const p = params.row;
+          const isLow = p.stockQty <= p.lowStockThreshold;
+          const isOut = p.stockQty === 0;
+          return (
+            <div className="flex items-center justify-between gap-2 w-full max-w-[145px] mx-auto py-0.5">
+              {/* Stock Quantity & Unit */}
+              <div className="flex flex-col justify-center min-w-0 text-left">
+                <div className="flex items-baseline gap-1">
+                  <span
+                    className={`font-mono text-sm font-bold leading-none ${
+                      isOut
+                        ? "text-rose-600"
+                        : isLow
+                        ? "text-amber-600"
+                        : "text-slate-800"
+                    }`}
+                  >
+                    {p.stockQty}
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium leading-none">
+                    {p.unit}
+                  </span>
+                </div>
+                {isLow && (
+                  <span className="text-[9.5px] font-semibold text-amber-600 leading-none mt-1">
+                    {isOut ? "สินค้าหมด" : "สต็อกต่ำ"}
+                  </span>
+                )}
+              </div>
 
-  // Paginated Products
-  const paginatedProducts = (() => {
-    const startIdx = (currentPage - 1) * itemsPerPage;
-    return processedProducts.slice(startIdx, startIdx + itemsPerPage);
-  })();
+              {/* Quick Increment/Decrement Buttons */}
+              <div className="inline-flex items-center rounded-lg border border-slate-200 bg-white shadow-2xs shrink-0 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => handleUpdateStock(p.id, -1)}
+                  disabled={p.stockQty <= 0}
+                  className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border-r border-slate-100 disabled:opacity-25 disabled:cursor-not-allowed"
+                  title="ลดสต็อก 1 ชิ้น"
+                >
+                  <span className="text-xs font-bold leading-none">−</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUpdateStock(p.id, 1)}
+                  className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer"
+                  title="เพิ่มสต็อก 1 ชิ้น"
+                >
+                  <span className="text-xs font-bold leading-none">+</span>
+                </button>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        field: "actions",
+        headerName: "จัดการ",
+        sortable: false,
+        filterable: false,
+        minWidth: 175,
+        headerAlign: "center",
+        align: "center",
+        renderCell: (params: GridRenderCellParams<DBProduct>) => {
+          const p = params.row;
+          return (
+            <div className="flex items-center justify-center gap-1">
+              <Tooltip title="แก้ไขข้อมูล">
+                <button
+                  type="button"
+                  onClick={() => openEditModal(p)}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-indigo-50 hover:border-indigo-200 text-slate-500 hover:text-indigo-600 transition-all cursor-pointer shadow-2xs"
+                >
+                  <EditOutlinedIcon sx={{ fontSize: 14 }} />
+                </button>
+              </Tooltip>
 
-  const totalPages = Math.ceil(processedProducts.length / itemsPerPage);
+              {p.productType === "standard" && (
+                <Tooltip title="จัดการตัวเลือกย่อย">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedProductForVariants(p);
+                      void loadVariants(p.id);
+                    }}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-purple-50 hover:border-purple-200 text-slate-500 hover:text-purple-600 transition-all cursor-pointer shadow-2xs"
+                  >
+                    <AccountTreeOutlinedIcon sx={{ fontSize: 14 }} />
+                  </button>
+                </Tooltip>
+              )}
+
+              {p.productType === "bundle" && (
+                <Tooltip title="จัดชุดสินค้า Combo">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedProductForBundle(p);
+                      void loadBundleComponents(p.id);
+                    }}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-cyan-50 hover:border-cyan-200 text-slate-500 hover:text-cyan-600 transition-all cursor-pointer shadow-2xs"
+                  >
+                    <Inventory2OutlinedIcon sx={{ fontSize: 14 }} />
+                  </button>
+                </Tooltip>
+              )}
+
+              <Tooltip title="พิมพ์บาร์โค้ด">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelected(p);
+                    setOpenBarcode(true);
+                  }}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-100 hover:border-slate-300 text-slate-500 hover:text-slate-800 transition-all cursor-pointer shadow-2xs"
+                >
+                  <QrCode2OutlinedIcon sx={{ fontSize: 14 }} />
+                </button>
+              </Tooltip>
+
+              <Tooltip title="ประวัติการแก้ไข">
+                <button
+                  type="button"
+                  onClick={() => openHistoryModal(p)}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-amber-50 hover:border-amber-200 text-slate-500 hover:text-amber-600 transition-all cursor-pointer shadow-2xs"
+                >
+                  <HistoryOutlinedIcon sx={{ fontSize: 14 }} />
+                </button>
+              </Tooltip>
+
+              <Tooltip title="ลบสินค้า">
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(p)}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 text-slate-400 hover:text-rose-600 transition-all cursor-pointer shadow-2xs"
+                >
+                  <DeleteOutlineOutlinedIcon sx={{ fontSize: 14 }} />
+                </button>
+              </Tooltip>
+            </div>
+          );
+        },
+      }
+    );
+
+    return cols;
+  }, [isAdmin, categories]);
 
   const lowStockCount = useMemo(() => products.filter((p) => p.stockQty <= p.lowStockThreshold).length, [products]);
 
   const fieldLabel: Record<string, string> = {
-    name: "ชื่อสินค้า", unit_price: "ราคาขาย", cost_price: "ราคาทุน", status: "สถานะ",
+    name: "ชื่อสินค้า",
+    unit_price: "ราคาขาย",
+    cost_price: "ราคาทุน",
+    status: "สถานะ",
   };
 
-  const getSortIcon = (field: SortField) => {
-    if (sortField !== field) return "↕";
-    return sortDirection === "asc" ? "▲" : "▼";
-  };
+  // History Columns
+  const historyColumns = useMemo<GridColDef<DBProductAuditLog>[]>(
+    () => [
+      {
+        field: "createdAt",
+        headerName: "วัน-เวลา",
+        minWidth: 140,
+        renderCell: (params) => (
+          <span className="text-xs text-slate-500 font-mono">{params.value}</span>
+        ),
+      },
+      {
+        field: "fieldName",
+        headerName: "ฟิลด์ที่เปลี่ยน",
+        minWidth: 120,
+        renderCell: (params) => (
+          <span className="font-bold text-xs text-slate-700">
+            {fieldLabel[params.value ?? ""] ?? params.value ?? params.row.action}
+          </span>
+        ),
+      },
+      {
+        field: "valueBefore",
+        headerName: "ค่าเดิม -> ค่าใหม่",
+        minWidth: 180,
+        flex: 1,
+        renderCell: (params) =>
+          params.row.valueBefore && params.row.valueAfter ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <span className="bg-rose-50 text-rose-600 px-2 py-0.5 rounded text-[11px] line-through">
+                {params.row.valueBefore}
+              </span>
+              <span className="text-slate-400 text-xs">→</span>
+              <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[11px] font-bold">
+                {params.row.valueAfter}
+              </span>
+            </Box>
+          ) : (
+            <span className="text-slate-400 text-xs">—</span>
+          ),
+      },
+      {
+        field: "changedBy",
+        headerName: "ผู้แก้ไข",
+        minWidth: 100,
+        renderCell: (params) => (
+          <span className="text-xs text-slate-600 font-medium">{params.value}</span>
+        ),
+      },
+    ],
+    []
+  );
+
+  // Variant Columns
+  const variantColumns = useMemo<GridColDef<DBProductVariant>[]>(() => {
+    const cols: GridColDef<DBProductVariant>[] = [
+      {
+        field: "name",
+        headerName: "ตัวเลือก",
+        minWidth: 110,
+        flex: 1,
+        renderCell: (params) => (
+          <span className="font-bold text-slate-800 text-xs">{params.value}</span>
+        ),
+      },
+      {
+        field: "sku",
+        headerName: "SKU / บาร์โค้ด",
+        minWidth: 140,
+        flex: 1,
+        renderCell: (params) => (
+          <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <span className="font-mono text-xs font-semibold text-slate-700">{params.value}</span>
+            {params.row.barcode && (
+              <span className="font-mono text-[10px] text-slate-400">{params.row.barcode}</span>
+            )}
+          </Box>
+        ),
+      },
+      {
+        field: "unitPrice",
+        headerName: "ราคาขาย",
+        type: "number",
+        minWidth: 90,
+        headerAlign: "right",
+        align: "right",
+        renderCell: (params) => (
+          <span className="font-bold text-slate-800 text-xs">฿{(params.value || 0).toLocaleString()}</span>
+        ),
+      },
+    ];
+
+    if (isAdmin) {
+      cols.push({
+        field: "costPrice",
+        headerName: "ราคาทุน",
+        type: "number",
+        minWidth: 90,
+        headerAlign: "right",
+        align: "right",
+        renderCell: (params) => (
+          <span className="text-slate-500 font-mono text-xs">฿{(params.value || 0).toLocaleString()}</span>
+        ),
+      });
+    }
+
+    cols.push(
+      {
+        field: "stockQty",
+        headerName: "คงคลัง",
+        type: "number",
+        minWidth: 80,
+        headerAlign: "center",
+        align: "center",
+        renderCell: (params) => (
+          <span className="font-bold text-slate-700 text-xs bg-slate-100 px-2 py-0.5 rounded-full">
+            {params.value}
+          </span>
+        ),
+      },
+      {
+        field: "actions",
+        headerName: "จัดการ",
+        sortable: false,
+        filterable: false,
+        minWidth: 90,
+        headerAlign: "center",
+        align: "center",
+        renderCell: (params) => {
+          const v = params.row;
+          return (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <Tooltip title="แก้ไข">
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setEditingVariantId(v.id);
+                    setVariantForm({
+                      name: v.name,
+                      sku: v.sku,
+                      barcode: v.barcode || "",
+                      costPrice: v.costPrice,
+                      unitPrice: v.unitPrice,
+                      stockQty: v.stockQty,
+                      lowStockThreshold: v.lowStockThreshold,
+                    });
+                    setShowVariantForm(true);
+                  }}
+                  sx={{ color: "#64748b", "&:hover": { color: "#4f46e5" } }}
+                >
+                  <EditOutlinedIcon sx={{ fontSize: 15 }} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="ลบตัวเลือก">
+                <IconButton
+                  size="small"
+                  onClick={() => handleDeleteVariant(v.id)}
+                  sx={{ color: "#64748b", "&:hover": { color: "#dc2626" } }}
+                >
+                  <DeleteOutlineOutlinedIcon sx={{ fontSize: 15 }} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          );
+        },
+      }
+    );
+
+    return cols;
+  }, [isAdmin]);
+
+  // Bundle Component Columns
+  const bundleComponentColumns = useMemo<GridColDef<DBBundleComponent>[]>(
+    () => [
+      {
+        field: "name",
+        headerName: "ชื่อสินค้า",
+        minWidth: 140,
+        flex: 1.5,
+        renderCell: (params) => (
+          <span className="font-semibold text-slate-800 text-xs">{params.value}</span>
+        ),
+      },
+      {
+        field: "sku",
+        headerName: "SKU",
+        minWidth: 110,
+        renderCell: (params) => (
+          <span className="font-mono text-xs text-slate-600">{params.value}</span>
+        ),
+      },
+      {
+        field: "qtyRequired",
+        headerName: "ต้องใช้ / เซ็ต",
+        type: "number",
+        minWidth: 100,
+        headerAlign: "center",
+        align: "center",
+        renderCell: (params) => (
+          <span className="font-bold text-xs text-slate-900">{params.value}</span>
+        ),
+      },
+      {
+        field: "stockQty",
+        headerName: "คลังเดี่ยว",
+        type: "number",
+        minWidth: 90,
+        headerAlign: "center",
+        align: "center",
+        renderCell: (params) => (
+          <span className="text-xs text-slate-600 font-mono">{params.value}</span>
+        ),
+      },
+      {
+        field: "possibleSets",
+        headerName: "จัดได้สูงสุด",
+        type: "number",
+        minWidth: 100,
+        headerAlign: "center",
+        align: "center",
+        valueGetter: (_value, row) => Math.floor(row.stockQty / row.qtyRequired),
+        renderCell: (params) => (
+          <span className="font-bold text-indigo-600 text-xs bg-indigo-50 px-2 py-0.5 rounded-full">
+            {params.value} เซ็ต
+          </span>
+        ),
+      },
+      {
+        field: "actions",
+        headerName: "ลบ",
+        sortable: false,
+        filterable: false,
+        minWidth: 60,
+        headerAlign: "center",
+        align: "center",
+        renderCell: (params) => (
+          <IconButton
+            size="small"
+            onClick={() => handleRemoveBundleComponent(params.row.componentId)}
+            sx={{ color: "#94a3b8", "&:hover": { color: "#dc2626" } }}
+          >
+            <DeleteOutlineOutlinedIcon sx={{ fontSize: 15 }} />
+          </IconButton>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
     <div className="space-y-6">
@@ -839,226 +1369,14 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
         </form>
       )}
 
-      {/* Products Table */}
-      <div className="rounded-3xl border border-slate-200 bg-white overflow-hidden shadow-sm">
-        {loading ? (
-          <div className="p-16 flex flex-col items-center justify-center gap-3">
-            <svg className="animate-spin h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
-            <p className="text-xs font-semibold text-slate-400">กำลังดึงรายการสินค้า...</p>
-          </div>
-        ) : (
-          <>
-            {/* Desktop Table */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full border-collapse text-left">
-                <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/70 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
-                    <th onClick={() => handleSort("sku")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none min-w-[130px]">
-                      SKU / บาร์โค้ด <span className="font-sans ml-1 text-slate-400">{getSortIcon("sku")}</span>
-                    </th>
-                    <th onClick={() => handleSort("name")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none min-w-[240px]">
-                      ชื่อสินค้า <span className="font-sans ml-1 text-slate-400">{getSortIcon("name")}</span>
-                    </th>
-                    <th className="px-5 py-4 min-w-[140px]">หมวดหมู่</th>
-                    <th onClick={() => handleSort("unitPrice")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none text-right min-w-[100px]">
-                      ราคาขาย <span className="font-sans ml-1 text-slate-400">{getSortIcon("unitPrice")}</span>
-                    </th>
-                    {isAdmin && (
-                      <th onClick={() => handleSort("costPrice")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none text-right min-w-[100px]">
-                        ราคาทุน <span className="font-sans ml-1 text-slate-400">{getSortIcon("costPrice")}</span>
-                      </th>
-                    )}
-                    <th className="px-5 py-4 text-center min-w-[90px]">สถานะ</th>
-                    <th onClick={() => handleSort("stockQty")} className="px-5 py-4 cursor-pointer hover:bg-slate-100 select-none text-center min-w-[150px]">
-                      สต็อก / ปรับ <span className="font-sans ml-1 text-slate-400">{getSortIcon("stockQty")}</span>
-                    </th>
-                    <th className="px-5 py-4 text-center min-w-[210px]">จัดการ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700 text-sm">
-                  {paginatedProducts.length === 0 ? (
-                    <tr>
-                      <td colSpan={isAdmin ? 8 : 7} className="px-6 py-12 text-center text-slate-400 text-xs">ไม่พบรายการสินค้า</td>
-                    </tr>
-                  ) : (
-                    paginatedProducts.map((p) => {
-                      const isLow = p.stockQty <= p.lowStockThreshold;
-                      const st = STATUS_LABELS[p.status] ?? STATUS_LABELS.active;
-                      return (
-                        <tr key={p.id} className={`transition-colors ${isLow ? "bg-rose-50/30" : "hover:bg-slate-50/40"}`}>
-                          <td className="px-5 py-4 min-w-[130px]">
-                            <p className="font-mono text-xs font-semibold text-slate-600">{p.sku}</p>
-                            <p className="font-mono text-[10px] text-slate-400">{p.barcode}</p>
-                          </td>
-                          <td className="px-5 py-4 min-w-[240px]">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <p className="font-semibold text-slate-800 break-words max-w-[220px]">{p.name}</p>
-                              {p.productType === "bundle" && (
-                                <span className="inline-flex items-center rounded-md bg-purple-50 px-1.5 py-0.5 text-[9px] font-bold text-purple-700 ring-1 ring-inset ring-purple-700/10">
-                                  Combo Set
-                                </span>
-                              )}
-                            </div>
-                            {p.notes && <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{p.notes}</p>}
-                          </td>
-                          <td className="px-5 py-4 min-w-[140px]">
-                            {p.categoryName ? (
-                              <span className="text-xs font-bold text-indigo-600">
-                                {p.categoryName}
-                              </span>
-                            ) : (
-                              <span className="text-slate-300 text-xs font-semibold">—</span>
-                            )}
-                          </td>
-                          <td className="px-5 py-4 text-right font-semibold min-w-[100px]">฿{p.unitPrice.toLocaleString()}</td>
-                          {isAdmin && (
-                            <td className="px-5 py-4 text-right text-xs font-mono text-indigo-600 min-w-[100px]">
-                              ฿{p.costPrice.toLocaleString()}
-                            </td>
-                          )}
-                          <td className="px-5 py-4 text-center min-w-[90px]">
-                            <div className="inline-flex items-center justify-center gap-1.5">
-                              <span className={`h-1.5 w-1.5 rounded-full ${st.dot}`}></span>
-                              <span className={`text-xs font-bold ${st.color}`}>{st.label}</span>
-                            </div>
-                          </td>
-                          <td className="px-5 py-4 min-w-[150px]">
-                            <div className="flex items-center justify-center gap-2">
-                              <div className="flex items-center gap-1.5">
-                                <span className={`h-1.5 w-1.5 rounded-full ${isLow ? "bg-rose-500 animate-pulse" : "bg-emerald-500"}`}></span>
-                                <span className={`text-sm font-bold ${isLow ? "text-rose-600" : "text-slate-700"} whitespace-nowrap`}>
-                                  {p.stockQty} {p.unit}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1 flex-shrink-0">
-                                <button onClick={() => handleUpdateStock(p.id, -1)} className="w-5 h-5 flex items-center justify-center rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] transition-all font-bold cursor-pointer">-</button>
-                                <button onClick={() => handleUpdateStock(p.id, 1)} className="w-5 h-5 flex items-center justify-center rounded bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-[10px] transition-all font-bold cursor-pointer">+</button>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-5 py-4 min-w-[210px]">
-                            <div className="flex items-center justify-center gap-1.5">
-                              {/* Edit */}
-                              <button onClick={() => openEditModal(p)} className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 transition-all shadow-sm cursor-pointer" title="แก้ไข">
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                </svg>
-                              </button>
-                              {/* Variants Manager */}
-                              {p.productType === "standard" && (
-                                <button onClick={() => { setSelectedProductForVariants(p); void loadVariants(p.id); }} className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-violet-50 text-slate-400 hover:text-violet-600 transition-all shadow-sm cursor-pointer" title="จัดการตัวเลือกย่อย">
-                                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                                  </svg>
-                                </button>
-                              )}
-                              {/* Bundle Components */}
-                              {p.productType === "bundle" && (
-                                <button onClick={() => { setSelectedProductForBundle(p); void loadBundleComponents(p.id); }} className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-cyan-50 text-slate-400 hover:text-cyan-600 transition-all shadow-sm cursor-pointer" title="จัดชุดสินค้า">
-                                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                  </svg>
-                                </button>
-                              )}
-                              {/* Barcode */}
-                              <button onClick={() => { setSelected(p); setOpenBarcode(true); }} className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-400 hover:text-slate-700 transition-all shadow-sm" title="บาร์โค้ด">
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                                </svg>
-                              </button>
-                              {/* History */}
-                              <button onClick={() => openHistoryModal(p)} className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-amber-50 text-slate-400 hover:text-amber-600 transition-all shadow-sm" title="ประวัติการแก้ไข">
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                              </button>
-                              {/* Delete */}
-                              <button onClick={() => handleDeleteProduct(p)} className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-all shadow-sm" title="ปิดสินค้า">
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Cards */}
-            <div className="block md:hidden p-4 space-y-4 bg-slate-50/50">
-              {paginatedProducts.map((p) => {
-                const isLow = p.stockQty <= p.lowStockThreshold;
-                const st = STATUS_LABELS[p.status] ?? STATUS_LABELS.active;
-                return (
-                  <div key={p.id} className={`rounded-2xl bg-white border p-4 shadow-sm space-y-3 ${isLow ? "border-rose-100" : "border-slate-100"}`}>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="font-bold text-slate-800 text-sm">{p.name}</h4>
-                        <p className="text-[10px] font-mono text-slate-400">SKU: {p.sku}</p>
-                      </div>
-                      <div className="text-right space-y-1">
-                        <p className="text-sm font-bold text-slate-800">฿{p.unitPrice}</p>
-                        <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold ring-1 ring-inset ${st.color}`}>{st.label}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between border-t border-b border-slate-100/70 py-2">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${isLow ? "text-rose-600 bg-rose-50 animate-pulse" : "text-emerald-600 bg-emerald-50"}`}>
-                        {isLow ? "⚠️ ต่ำกว่าเกณฑ์" : "✅ ปกติ"}
-                      </span>
-                      <span className="text-sm font-bold text-slate-800">{p.stockQty} {p.unit}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => openEditModal(p)} className="flex-1 py-2 rounded-xl border border-slate-200 text-[10px] font-semibold text-slate-600 hover:bg-slate-50">แก้ไข</button>
-                      <button onClick={() => { setSelected(p); setOpenBarcode(true); }} className="flex-1 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-[10px] font-semibold">บาร์โค้ด</button>
-                      <button onClick={() => handleUpdateStock(p.id, -1)} className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-100">-</button>
-                      <button onClick={() => handleUpdateStock(p.id, 1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-indigo-600 text-white font-bold shadow-sm">+</button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 bg-slate-50/50">
-                <p className="text-xs text-slate-500 font-medium">
-                  แสดง <strong className="text-slate-700">{(currentPage - 1) * itemsPerPage + 1}</strong> ถึง{" "}
-                  <strong className="text-slate-700">
-                    {Math.min(currentPage * itemsPerPage, processedProducts.length)}
-                  </strong>{" "}
-                  จาก <strong className="text-slate-700">{processedProducts.length}</strong> รายการ
-                </p>
-                <div className="flex items-center gap-2">
-                  <button
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                    className="py-1.5 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold shadow-sm transition-all disabled:opacity-50 flex items-center gap-1"
-                  >
-                    ก่อนหน้า
-                  </button>
-                  <span className="text-xs text-slate-500 font-bold px-2">
-                    หน้า {currentPage} / {totalPages}
-                  </span>
-                  <button
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    className="py-1.5 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold shadow-sm transition-all disabled:opacity-50 flex items-center gap-1"
-                  >
-                    ถัดไป
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      {/* Products DataGrid */}
+      <MeeDataGrid
+        rows={processedProducts}
+        columns={columns}
+        loading={loading}
+        quickFilterPlaceholder="ค้นหาชื่อสินค้า, SKU, บาร์โค้ด, หมวดหมู่..."
+        autoHeight
+      />
 
       {/* Barcode Modal */}
       {openBarcode && selected && (
@@ -1104,7 +1422,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
       {historyProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div onClick={() => setHistoryProduct(null)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl border border-slate-100 flex flex-col gap-4 max-h-[80vh] animate-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl border border-slate-100 flex flex-col gap-4 max-h-[85vh] animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-base font-bold text-slate-800">ประวัติการแก้ไข: {historyProduct.name}</h3>
               <button onClick={() => setHistoryProduct(null)} className="text-slate-400 hover:text-slate-600 rounded-lg p-1 hover:bg-slate-100">
@@ -1113,29 +1431,15 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                 </svg>
               </button>
             </div>
-            <div className="overflow-y-auto flex-1 space-y-2 pr-1">
-              {historyLoading ? (
-                <p className="text-center py-8 text-slate-400 text-xs">กำลังโหลด...</p>
-              ) : history.length === 0 ? (
-                <p className="text-center py-8 text-slate-400 text-xs">ยังไม่มีประวัติการแก้ไข</p>
-              ) : (
-                history.map((log) => (
-                  <div key={log.id} className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-xs space-y-1">
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold text-slate-700">{fieldLabel[log.fieldName ?? ""] ?? log.fieldName ?? log.action}</span>
-                      <span className="text-slate-400 text-[10px]">{log.createdAt}</span>
-                    </div>
-                    {log.valueBefore && log.valueAfter && (
-                      <div className="flex items-center gap-2 text-[10px]">
-                        <span className="bg-rose-50 text-rose-600 px-2 py-0.5 rounded line-through">{log.valueBefore}</span>
-                        <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                        <span className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded font-semibold">{log.valueAfter}</span>
-                      </div>
-                    )}
-                    <p className="text-slate-400">โดย: {log.changedBy}</p>
-                  </div>
-                ))
-              )}
+            <div className="flex-1 w-full">
+              <MeeDataGrid
+                rows={history}
+                columns={historyColumns}
+                loading={historyLoading}
+                height={340}
+                pageSize={5}
+                disableExport
+              />
             </div>
           </div>
         </div>
@@ -1241,72 +1545,15 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
               </button>
             )}
 
-            {/* Variants List Table */}
-            <div className="flex-grow overflow-y-auto border border-slate-100 rounded-2xl">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-500 font-bold border-b border-slate-100">
-                    <th className="px-4 py-2.5">ตัวเลือก</th>
-                    <th className="px-4 py-2.5">SKU / บาร์โค้ด</th>
-                    <th className="px-4 py-2.5 text-right">ราคาขาย</th>
-                    {isAdmin && <th className="px-4 py-2.5 text-right">ราคาทุน</th>}
-                    <th className="px-4 py-2.5 text-center">คงคลัง</th>
-                    <th className="px-4 py-2.5 text-center">จัดการ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 bg-white text-slate-700">
-                  {variantsList.length === 0 ? (
-                    <tr>
-                      <td colSpan={isAdmin ? 6 : 5} className="px-4 py-8 text-center text-slate-400 text-xxs">ยังไม่มีตัวเลือกย่อยของสินค้านี้</td>
-                    </tr>
-                  ) : (
-                    variantsList.map((v) => (
-                      <tr key={v.id} className="hover:bg-slate-50/30 font-sans">
-                        <td className="px-4 py-2.5 font-bold text-slate-800">{v.name}</td>
-                        <td className="px-4 py-2.5 font-mono text-[10px]">
-                          <div>{v.sku}</div>
-                          <div className="text-slate-400">{v.barcode || "—"}</div>
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-semibold">฿{v.unitPrice}</td>
-                        {isAdmin && <td className="px-4 py-2.5 text-right text-indigo-600 font-mono text-[10px]">฿{v.costPrice}</td>}
-                        <td className="px-4 py-2.5 text-center font-bold">{v.stockQty}</td>
-                        <td className="px-4 py-2.5">
-                          <div className="flex items-center justify-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEditingVariantId(v.id);
-                                setVariantForm({
-                                  name: v.name,
-                                  sku: v.sku,
-                                  barcode: v.barcode || "",
-                                  costPrice: v.costPrice,
-                                  unitPrice: v.unitPrice,
-                                  stockQty: v.stockQty,
-                                  lowStockThreshold: v.lowStockThreshold
-                                });
-                                setShowVariantForm(true);
-                              }}
-                              className="p-1 rounded bg-slate-50 border border-slate-200 text-slate-400 hover:text-indigo-600 cursor-pointer"
-                              title="แก้ไข"
-                            >
-                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteVariant(v.id)}
-                              className="p-1 rounded bg-slate-50 border border-slate-200 text-slate-400 hover:text-rose-600 cursor-pointer"
-                              title="ลบ"
-                            >
-                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+            {/* Variants List DataGrid */}
+            <div className="flex-1 w-full">
+              <MeeDataGrid
+                rows={variantsList}
+                columns={variantColumns}
+                height={280}
+                pageSize={5}
+                disableExport
+              />
             </div>
 
             <div className="flex items-center justify-end pt-3 border-t border-slate-100">
@@ -1369,49 +1616,16 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
               </button>
             </form>
 
-            {/* Component List */}
-            <div className="flex-grow overflow-y-auto border border-slate-100 rounded-2xl">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-500 font-bold border-b border-slate-100">
-                    <th className="px-4 py-2.5">ชื่อสินค้า</th>
-                    <th className="px-4 py-2.5">SKU ชิ้นส่วน</th>
-                    <th className="px-4 py-2.5 text-center">ต้องใช้ (ต่อ 1 เซ็ต)</th>
-                    <th className="px-4 py-2.5 text-center">คลังเดี่ยวที่เหลือ</th>
-                    <th className="px-4 py-2.5 text-center">คำนวณเซ็ตได้สูงสุด</th>
-                    <th className="px-4 py-2.5 text-center">ลบ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 bg-white text-slate-700">
-                  {bundleComponents.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-slate-400 text-xxs">ยังไม่มีสินค้าองค์ประกอบมัดรวมในเซ็ตนี้</td>
-                    </tr>
-                  ) : (
-                    bundleComponents.map((bc) => {
-                      const possibleSets = Math.floor(bc.stockQty / bc.qtyRequired);
-                      return (
-                        <tr key={bc.componentId} className="hover:bg-slate-50/30">
-                          <td className="px-4 py-2.5 font-semibold text-slate-800">{bc.name}</td>
-                          <td className="px-4 py-2.5 font-mono text-[10px]">{bc.sku}</td>
-                          <td className="px-4 py-2.5 text-center font-bold text-slate-900">{bc.qtyRequired}</td>
-                          <td className="px-4 py-2.5 text-center">{bc.stockQty}</td>
-                          <td className="px-4 py-2.5 text-center font-bold text-indigo-600">{possibleSets} เซ็ต</td>
-                          <td className="px-4 py-2.5 text-center">
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveBundleComponent(bc.componentId)}
-                              className="p-1 rounded bg-slate-50 border border-slate-200 text-slate-400 hover:text-rose-600 cursor-pointer"
-                            >
-                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
+            {/* Component List DataGrid */}
+            <div className="flex-1 w-full">
+              <MeeDataGrid
+                rows={bundleComponents}
+                getRowId={(r) => r.componentId}
+                columns={bundleComponentColumns}
+                height={280}
+                pageSize={5}
+                disableExport
+              />
             </div>
 
             <div className="flex items-center justify-end pt-3 border-t border-slate-100">
@@ -1426,6 +1640,18 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
           onScan={handleBarcodeScanned}
         />
       )}
+
+      {/* Confirm Product Deactivation Dialog */}
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="ยืนยันการปิดสินค้า"
+        message={`คุณต้องการปิดสินค้า "${deleteTarget?.name}" หรือไม่? สินค้าจะถูกเปลี่ยนสถานะเป็นปิดใช้งาน (ไม่ลบข้อมูลจริงออกจากฐานข้อมูล)`}
+        confirmText="ปิดใช้งานสินค้า"
+        cancelText="ยกเลิก"
+        isDestructive
+        onConfirm={confirmDeleteProduct}
+        onClose={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

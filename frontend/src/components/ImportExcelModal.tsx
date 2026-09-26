@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import * as XLSX from "xlsx";
 import { importProducts } from "@/lib/dbActions";
+import MeeDataGrid from "@/components/ui/MeeDataGrid";
+import StatusBadge from "@/components/ui/StatusBadge";
+import { useNotification } from "@/components/ui/NotificationProvider";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { Box, Chip, Tooltip } from "@mui/material";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 
 type ParsedItem = {
   sku: string;
@@ -32,6 +39,7 @@ export default function ImportExcelModal({
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const { notifySuccess, notifyError, notifyWarning } = useNotification();
 
   const handleDownloadTemplate = () => {
     const sample = [
@@ -51,6 +59,7 @@ export default function ImportExcelModal({
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
     XLSX.writeFile(workbook, "MeeStock_Import_Template.xlsx");
+    notifySuccess("ดาวน์โหลด Template สำเร็จ");
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +96,7 @@ export default function ImportExcelModal({
           const name = String(r["ชื่อสินค้า *"] || r["ชื่อสินค้า"] || "").trim();
           const barcode = String(r["บาร์โค้ด"] || "").trim();
           const unit = String(r["หน่วยนับ"] || "ชิ้น").trim();
-          
+
           const unitPrice = Number(r["ราคาขาย *"] || r["ราคาขาย"] || 0);
           const costPrice = Number(r["ราคาทุน *"] || r["ราคาทุน"] || 0);
           const stockQty = Number(r["สต็อกเริ่มต้น *"] || r["สต็อกเริ่มต้น"] || 0);
@@ -126,7 +135,7 @@ export default function ImportExcelModal({
   const handleImport = () => {
     const hasErrors = items.some((i) => i.errors.length > 0);
     if (hasErrors) {
-      alert("กรุณาแก้ไขข้อผิดพลาดในรายการก่อนทำการนำเข้าข้อมูล");
+      notifyWarning("กรุณาแก้ไขข้อผิดพลาดในรายการก่อนทำการนำเข้าข้อมูล");
       return;
     }
 
@@ -146,58 +155,161 @@ export default function ImportExcelModal({
       );
 
       if (result.success) {
-        alert(`นำเข้าสินค้าเรียบร้อยแล้วทั้งหมด ${result.importedCount} รายการ!`);
+        notifySuccess(`นำเข้าสินค้าเรียบร้อยแล้วทั้งหมด ${result.importedCount} รายการ!`);
         onSuccess();
         onClose();
       } else {
-        setError(result.error || "เกิดข้อผิดพลาดในการนำเข้าข้อมูล");
+        notifyError(result.error || "ไม่สามารถนำเข้าข้อมูลสินค้าได้");
       }
     });
   };
 
-  const errorCount = items.reduce((sum, i) => sum + i.errors.length, 0);
+  const errorCount = items.filter((i) => i.errors.length > 0).length;
+
+  const rowsWithId = useMemo(
+    () => items.map((item, idx) => ({ ...item, id: idx })),
+    [items]
+  );
+
+  const columns = useMemo<GridColDef<ParsedItem & { id: number }>[]>(
+    () => [
+      {
+        field: "sku",
+        headerName: "SKU",
+        minWidth: 120,
+        renderCell: (params) => (
+          <span className="font-mono text-xs font-semibold text-slate-700">
+            {params.value || "-"}
+          </span>
+        ),
+      },
+      {
+        field: "name",
+        headerName: "ชื่อสินค้า",
+        minWidth: 200,
+        flex: 1.5,
+        renderCell: (params) => (
+          <span className="font-semibold text-slate-800 text-xs truncate" title={params.value}>
+            {params.value || "-"}
+          </span>
+        ),
+      },
+      {
+        field: "unitPrice",
+        headerName: "ราคาขาย",
+        type: "number",
+        minWidth: 100,
+        headerAlign: "right",
+        align: "right",
+        renderCell: (params) => (
+          <span className="font-bold text-xs text-slate-800">
+            ฿{(params.value || 0).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        field: "costPrice",
+        headerName: "ราคาทุน",
+        type: "number",
+        minWidth: 100,
+        headerAlign: "right",
+        align: "right",
+        renderCell: (params) => (
+          <span className="text-xs text-slate-500 font-mono">
+            ฿{(params.value || 0).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        field: "stockQty",
+        headerName: "คงคลังเริ่มต้น",
+        type: "number",
+        minWidth: 110,
+        headerAlign: "center",
+        align: "center",
+        renderCell: (params) => (
+          <span className="font-bold text-xs text-slate-700">
+            {params.value} {params.row.unit}
+          </span>
+        ),
+      },
+      {
+        field: "errors",
+        headerName: "สถานะการตรวจสอบ",
+        minWidth: 170,
+        flex: 1,
+        sortable: false,
+        renderCell: (params: GridRenderCellParams<ParsedItem & { id: number }, string[]>) => {
+          const errs = params.value || [];
+          if (errs.length > 0) {
+            return (
+              <Tooltip title={errs.join(" | ")}>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 truncate cursor-help">
+                  ❌ {errs[0]}
+                </span>
+              </Tooltip>
+            );
+          }
+          return (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200">
+              ✓ พร้อมนำเข้า
+            </span>
+          );
+        },
+      },
+    ],
+    []
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <div
+        onClick={onClose}
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+      />
 
-      {/* Modal Card */}
-      <div className="relative w-full max-w-3xl rounded-3xl border border-slate-100 bg-white p-6 shadow-2xl z-10 flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
+      {/* Modal Dialog */}
+      <div className="relative w-full max-w-4xl rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-100 flex flex-col gap-6 animate-in zoom-in-95 duration-200 max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-          <div>
-            <h2 className="font-bold text-slate-800 text-lg">นำเข้าสินค้าจากไฟล์ Excel (.xlsx)</h2>
-            <p className="text-xxs text-slate-400 mt-0.5">อัปโหลดไฟล์ Excel คัดแยกและ upsert บันทึกข้อมูลคลังสินค้าแบบกลุ่ม</p>
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-100">
+              <CloudUploadOutlinedIcon sx={{ fontSize: 22 }} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800">
+                นำเข้าสินค้าผ่านไฟล์ Excel
+              </h3>
+              <p className="text-xs text-slate-400">
+                อัปโหลดไฟล์ Excel (.xlsx, .xls) เพื่อเพิ่มหรืออัปเดตสต็อกสินค้าพร้อมกันทีละหลายรายการ
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-50 rounded-lg transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors cursor-pointer"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            ✕
           </button>
         </div>
 
-        {/* Content Panel */}
-        <div className="flex-1 overflow-y-auto space-y-4 pr-1 text-xs">
-          {/* Instructions and Download Template */}
-          <div className="rounded-2xl border border-indigo-100 bg-indigo-50/30 p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+        {/* Content body */}
+        <div className="space-y-4 overflow-y-auto pr-1">
+          {/* Instructions and Template */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/60">
             <div className="space-y-1">
-              <h4 className="font-bold text-indigo-900">ยังไม่มีเทมเพลตสำหรับนำเข้าใช่หรือไม่?</h4>
-              <p className="text-slate-500 leading-relaxed text-[11px]">
-                กรุณาดาวน์โหลดเทมเพลต Excel ด้านขวา นำข้อมูลสินค้าไปกรอกตามรูปแบบโครงสร้าง แล้วจึงนำมาอัปโหลด
+              <p className="font-bold text-xs text-slate-700">รูปแบบไฟล์ที่รองรับ</p>
+              <p className="text-slate-500 text-xs">
+                สามารถดาวน์โหลดไฟล์ตัวอย่างเทมเพลตมาตรฐานไปกรอกข้อมูลก่อนอัปโหลดได้
               </p>
             </div>
             <button
-              onClick={handleDownloadTemplate}
               type="button"
-              className="py-2 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-all text-xxs flex items-center justify-center gap-1 flex-shrink-0"
+              onClick={handleDownloadTemplate}
+              className="py-2 px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
+              <FileDownloadOutlinedIcon sx={{ fontSize: 16, color: "#6366f1" }} />
               ดาวน์โหลด Template (.xlsx)
             </button>
           </div>
@@ -210,13 +322,17 @@ export default function ImportExcelModal({
               onChange={handleFileChange}
               className="absolute inset-0 opacity-0 cursor-pointer"
             />
-            <svg className="w-8 h-8 text-slate-300 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-            <p className="font-bold text-slate-700">คลิกเพื่อเลือกไฟล์ หรือลากวางไฟล์ที่นี่</p>
-            <p className="text-slate-400 text-xxs">รองรับเฉพาะไฟล์ Excel (.xlsx, .xls) ไม่เกิน 1,000 แถว</p>
+            <CloudUploadOutlinedIcon
+              sx={{ fontSize: 36, color: "#94a3b8", "&:hover": { color: "#6366f1" } }}
+            />
+            <p className="font-bold text-slate-700 text-sm">
+              คลิกเพื่อเลือกไฟล์ หรือลากวางไฟล์ที่นี่
+            </p>
+            <p className="text-slate-400 text-xs">
+              รองรับเฉพาะไฟล์ Excel (.xlsx, .xls) ไม่เกิน 1,000 แถว
+            </p>
             {fileName && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 font-bold border border-indigo-100 text-[10px] mt-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 font-bold border border-indigo-100 text-xs mt-2">
                 📂 {fileName}
               </span>
             )}
@@ -224,78 +340,46 @@ export default function ImportExcelModal({
 
           {/* Validation Alert */}
           {error && (
-            <div className="flex items-center gap-2 rounded-2xl bg-rose-50 border border-rose-100 px-4 py-2.5 text-rose-600 font-bold">
-              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <div className="flex items-center gap-2 rounded-2xl bg-rose-50 border border-rose-100 px-4 py-2.5 text-rose-600 font-bold text-xs">
               {error}
             </div>
           )}
 
-          {/* Preview rows validation */}
+          {/* Preview rows validation DataGrid */}
           {items.length > 0 && (
             <div className="space-y-2.5">
               <div className="flex justify-between items-center px-1">
                 <h4 className="font-bold text-slate-700 text-xs">
                   รายการตัวอย่างข้อมูลที่ตรวจพบ ({items.length} รายการ)
                 </h4>
-                {errorCount > 0 && (
-                  <span className="font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">
+                {errorCount > 0 ? (
+                  <span className="font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-0.5 rounded-full text-xs">
                     พบข้อผิดพลาด {errorCount} แถว
+                  </span>
+                ) : (
+                  <span className="font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full text-xs">
+                    ข้อมูลถูกต้องครบถ้วน พร้อมนำเข้า
                   </span>
                 )}
               </div>
 
-              <div className="rounded-2xl border border-slate-100 overflow-hidden max-h-60 overflow-y-auto">
-                <table className="w-full border-collapse text-left text-[11px]">
-                  <thead>
-                    <tr className="border-b border-slate-100 bg-slate-50/70 text-slate-400 font-bold uppercase tracking-wider">
-                      <th className="px-4 py-2.5">SKU</th>
-                      <th className="px-4 py-2.5">ชื่อสินค้า</th>
-                      <th className="px-4 py-2.5 text-right">ราคาขาย</th>
-                      <th className="px-4 py-2.5 text-right">ราคาทุน</th>
-                      <th className="px-4 py-2.5 text-center">คงคลังคลัง</th>
-                      <th className="px-4 py-2.5">สถานะ</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
-                    {items.map((item, idx) => {
-                      const isRowErr = item.errors.length > 0;
-                      return (
-                        <tr
-                          key={idx}
-                          className={`hover:bg-slate-50/50 ${
-                            isRowErr ? "bg-rose-50/20 text-rose-700" : ""
-                          }`}
-                        >
-                          <td className="px-4 py-2.5 font-mono font-semibold">{item.sku || "—"}</td>
-                          <td className="px-4 py-2.5 font-semibold truncate max-w-[120px]">{item.name || "—"}</td>
-                          <td className="px-4 py-2.5 text-right font-bold">฿{item.unitPrice}</td>
-                          <td className="px-4 py-2.5 text-right text-slate-500">฿{item.costPrice}</td>
-                          <td className="px-4 py-2.5 text-center font-bold">{item.stockQty} {item.unit}</td>
-                          <td className="px-4 py-2.5">
-                            {isRowErr ? (
-                              <span className="font-bold text-rose-600 block max-w-[140px] truncate" title={item.errors.join(", ")}>
-                                ❌ {item.errors[0]}
-                              </span>
-                            ) : (
-                              <span className="text-emerald-600 font-bold">✓ พร้อมใช้งาน</span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <MeeDataGrid
+                rows={rowsWithId}
+                columns={columns}
+                height={300}
+                disableExport
+                quickFilterPlaceholder="ค้นหารายการที่นำเข้า..."
+              />
             </div>
           )}
         </div>
 
         {/* Footer actions */}
-        <div className="flex gap-3 pt-3 border-t border-slate-100 mt-4">
+        <div className="flex gap-3 pt-3 border-t border-slate-100 mt-auto">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-2xl border border-slate-200 text-slate-500 hover:bg-slate-50 text-sm font-semibold transition-all active:scale-[0.98]"
+            className="flex-1 py-2.5 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all cursor-pointer"
           >
             ยกเลิก
           </button>
@@ -303,9 +387,9 @@ export default function ImportExcelModal({
             type="button"
             onClick={handleImport}
             disabled={isPending || items.length === 0 || errorCount > 0}
-            className="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-sm font-semibold shadow-md shadow-indigo-100 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-semibold shadow-md transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
           >
-            {isPending ? "กำลังอัปโหลดกลุ่มข้อมูล..." : "บันทึกนำเข้าข้อมูลทั้งหมด"}
+            {isPending ? "กำลังอัปโหลดข้อมูล..." : "บันทึกนำเข้าข้อมูลทั้งหมด"}
           </button>
         </div>
       </div>
