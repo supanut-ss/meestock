@@ -65,7 +65,7 @@ export default function AlertsPanel({ onClose }: { onClose?: () => void }) {
         <div className="flex items-center gap-2">
           <span className="font-bold text-slate-800 text-sm">การแจ้งเตือนเตือนสต็อก</span>
           {unreadCount > 0 && (
-            <span className="inline-flex h-5 items-center justify-center rounded-full bg-rose-500 px-2 text-[10px] font-bold text-white">
+            <span className="inline-flex h-5 items-center justify-center rounded-full bg-rose-500 px-2 text-xs font-bold text-white">
               {unreadCount} ใหม่
             </span>
           )}
@@ -89,7 +89,7 @@ export default function AlertsPanel({ onClose }: { onClose?: () => void }) {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
-            <p className="text-[10px] text-slate-400 font-semibold">กำลังตรวจสอบสต็อก...</p>
+            <p className="text-xs text-slate-400 font-semibold">กำลังตรวจสอบสต็อก...</p>
           </div>
         ) : alerts.length === 0 ? (
           <div className="p-12 flex flex-col items-center gap-2 text-slate-400 text-center">
@@ -97,7 +97,7 @@ export default function AlertsPanel({ onClose }: { onClose?: () => void }) {
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-xs font-bold text-slate-700">ไม่มีสัญญานเตือน</p>
-            <p className="text-[10px] text-slate-400">คลังสินค้าของคุณมีความเสถียรและเรียบร้อยดี</p>
+            <p className="text-xs text-slate-400">คลังสินค้าของคุณมีความเสถียรและเรียบร้อยดี</p>
           </div>
         ) : (
           alerts.map((alert) => {

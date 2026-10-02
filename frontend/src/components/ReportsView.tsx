@@ -189,7 +189,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
               {params.value || "-"}
             </span>
             {params.row.barcode && (
-              <span className="font-mono text-[10px] text-slate-400 mt-0.5">
+              <span className="font-mono text-xs text-slate-400 mt-0.5">
                 {params.row.barcode}
               </span>
             )}
@@ -715,7 +715,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
                 <p className={`text-xs font-bold ${isActive ? "text-indigo-600" : "text-slate-800"}`}>
                   {tab.label}
                 </p>
-                <p className="text-[10px] text-slate-400 font-medium truncate">{tab.sub}</p>
+                <p className="text-xs text-slate-400 font-medium truncate">{tab.sub}</p>
               </div>
             </button>
           );

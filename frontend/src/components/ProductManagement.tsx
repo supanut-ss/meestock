@@ -545,12 +545,12 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                   <rect x="18.5" y="0" width="1.5" height="16" />
                   <rect x="21.5" y="0" width="2.5" height="16" />
                 </svg>
-                <span className="font-mono text-[11px] text-slate-500 leading-none">
+                <span className="font-mono text-xs text-slate-500 leading-none">
                   {params.row.barcode}
                 </span>
               </div>
             ) : (
-              <span className="text-[10px] text-slate-300 leading-none mt-0.5 font-mono">—</span>
+              <span className="text-xs text-slate-300 leading-none mt-0.5 font-mono">—</span>
             )}
           </div>
         ),
@@ -577,7 +577,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                 )}
               </div>
               {params.row.notes ? (
-                <span className="text-[11px] text-slate-400 truncate leading-normal mt-0.5" title={params.row.notes}>
+                <span className="text-xs text-slate-400 truncate leading-normal mt-0.5" title={params.row.notes}>
                   {params.row.notes}
                 </span>
               ) : null}
@@ -695,7 +695,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                   >
                     {p.stockQty}
                   </span>
-                  <span className="text-[11px] text-slate-400 font-medium leading-none">
+                  <span className="text-xs text-slate-400 font-medium leading-none">
                     {p.unit}
                   </span>
                 </div>
@@ -861,11 +861,11 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
         renderCell: (params) =>
           params.row.valueBefore && params.row.valueAfter ? (
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <span className="bg-rose-50 text-rose-600 px-2 py-0.5 rounded text-[11px] line-through">
+              <span className="bg-rose-50 text-rose-600 px-2 py-0.5 rounded text-xs line-through">
                 {params.row.valueBefore}
               </span>
               <span className="text-slate-400 text-xs">→</span>
-              <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[11px] font-bold">
+              <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-xs font-bold">
                 {params.row.valueAfter}
               </span>
             </Box>
@@ -906,7 +906,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             <span className="font-mono text-xs font-semibold text-slate-700">{params.value}</span>
             {params.row.barcode && (
-              <span className="font-mono text-[10px] text-slate-400">{params.row.barcode}</span>
+              <span className="font-mono text-xs text-slate-400">{params.row.barcode}</span>
             )}
           </Box>
         ),
@@ -1112,7 +1112,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
               </svg>
               จำลองการสแกนบาร์โค้ด
             </h3>
-            <span className="text-[10px] font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-md">Scanner Ready</span>
+            <span className="text-xs font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-md">Scanner Ready</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_180px] gap-4">
             <div className="relative">
@@ -1153,9 +1153,9 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
               สแกนกล้อง
             </button>
             <div className="flex items-center border border-slate-200 rounded-2xl px-2 py-1 bg-slate-50">
-              <button onClick={() => setAdjustQty(Math.max(1, adjustQty - 1))} className="w-8 h-8 flex items-center justify-center rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 transition-colors">-</button>
+              <button onClick={() => setAdjustQty(Math.max(1, adjustQty - 1))} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 transition-colors">-</button>
               <input type="number" className="w-full text-center bg-transparent border-none text-sm font-semibold focus:outline-none" value={adjustQty} onChange={(e) => setAdjustQty(Number(e.target.value) || 1)} />
-              <button onClick={() => setAdjustQty(adjustQty + 1)} className="w-8 h-8 flex items-center justify-center rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 transition-colors">+</button>
+              <button onClick={() => setAdjustQty(adjustQty + 1)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 transition-colors">+</button>
             </div>
           </div>
         </div>
@@ -1175,7 +1175,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
 
             <div className="grid grid-cols-2 gap-2">
               <select
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
               >
@@ -1186,7 +1186,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
               </select>
 
               <select
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -1199,7 +1199,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
 
             <div className="grid grid-cols-2 gap-2">
               <select
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
                 value={stockLevelFilter}
                 onChange={(e) => setStockLevelFilter(e.target.value as "all" | "normal" | "low" | "out")}
               >
@@ -1213,7 +1213,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                 <input
                   type="number"
                   placeholder="Min ฿"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   value={priceMin}
                   onChange={(e) => setPriceMin(e.target.value)}
                 />
@@ -1221,7 +1221,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                 <input
                   type="number"
                   placeholder="Max ฿"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   value={priceMax}
                   onChange={(e) => setPriceMax(e.target.value)}
                 />
@@ -1243,7 +1243,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
             <button
               onClick={handleExportExcel}
               type="button"
-              className="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              className="py-2.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h7a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -1253,7 +1253,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
             <button
               onClick={() => setShowImportModal(true)}
               type="button"
-              className="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              className="py-2.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -1277,8 +1277,8 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
             {/* Product Type Selection */}
             {!editingProduct && (
               <div className="space-y-1">
-                <label className="text-[10px] font-semibold text-slate-500">ประเภทสินค้า</label>
-                <select className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none bg-white font-semibold text-slate-700" value={newProductType} onChange={(e) => setNewProductType(e.target.value as "standard" | "bundle")}>
+                <label className="text-xs font-semibold text-slate-500">ประเภทสินค้า</label>
+                <select className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none bg-white font-semibold text-slate-700" value={newProductType} onChange={(e) => setNewProductType(e.target.value as "standard" | "bundle")}>
                   <option value="standard">📦 สินค้าทั่วไป</option>
                   <option value="bundle">🎁 จัดชุดเซ็ต / Combo</option>
                 </select>
@@ -1286,19 +1286,19 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
             )}
             {/* Name */}
             <div className={`space-y-1 ${editingProduct ? "col-span-2" : "col-span-1 sm:col-span-2"}`}>
-              <label className="text-[10px] font-semibold text-slate-500">ชื่อสินค้า *</label>
-              <input required type="text" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" placeholder="ชื่อสินค้า" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
+              <label className="text-xs font-semibold text-slate-500">ชื่อสินค้า *</label>
+              <input required type="text" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" placeholder="ชื่อสินค้า" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
             </div>
             {/* SKU */}
             <div className="space-y-1">
-              <label className="text-[10px] font-semibold text-slate-500">SKU * {!editingProduct && skuExists && <span className="text-rose-500">(ซ้ำ!)</span>}</label>
-              <input required type="text" disabled={!!editingProduct} className={`w-full px-3 py-2 rounded-xl border text-xs focus:ring-2 focus:outline-none transition-all ${skuExists ? "border-rose-400 focus:ring-rose-500/20" : "border-slate-200 focus:ring-indigo-500/20"} ${editingProduct ? "bg-slate-50 cursor-not-allowed" : ""}`} placeholder="SKU-001" value={newProduct.sku} onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })} />
+              <label className="text-xs font-semibold text-slate-500">SKU * {!editingProduct && skuExists && <span className="text-rose-500">(ซ้ำ!)</span>}</label>
+              <input required type="text" disabled={!!editingProduct} className={`w-full px-3 py-2.5 rounded-xl border text-xs focus:ring-2 focus:outline-none transition-all ${skuExists ? "border-rose-400 focus:ring-rose-500/20" : "border-slate-200 focus:ring-indigo-500/20"} ${editingProduct ? "bg-slate-50 cursor-not-allowed" : ""}`} placeholder="SKU-001" value={newProduct.sku} onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })} />
             </div>
             {/* Barcode */}
             <div className="space-y-1">
-              <label className="text-[10px] font-semibold text-slate-500">บาร์โค้ด</label>
+              <label className="text-xs font-semibold text-slate-500">บาร์โค้ด</label>
               <div className="flex gap-1">
-                <input type="text" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" placeholder="Auto-generate" value={newProduct.barcode} onChange={(e) => setNewProduct({ ...newProduct, barcode: e.target.value })} />
+                <input type="text" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" placeholder="Auto-generate" value={newProduct.barcode} onChange={(e) => setNewProduct({ ...newProduct, barcode: e.target.value })} />
                 <button
                   type="button"
                   onClick={() => {
@@ -1317,8 +1317,8 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
             </div>
             {/* Category */}
             <div className="space-y-1">
-              <label className="text-[10px] font-semibold text-slate-500">หมวดหมู่</label>
-              <select className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none bg-white" value={newProduct.categoryId ?? ""} onChange={(e) => setNewProduct({ ...newProduct, categoryId: e.target.value || null })}>
+              <label className="text-xs font-semibold text-slate-500">หมวดหมู่</label>
+              <select className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none bg-white" value={newProduct.categoryId ?? ""} onChange={(e) => setNewProduct({ ...newProduct, categoryId: e.target.value || null })}>
                 <option value="">ไม่ระบุ</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.parentId ? `└ ${c.name}` : c.name}</option>
@@ -1327,37 +1327,37 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
             </div>
             {/* Unit */}
             <div className="space-y-1">
-              <label className="text-[10px] font-semibold text-slate-500">หน่วยนับ</label>
-              <input type="text" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" placeholder="ชิ้น" value={newProduct.unit} onChange={(e) => setNewProduct({ ...newProduct, unit: e.target.value })} />
+              <label className="text-xs font-semibold text-slate-500">หน่วยนับ</label>
+              <input type="text" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" placeholder="ชิ้น" value={newProduct.unit} onChange={(e) => setNewProduct({ ...newProduct, unit: e.target.value })} />
             </div>
             {/* Unit Price */}
             <div className="space-y-1">
-              <label className="text-[10px] font-semibold text-slate-500">ราคาขาย (฿)</label>
-              <input type="number" min="0" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" value={newProduct.unitPrice} onChange={(e) => setNewProduct({ ...newProduct, unitPrice: Number(e.target.value) })} />
+              <label className="text-xs font-semibold text-slate-500">ราคาขาย (฿)</label>
+              <input type="number" min="0" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" value={newProduct.unitPrice} onChange={(e) => setNewProduct({ ...newProduct, unitPrice: Number(e.target.value) })} />
             </div>
             {/* Cost Price (Admin only) */}
             {isAdmin && (
               <div className="space-y-1">
-                <label className="text-[10px] font-semibold text-slate-500">ราคาทุน (฿) <span className="text-indigo-400">Admin</span></label>
-                <input type="number" min="0" className="w-full px-3 py-2 rounded-xl border border-indigo-100 bg-indigo-50/30 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" value={newProduct.costPrice} onChange={(e) => setNewProduct({ ...newProduct, costPrice: Number(e.target.value) })} />
+                <label className="text-xs font-semibold text-slate-500">ราคาทุน (฿) <span className="text-indigo-400">Admin</span></label>
+                <input type="number" min="0" className="w-full px-3 py-2.5 rounded-xl border border-indigo-100 bg-indigo-50/30 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" value={newProduct.costPrice} onChange={(e) => setNewProduct({ ...newProduct, costPrice: Number(e.target.value) })} />
               </div>
             )}
             {/* Stock */}
             {!editingProduct && (
               <div className="space-y-1">
-                <label className="text-[10px] font-semibold text-slate-500">สต็อกเริ่มต้น</label>
-                <input type="number" min="0" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" value={newProduct.stockQty} onChange={(e) => setNewProduct({ ...newProduct, stockQty: Number(e.target.value) })} />
+                <label className="text-xs font-semibold text-slate-500">สต็อกเริ่มต้น</label>
+                <input type="number" min="0" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" value={newProduct.stockQty} onChange={(e) => setNewProduct({ ...newProduct, stockQty: Number(e.target.value) })} />
               </div>
             )}
             {/* Min Stock */}
             <div className="space-y-1">
-              <label className="text-[10px] font-semibold text-slate-500">สต็อกขั้นต่ำ</label>
-              <input type="number" min="0" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" value={newProduct.lowStockThreshold} onChange={(e) => setNewProduct({ ...newProduct, lowStockThreshold: Number(e.target.value) })} />
+              <label className="text-xs font-semibold text-slate-500">สต็อกขั้นต่ำ</label>
+              <input type="number" min="0" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" value={newProduct.lowStockThreshold} onChange={(e) => setNewProduct({ ...newProduct, lowStockThreshold: Number(e.target.value) })} />
             </div>
             {/* Notes */}
             <div className="space-y-1 col-span-2 md:col-span-2">
-              <label className="text-[10px] font-semibold text-slate-500">หมายเหตุ</label>
-              <input type="text" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" placeholder="หมายเหตุ/คำอธิบายเพิ่มเติม" value={newProduct.notes} onChange={(e) => setNewProduct({ ...newProduct, notes: e.target.value })} />
+              <label className="text-xs font-semibold text-slate-500">หมายเหตุ</label>
+              <input type="text" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" placeholder="หมายเหตุ/คำอธิบายเพิ่มเติม" value={newProduct.notes} onChange={(e) => setNewProduct({ ...newProduct, notes: e.target.value })} />
             </div>
           </div>
           <div className="flex justify-end gap-3">
@@ -1395,7 +1395,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
               <div className="bg-white border border-slate-300 rounded-lg p-3 text-center shadow-sm w-[260px] flex flex-col items-center">
                 <p className="text-xs font-bold text-slate-800 mb-1 truncate w-full">{selected.name}</p>
                 <svg ref={barcodeSvgRef} className="max-w-full my-1.5" />
-                <p className="text-[10px] font-mono text-slate-500">SKU: {selected.sku}</p>
+                <p className="text-xs font-mono text-slate-500">SKU: {selected.sku}</p>
               </div>
             </div>
             <div style={{ position: "absolute", left: -9999, top: -9999 }}>
@@ -1476,17 +1476,17 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                 <h4 className="font-bold text-slate-700">{editingVariantId ? "แก้ไขตัวเลือก" : "เพิ่มตัวเลือกย่อยใหม่"}</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="text-[10px] font-semibold text-slate-500">ชื่อตัวเลือก (เช่น สีแดง, XL) *</label>
-                    <input required type="text" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" placeholder="แดง / M" value={variantForm.name} onChange={(e) => setVariantForm({ ...variantForm, name: e.target.value })} />
+                    <label className="text-xs font-semibold text-slate-500">ชื่อตัวเลือก (เช่น สีแดง, XL) *</label>
+                    <input required type="text" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" placeholder="แดง / M" value={variantForm.name} onChange={(e) => setVariantForm({ ...variantForm, name: e.target.value })} />
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-slate-500">SKU ตัวเลือก *</label>
-                    <input required type="text" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" placeholder="SKU-RED-M" value={variantForm.sku} onChange={(e) => setVariantForm({ ...variantForm, sku: e.target.value })} />
+                    <label className="text-xs font-semibold text-slate-500">SKU ตัวเลือก *</label>
+                    <input required type="text" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" placeholder="SKU-RED-M" value={variantForm.sku} onChange={(e) => setVariantForm({ ...variantForm, sku: e.target.value })} />
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-slate-500">บาร์โค้ด</label>
+                    <label className="text-xs font-semibold text-slate-500">บาร์โค้ด</label>
                     <div className="flex gap-1">
-                      <input type="text" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" placeholder="เว้นว่างได้" value={variantForm.barcode} onChange={(e) => setVariantForm({ ...variantForm, barcode: e.target.value })} />
+                      <input type="text" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" placeholder="เว้นว่างได้" value={variantForm.barcode} onChange={(e) => setVariantForm({ ...variantForm, barcode: e.target.value })} />
                       <button
                         type="button"
                         onClick={() => {
@@ -1504,23 +1504,23 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                     </div>
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-slate-500">ราคาขาย (฿)</label>
-                    <input required type="number" min="0" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" value={variantForm.unitPrice} onChange={(e) => setVariantForm({ ...variantForm, unitPrice: Number(e.target.value) })} />
+                    <label className="text-xs font-semibold text-slate-500">ราคาขาย (฿)</label>
+                    <input required type="number" min="0" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" value={variantForm.unitPrice} onChange={(e) => setVariantForm({ ...variantForm, unitPrice: Number(e.target.value) })} />
                   </div>
                   {isAdmin && (
                     <div>
-                      <label className="text-[10px] font-semibold text-slate-500">ราคาทุน (฿)</label>
-                      <input type="number" min="0" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" value={variantForm.costPrice} onChange={(e) => setVariantForm({ ...variantForm, costPrice: Number(e.target.value) })} />
+                      <label className="text-xs font-semibold text-slate-500">ราคาทุน (฿)</label>
+                      <input type="number" min="0" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" value={variantForm.costPrice} onChange={(e) => setVariantForm({ ...variantForm, costPrice: Number(e.target.value) })} />
                     </div>
                   )}
                   <div>
-                    <label className="text-[10px] font-semibold text-slate-500">สต็อกเริ่มต้น</label>
-                    <input required type="number" min="0" className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" value={variantForm.stockQty} onChange={(e) => setVariantForm({ ...variantForm, stockQty: Number(e.target.value) })} />
+                    <label className="text-xs font-semibold text-slate-500">สต็อกเริ่มต้น</label>
+                    <input required type="number" min="0" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white" value={variantForm.stockQty} onChange={(e) => setVariantForm({ ...variantForm, stockQty: Number(e.target.value) })} />
                   </div>
                 </div>
                 <div className="flex justify-end gap-2">
-                  <button type="button" onClick={() => setShowVariantForm(false)} className="py-1.5 px-3 rounded-lg border border-slate-200 text-[10px] font-semibold text-slate-500 hover:bg-white transition-all">ยกเลิก</button>
-                  <button type="submit" className="py-1.5 px-4 rounded-lg bg-indigo-600 text-white font-semibold text-[10px] shadow-sm hover:bg-indigo-700 cursor-pointer">บันทึกตัวเลือก</button>
+                  <button type="button" onClick={() => setShowVariantForm(false)} className="py-1.5 px-3 rounded-lg border border-slate-200 text-xs font-semibold text-slate-500 hover:bg-white transition-all">ยกเลิก</button>
+                  <button type="submit" className="py-1.5 px-4 rounded-lg bg-indigo-600 text-white font-semibold text-xs shadow-sm hover:bg-indigo-700 cursor-pointer">บันทึกตัวเลือก</button>
                 </div>
               </form>
             ) : (
@@ -1583,10 +1583,10 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
             {/* Add Component Form */}
             <form onSubmit={handleAddBundleComponent} className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs flex flex-col sm:flex-row gap-3 items-end">
               <div className="flex-1 space-y-1">
-                <label className="text-[10px] font-semibold text-slate-500">เลือกสินค้าเข้ามาในเซ็ต</label>
+                <label className="text-xs font-semibold text-slate-500">เลือกสินค้าเข้ามาในเซ็ต</label>
                 <select
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
                   value={addComponentId}
                   onChange={(e) => setAddComponentId(e.target.value)}
                 >
@@ -1601,12 +1601,12 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                 </select>
               </div>
               <div className="w-24 space-y-1">
-                <label className="text-[10px] font-semibold text-slate-500">จำนวนที่ใช้ *</label>
+                <label className="text-xs font-semibold text-slate-500">จำนวนที่ใช้ *</label>
                 <input
                   required
                   type="number"
                   min="1"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white text-center"
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white text-center"
                   value={addComponentQty}
                   onChange={(e) => setAddComponentQty(Math.max(1, Number(e.target.value)))}
                 />

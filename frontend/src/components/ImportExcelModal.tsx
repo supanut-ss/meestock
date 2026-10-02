@@ -244,14 +244,14 @@ export default function ImportExcelModal({
           if (errs.length > 0) {
             return (
               <Tooltip title={errs.join(" | ")}>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 truncate cursor-help">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 truncate cursor-help">
                   ❌ {errs[0]}
                 </span>
               </Tooltip>
             );
           }
           return (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200">
               ✓ พร้อมนำเข้า
             </span>
           );

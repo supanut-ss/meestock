@@ -144,7 +144,7 @@ export default function DashboardView() {
                 <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider truncate" title={card.title}>{card.title}</p>
                 <div className="flex items-baseline gap-1.5 flex-wrap">
                   <span className="text-xl font-extrabold text-slate-800 tracking-tight break-all">{card.value}</span>
-                  {card.unit && <span className="text-[10px] font-semibold text-slate-500">{card.unit}</span>}
+                  {card.unit && <span className="text-xs font-semibold text-slate-500">{card.unit}</span>}
                 </div>
               </div>
               <div className="p-2 rounded-xl bg-white border border-slate-100 shadow-sm text-slate-600 flex-shrink-0">
@@ -177,8 +177,8 @@ export default function DashboardView() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} style={{ fontSize: "10px", fill: "#94a3b8", fontWeight: 600 }} />
-                <YAxis tickLine={false} axisLine={false} style={{ fontSize: "10px", fill: "#94a3b8", fontWeight: 600 }} />
+                <XAxis dataKey="date" tickLine={false} axisLine={false} style={{ fontSize: "12px", fill: "#94a3b8", fontWeight: 600 }} />
+                <YAxis tickLine={false} axisLine={false} style={{ fontSize: "12px", fill: "#94a3b8", fontWeight: 600 }} />
                 <Tooltip content={<CustomTooltip />} />
                 <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={2.5} fillOpacity={1} fill="url(#colorDaily)" />
               </AreaChart>
@@ -202,8 +202,8 @@ export default function DashboardView() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="month" tickLine={false} axisLine={false} style={{ fontSize: "10px", fill: "#94a3b8", fontWeight: 600 }} />
-                <YAxis tickLine={false} axisLine={false} style={{ fontSize: "10px", fill: "#94a3b8", fontWeight: 600 }} />
+                <XAxis dataKey="month" tickLine={false} axisLine={false} style={{ fontSize: "12px", fill: "#94a3b8", fontWeight: 600 }} />
+                <YAxis tickLine={false} axisLine={false} style={{ fontSize: "12px", fill: "#94a3b8", fontWeight: 600 }} />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="amount" fill="url(#colorMonthly)" radius={[6, 6, 0, 0]} />
               </BarChart>

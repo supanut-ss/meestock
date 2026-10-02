@@ -91,7 +91,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
               <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-lg font-bold tracking-tight text-transparent transition-all duration-300 group-hover:from-indigo-600 group-hover:to-violet-600">
                 MeeStock
               </span>
-              <span className="inline-flex items-center rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+              <span className="inline-flex items-center rounded-md bg-indigo-50 px-1.5 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
                 PRO
               </span>
             </Link>
@@ -166,7 +166,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
                           </div>
                           <div className="text-left">
                             <p className="text-xs font-semibold leading-normal">{link.label}</p>
-                            <p className="text-[10px] text-slate-400 mt-0.5 leading-normal">{link.desc}</p>
+                            <p className="text-xs text-slate-400 mt-0.5 leading-normal">{link.desc}</p>
                           </div>
                         </Link>
                       );
@@ -223,7 +223,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
                           </div>
                           <div className="text-left">
                             <p className="text-xs font-semibold leading-normal">{link.label}</p>
-                            <p className="text-[10px] text-slate-400 mt-0.5 leading-normal">{link.desc}</p>
+                            <p className="text-xs text-slate-400 mt-0.5 leading-normal">{link.desc}</p>
                           </div>
                         </Link>
                       );
@@ -241,6 +241,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
               <div className="relative">
                 <button
                   onClick={() => setAlertsOpen(!alertsOpen)}
+                  aria-label="การแจ้งเตือน"
                   className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 relative transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -348,7 +349,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
           <div className="space-y-4 px-4 py-4 max-h-[75vh] overflow-y-auto">
             {/* ภาพรวม */}
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">ภาพรวม</p>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">ภาพรวม</p>
               <div className="space-y-0.5 flex flex-col">
                 {mainLinks.map((link) => {
                   const isActive = pathname === link.href;
@@ -375,7 +376,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
 
             {/* คลังสินค้า */}
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">คลังสินค้า</p>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">คลังสินค้า</p>
               <div className="space-y-0.5 flex flex-col">
                 {inventoryLinks.map((link) => {
                   const isActive = pathname === link.href;
@@ -395,7 +396,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
                       </svg>
                       <div className="text-left">
                         <p className="font-semibold text-xs leading-normal">{link.label}</p>
-                        <p className="text-[10px] text-slate-400 font-normal leading-normal">{link.desc}</p>
+                        <p className="text-xs text-slate-400 font-normal leading-normal">{link.desc}</p>
                       </div>
                     </Link>
                   );
@@ -405,7 +406,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
 
             {/* ขาย & ขนส่ง */}
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">ขาย & ขนส่ง</p>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">ขาย & ขนส่ง</p>
               <div className="space-y-0.5 flex flex-col">
                 {salesLinks.map((link) => {
                   const isActive = pathname === link.href;
@@ -425,7 +426,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
                       </svg>
                       <div className="text-left">
                         <p className="font-semibold text-xs leading-normal">{link.label}</p>
-                        <p className="text-[10px] text-slate-400 font-normal leading-normal">{link.desc}</p>
+                        <p className="text-xs text-slate-400 font-normal leading-normal">{link.desc}</p>
                       </div>
                     </Link>
                   );

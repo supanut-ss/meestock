@@ -284,9 +284,9 @@ export default function StockOutView() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="grid lg:grid-cols-[1fr_360px] gap-6">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-6">
         {/* Left: Cart */}
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
           {/* Add Item */}
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
             <h3 className="text-sm font-bold text-slate-700">เพิ่มสินค้าในรายการ</h3>
@@ -303,7 +303,7 @@ export default function StockOutView() {
                 สแกนกล้อง
               </button>
               <select
-                className="flex-1 px-4 py-2.5 rounded-2xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold text-slate-700"
+                className="flex-1 min-w-0 px-4 py-2.5 rounded-2xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold text-slate-700"
                 value={addProductId}
                 onChange={(e) => setAddProductId(e.target.value)}
               >
@@ -328,7 +328,7 @@ export default function StockOutView() {
             {/* Variants Select */}
             {(loadingVariants || variants.length > 0) && (
               <div className="space-y-1 animate-in fade-in duration-200 mt-2">
-                <label className="text-[10px] font-bold text-slate-500">
+                <label className="text-xs font-bold text-slate-500">
                   {loadingVariants ? "กำลังโหลดตัวเลือกย่อย..." : "เลือกตัวเลือกย่อย *"}
                 </label>
                 <select
@@ -375,7 +375,7 @@ export default function StockOutView() {
                               </span>
                             )}
                           </div>
-                          <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                          <p className="text-xs text-slate-400 font-mono mt-0.5">
                             SKU: {item.variant ? item.variant.sku : item.product.sku}
                           </p>
                         </div>
@@ -505,7 +505,7 @@ export default function StockOutView() {
             </button>
 
             {cart.length > 0 && (
-              <p className="text-center text-[10px] text-slate-400">{cart.reduce((s, i) => s + i.qty, 0)} ชิ้น ใน {cart.length} รายการสินค้า</p>
+              <p className="text-center text-xs text-slate-400">{cart.reduce((s, i) => s + i.qty, 0)} ชิ้น ใน {cart.length} รายการสินค้า</p>
             )}
           </div>
         </div>

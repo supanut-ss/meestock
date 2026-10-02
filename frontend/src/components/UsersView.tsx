@@ -96,7 +96,7 @@ export default function UsersView() {
             <span className="font-bold text-slate-800 text-xs">
               {params.value}
             </span>
-            <span className="font-mono text-[10px] text-slate-400">
+            <span className="font-mono text-xs text-slate-400">
               @{params.row.username}
             </span>
           </Box>
@@ -154,7 +154,7 @@ export default function UsersView() {
           return (
             <button
               onClick={() => setToggleTarget(u)}
-              className={`px-3 py-1.5 rounded-xl border text-[11px] font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1 ${
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1 ${
                 u.isActive
                   ? "border-rose-200 bg-white hover:bg-rose-50 text-rose-600"
                   : "border-emerald-200 bg-white hover:bg-emerald-50 text-emerald-600"

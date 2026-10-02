@@ -274,10 +274,10 @@ export default function OrdersHistoryView() {
             <span className="font-semibold text-slate-800 text-xs">
               {params.value}
             </span>
-            <span className="font-mono text-[11px] text-slate-500 font-semibold">
+            <span className="font-mono text-xs text-slate-500 font-semibold">
               {params.row.receiverPhone}
             </span>
-            <span className="text-[11px] text-slate-400 truncate mt-0.5" title={params.row.receiverAddress}>
+            <span className="text-xs text-slate-400 truncate mt-0.5" title={params.row.receiverAddress}>
               {params.row.receiverAddress}
             </span>
           </Box>
@@ -419,7 +419,7 @@ export default function OrdersHistoryView() {
                 </span>
               ))}
               {items.length > 2 && (
-                <span className="text-[10px] text-slate-400 font-medium">
+                <span className="text-xs text-slate-400 font-medium">
                   + อีก {items.length - 2} รายการ
                 </span>
               )}
@@ -849,7 +849,7 @@ export default function OrdersHistoryView() {
                     >
                       <div>
                         <p className="text-xs font-bold text-slate-800">{item.productName}</p>
-                        <p className="text-[10px] text-slate-500 font-mono">
+                        <p className="text-xs text-slate-500 font-mono">
                           ซื้อแล้ว: {item.qty} ชิ้น @ ฿{item.unitPrice.toLocaleString()}
                         </p>
                       </div>

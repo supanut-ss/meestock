@@ -224,10 +224,18 @@ export default function MeeDataGrid({
               },
             },
           },
+          // Larger touch targets for header sort/menu buttons on touch-size screens
+          "@media (max-width: 1023px)": {
+            "& .MuiDataGrid-sortButton, & .MuiDataGrid-menuIconButton": {
+              width: 36,
+              height: 36,
+            },
+          },
           "& .MuiDataGrid-cell": {
             display: "flex",
             alignItems: "center",
             fontSize: "0.8125rem",
+            lineHeight: 1.4, // MUI defaults to row height, which breaks multi-line cells
             color: "#1e293b",
             borderColor: "#f1f5f9",
             px: 1.5,

@@ -206,7 +206,7 @@ export default function CategoryManager() {
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-slate-800 text-lg leading-tight">{parent.name}</h3>
                       {parent.code && (
-                        <span className="font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                        <span className="font-mono text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
                           {parent.code}
                         </span>
                       )}
@@ -255,7 +255,7 @@ export default function CategoryManager() {
               {/* Child Categories */}
               {parent.children && parent.children.length > 0 && (
                 <div className="border-t border-slate-100/80 pt-4 pl-4 sm:pl-6 flex flex-col gap-3">
-                  <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">หมวดหมู่ย่อย</span>
+                  <span className="text-xs font-bold text-slate-400 tracking-wider uppercase">หมวดหมู่ย่อย</span>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {parent.children.map((child) => (
                       <div
@@ -269,7 +269,7 @@ export default function CategoryManager() {
                           />
                           <div className="min-w-0">
                             <p className="font-bold text-slate-700 text-sm truncate">{child.name}</p>
-                            <p className="text-[10px] text-slate-400 mt-0.5">
+                            <p className="text-xs text-slate-400 mt-0.5">
                               {child.code ? `${child.code} • ` : ""}{child.productCount} สินค้า
                             </p>
                           </div>
@@ -399,7 +399,7 @@ export default function CategoryManager() {
                       title={pc.label}
                     >
                       {color.toLowerCase() === pc.hex.toLowerCase() && (
-                        <span className="absolute inset-0 flex items-center justify-center text-white text-[10px] font-bold">✓</span>
+                        <span className="absolute inset-0 flex items-center justify-center text-white text-xs font-bold">✓</span>
                       )}
                     </button>
                   ))}

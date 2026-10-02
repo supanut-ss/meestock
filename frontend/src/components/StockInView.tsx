@@ -226,7 +226,7 @@ export default function StockInView() {
               </button>
               <select
                 required
-                className="flex-1 px-4 py-3 rounded-2xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                className="flex-1 min-w-0 px-4 py-3 rounded-2xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 value={form.productId}
                 onChange={(e) => setForm({ ...form, productId: e.target.value })}
               >
