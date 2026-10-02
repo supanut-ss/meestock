@@ -136,5 +136,17 @@ public class MeeStockDbContext(DbContextOptions<MeeStockDbContext> options) : Db
         modelBuilder.Entity<OrderItem>()
             .Property(x => x.LineAmount)
             .HasPrecision(18, 2);
+
+        // Database columns are snake_case (see database/*.sql)
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entity.GetProperties())
+            {
+                property.SetColumnName(ToSnakeCase(property.Name));
+            }
+        }
     }
+
+    private static string ToSnakeCase(string name) =>
+        System.Text.RegularExpressions.Regex.Replace(name, "(?<=[a-z0-9])([A-Z])", "_$1").ToLowerInvariant();
 }
