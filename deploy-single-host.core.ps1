@@ -263,7 +263,42 @@ const currentPort = /^\d+$/.test(rawPort) ? parseInt(rawPort, 10) : rawPort
     }
     $listenReplacement = 'if (typeof port === "string") { server.listen(port); } else { server.listen(port, hostname); }'
     $nextStartServerText = [regex]::Replace($nextStartServerText, $listenPattern, $listenReplacement)
+    $defaultAppUrlLine = 'const appUrl = `${protocol}://${formattedHostname}:${port}`;'
+    if (-not $nextStartServerText.Contains($defaultAppUrlLine)) {
+        throw "The Next.js app URL line changed; refusing to deploy an incompatible iisnode bundle."
+    }
+    $appUrlReplacement = 'const appUrl = typeof addr === "string" ? `${protocol}://localhost` : `${protocol}://${formattedHostname}:${port}`;'
+    $nextStartServerText = $nextStartServerText.Replace($defaultAppUrlLine, $appUrlReplacement)
     [System.IO.File]::WriteAllText($nextStartServerPath, $nextStartServerText, [System.Text.UTF8Encoding]::new($false))
+
+    # Next.js also embeds the configured port when constructing URLs for middleware.
+    # Plesk/iisnode uses a named pipe here, which must not be formatted as a TCP port.
+    $nextServerPath = Join-Path $deployRoot "node_modules\next\dist\server\next-server.js"
+    if (-not (Test-Path -LiteralPath $nextServerPath -PathType Leaf)) {
+        throw "The standalone Next.js next-server.js runtime was not traced."
+    }
+    $nextServerText = [System.IO.File]::ReadAllText($nextServerPath)
+    $defaultInitUrlLine = @'
+const initUrl = this.fetchHostname && this.port ? `${protocol}://${this.fetchHostname}:${this.port}${req.url}` : this.nextConfig.experimental.trustHostHeader ? `https://${req.headers.host || 'localhost'}${req.url}` : req.url;
+'@.TrimEnd()
+    if (-not $nextServerText.Contains($defaultInitUrlLine)) {
+        throw "The Next.js request URL line changed; refusing to deploy an incompatible iisnode bundle."
+    }
+    $pipeSafeInitUrlLine = @'
+const initUrl = this.fetchHostname && this.port ? `${protocol}://${this.fetchHostname}${typeof this.port === 'string' ? '' : `:${this.port}`}${req.url}` : this.nextConfig.experimental.trustHostHeader ? `https://${req.headers.host || 'localhost'}${req.url}` : req.url;
+'@.TrimEnd()
+    $nextServerText = $nextServerText.Replace($defaultInitUrlLine, $pipeSafeInitUrlLine)
+    $defaultMiddlewareUrlLine = @'
+url = `${(0, _requestmeta.getRequestMeta)(params.request, 'initProtocol')}://${this.fetchHostname || 'localhost'}:${this.port}${locale ? `/${locale}` : ''}${params.parsed.pathname}${query ? `?${query}` : ''}`;
+'@.TrimEnd()
+    if (-not $nextServerText.Contains($defaultMiddlewareUrlLine)) {
+        throw "The Next.js middleware URL line changed; refusing to deploy an incompatible iisnode bundle."
+    }
+    $pipeSafeMiddlewareUrlLine = @'
+url = `${(0, _requestmeta.getRequestMeta)(params.request, 'initProtocol')}://${this.fetchHostname || 'localhost'}${typeof this.port === 'string' ? '' : `:${this.port}`}${locale ? `/${locale}` : ''}${params.parsed.pathname}${query ? `?${query}` : ''}`;
+'@.TrimEnd()
+    $nextServerText = $nextServerText.Replace($defaultMiddlewareUrlLine, $pipeSafeMiddlewareUrlLine)
+    [System.IO.File]::WriteAllText($nextServerPath, $nextServerText, [System.Text.UTF8Encoding]::new($false))
 
     $publicSource = Join-Path $buildRoot "public"
     if (Test-Path -LiteralPath $publicSource -PathType Container) {
@@ -405,7 +440,120 @@ const currentPort = /^\d+$/.test(rawPort) ? parseInt(rawPort, 10) : rawPort
         }
     }
 
+    function Invoke-FtpsDownload {
+        param(
+            [Parameter(Mandatory = $true)][string]$LocalFile,
+            [Parameter(Mandatory = $true)][string]$RemoteUrl,
+            [Parameter(Mandatory = $true)][string]$FtpUser,
+            [Parameter(Mandatory = $true)][string]$FtpPassword
+        )
+
+        $curlArguments = @("--config", "-", "--ssl-reqd", "--insecure", "--pinnedpubkey", $FtpPublicKeyPin, "--silent", "--show-error", "--fail", "--connect-timeout", "20", "--max-time", "60", "--output", $LocalFile, $RemoteUrl)
+        $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+        $startInfo.FileName = $curlCommand.Source
+        $startInfo.Arguments = (($curlArguments | ForEach-Object { ConvertTo-QuotedProcessArgument -Value $_ }) -join " ")
+        $startInfo.UseShellExecute = $false
+        $startInfo.CreateNoWindow = $true
+        $startInfo.RedirectStandardInput = $true
+        $startInfo.RedirectStandardOutput = $true
+        $startInfo.RedirectStandardError = $true
+
+        $process = [System.Diagnostics.Process]::new()
+        $process.StartInfo = $startInfo
+        try {
+            if (-not $process.Start()) {
+                throw "Could not start curl.exe."
+            }
+            $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+            $stderrTask = $process.StandardError.ReadToEndAsync()
+            $process.StandardInput.WriteLine("user = $(ConvertTo-CurlConfigValue -Value ($FtpUser + ':' + $FtpPassword))")
+            $process.StandardInput.Close()
+            $process.WaitForExit()
+            $null = $stdoutTask.GetAwaiter().GetResult()
+            $curlError = $stderrTask.GetAwaiter().GetResult().Trim()
+            if ($process.ExitCode -ne 0) {
+                foreach ($secret in @($FtpUser, $FtpPassword)) {
+                    if (-not [string]::IsNullOrEmpty($secret)) {
+                        $curlError = $curlError.Replace($secret, "[redacted]")
+                    }
+                }
+                throw "FTPS download failed for '$([System.IO.Path]::GetFileName($LocalFile))': $curlError"
+            }
+        } finally {
+            $process.Dispose()
+        }
+    }
+
     $remoteBasePath = [System.Uri]::EscapeDataString($targetHost)
+    $webConfigPath = Join-Path $temporaryRoot "web.config"
+    $webConfigBackupPath = Join-Path ([System.IO.Path]::GetTempPath()) ("meestock-web-config-" + [DateTime]::UtcNow.ToString("yyyyMMdd-HHmmss") + "-" + [Guid]::NewGuid().ToString("N") + ".backup")
+    Invoke-FtpsDownload -LocalFile $webConfigPath -RemoteUrl "ftp://$serverValue/$remoteBasePath/web.config" -FtpUser $Username -FtpPassword $Password
+    Copy-Item -LiteralPath $webConfigPath -Destination $webConfigBackupPath
+
+    # Merge the IISNode handler and Next.js route rewrite into the existing Plesk config.
+    $webConfigDocument = [System.Xml.XmlDocument]::new()
+    $webConfigDocument.PreserveWhitespace = $false
+    $webConfigDocument.Load($webConfigPath)
+    $configurationNode = $webConfigDocument.DocumentElement
+    $systemWebServerNode = @($configurationNode.ChildNodes | Where-Object { $_.LocalName -eq "system.webServer" } | Select-Object -First 1)[0]
+    if (-not $systemWebServerNode) {
+        $systemWebServerNode = $webConfigDocument.CreateElement("system.webServer", $configurationNode.NamespaceURI)
+        [void]$configurationNode.AppendChild($systemWebServerNode)
+    }
+    $handlersNode = @($systemWebServerNode.ChildNodes | Where-Object { $_.LocalName -eq "handlers" } | Select-Object -First 1)[0]
+    if (-not $handlersNode) {
+        $handlersNode = $webConfigDocument.CreateElement("handlers", $systemWebServerNode.NamespaceURI)
+        [void]$systemWebServerNode.AppendChild($handlersNode)
+    }
+    $iisNodeHandler = @($handlersNode.ChildNodes | Where-Object { $_.LocalName -eq "add" -and $_.GetAttribute("name") -eq "iisnode" } | Select-Object -First 1)[0]
+    if (-not $iisNodeHandler) {
+        $iisNodeHandler = $webConfigDocument.CreateElement("add", $handlersNode.NamespaceURI)
+        [void]$handlersNode.AppendChild($iisNodeHandler)
+    }
+    $iisNodeHandler.SetAttribute("name", "iisnode")
+    $iisNodeHandler.SetAttribute("path", "app.js")
+    $iisNodeHandler.SetAttribute("verb", "*")
+    $iisNodeHandler.SetAttribute("modules", "iisnode")
+    $iisNodeHandler.SetAttribute("resourceType", "Unspecified")
+
+    $rewriteNode = @($systemWebServerNode.ChildNodes | Where-Object { $_.LocalName -eq "rewrite" } | Select-Object -First 1)[0]
+    if (-not $rewriteNode) {
+        $rewriteNode = $webConfigDocument.CreateElement("rewrite", $systemWebServerNode.NamespaceURI)
+        [void]$systemWebServerNode.AppendChild($rewriteNode)
+    }
+    $rulesNode = @($rewriteNode.ChildNodes | Where-Object { $_.LocalName -eq "rules" } | Select-Object -First 1)[0]
+    if (-not $rulesNode) {
+        $rulesNode = $webConfigDocument.CreateElement("rules", $rewriteNode.NamespaceURI)
+        [void]$rewriteNode.AppendChild($rulesNode)
+    }
+    $nodeRouteRule = @($rulesNode.ChildNodes | Where-Object { $_.LocalName -eq "rule" -and $_.GetAttribute("name") -eq "MeeStockNodeRouting" } | Select-Object -First 1)[0]
+    if (-not $nodeRouteRule) {
+        $nodeRouteRule = $webConfigDocument.CreateElement("rule", $rulesNode.NamespaceURI)
+        [void]$rulesNode.PrependChild($nodeRouteRule)
+    }
+    $nodeRouteRule.SetAttribute("name", "MeeStockNodeRouting")
+    $nodeRouteRule.SetAttribute("stopProcessing", "true")
+    while ($nodeRouteRule.HasChildNodes) { [void]$nodeRouteRule.RemoveChild($nodeRouteRule.FirstChild) }
+    $matchNode = $webConfigDocument.CreateElement("match", $nodeRouteRule.NamespaceURI)
+    $matchNode.SetAttribute("url", ".*")
+    [void]$nodeRouteRule.AppendChild($matchNode)
+    $conditionsNode = $webConfigDocument.CreateElement("conditions", $nodeRouteRule.NamespaceURI)
+    $fileCondition = $webConfigDocument.CreateElement("add", $conditionsNode.NamespaceURI)
+    $fileCondition.SetAttribute("input", "{REQUEST_FILENAME}")
+    $fileCondition.SetAttribute("matchType", "IsFile")
+    $fileCondition.SetAttribute("negate", "true")
+    [void]$conditionsNode.AppendChild($fileCondition)
+    [void]$nodeRouteRule.AppendChild($conditionsNode)
+    $actionNode = $webConfigDocument.CreateElement("action", $nodeRouteRule.NamespaceURI)
+    $actionNode.SetAttribute("type", "Rewrite")
+    $actionNode.SetAttribute("url", "app.js")
+    [void]$nodeRouteRule.AppendChild($actionNode)
+    $xmlSettings = [System.Xml.XmlWriterSettings]::new()
+    $xmlSettings.Encoding = [System.Text.UTF8Encoding]::new($false)
+    $xmlSettings.Indent = $true
+    $xmlWriter = [System.Xml.XmlWriter]::Create($webConfigPath, $xmlSettings)
+    try { $webConfigDocument.Save($xmlWriter) } finally { $xmlWriter.Dispose() }
+    Write-Host "Prepared Plesk IIS routing; original web.config backup: $webConfigBackupPath"
     $archiveName = ".meestock-release-$releaseId.tar.gz"
     $archiveUrl = "ftp://$serverValue/$remoteBasePath/$archiveName"
     $bootstrapPath = Join-Path $temporaryRoot "app.js"
@@ -459,6 +607,8 @@ require(serverPath);
     }
     Write-Host "Uploading the Plesk startup file..."
     Invoke-FtpsUpload -LocalFile $bootstrapPath -RemoteUrl "ftp://$serverValue/$remoteBasePath/app.js" -FtpUser $Username -FtpPassword $Password
+    Write-Host "Uploading the merged Plesk IIS routing config..."
+    Invoke-FtpsUpload -LocalFile $webConfigPath -RemoteUrl "ftp://$serverValue/$remoteBasePath/web.config" -FtpUser $Username -FtpPassword $Password
     Write-Host "MeeStock files deployed over pinned FTPS to $targetHost."
     Write-Host "Use the Plesk Restart App control to activate the iisnode application."
 } finally {
