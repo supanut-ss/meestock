@@ -2,6 +2,11 @@
 
 import { getPool, getDemoMerchantId } from "./db";
 import mssql from "mssql";
+import { requireAuthenticatedUser } from "./session";
+
+async function ensureAuthenticated(): Promise<void> {
+  await requireAuthenticatedUser();
+}
 
 // ================================================================
 // TYPES
@@ -163,6 +168,7 @@ export type DBAlert = {
 // ================================================================
 
 export async function getProducts(search = "", categoryId?: string, status = "active"): Promise<DBProduct[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -236,6 +242,7 @@ export async function getProducts(search = "", categoryId?: string, status = "ac
 }
 
 export async function checkSkuExists(sku: string, excludeId?: string): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -270,6 +277,7 @@ export async function createProduct(product: {
   imageUrl: string | null;
   productType?: "standard" | "bundle";
 }): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -317,6 +325,7 @@ export async function updateProduct(
   }>,
   changedBy = "system"
 ): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -393,6 +402,7 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(id: string): Promise<{ success: boolean; error?: string }> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -424,6 +434,7 @@ export async function deleteProduct(id: string): Promise<{ success: boolean; err
 }
 
 export async function updateProductStock(id: string, qtyChange: number): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -490,6 +501,7 @@ export async function updateProductStock(id: string, qtyChange: number): Promise
 }
 
 export async function getProductHistory(productId: string): Promise<DBProductAuditLog[]> {
+  await ensureAuthenticated();
   try {
     const pool = await getPool();
     const result = await pool.request()
@@ -520,6 +532,7 @@ export async function getProductHistory(productId: string): Promise<DBProductAud
 // ================================================================
 
 export async function getCategories(): Promise<DBCategory[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -564,6 +577,7 @@ export async function getCategories(): Promise<DBCategory[]> {
 }
 
 export async function getCategoriesFlat(): Promise<DBCategory[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -596,6 +610,7 @@ export async function createCategory(data: {
   code: string;
   color: string;
 }): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -617,6 +632,7 @@ export async function createCategory(data: {
 }
 
 export async function updateCategory(id: string, data: { name: string; code: string; color: string }): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -635,6 +651,7 @@ export async function updateCategory(id: string, data: { name: string; code: str
 }
 
 export async function deleteCategory(id: string): Promise<{ success: boolean; error?: string }> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -669,6 +686,7 @@ export async function deleteCategory(id: string): Promise<{ success: boolean; er
 // ================================================================
 
 export async function getSuppliers(): Promise<DBSupplier[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -696,6 +714,7 @@ export async function createSupplier(data: {
   email: string;
   address: string;
 }): Promise<{ success: boolean; id?: string }> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -732,6 +751,7 @@ export async function stockIn(data: {
   costPrice?: number;
   note?: string;
 }, createdBy = "system"): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -795,6 +815,7 @@ export async function createSaleOrder(data: {
   note?: string;
   discount?: number;
   }, createdBy = "system"): Promise<{ success: boolean; orderNo?: string; error?: string }> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -950,6 +971,7 @@ export async function saveShipmentOrder(order: {
   receiverPhone: string;
   receiverAddress: string;
 }): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1031,6 +1053,7 @@ export async function saveShipmentOrder(order: {
 }
 
 export async function getShipmentOrders(search = "", status = "All"): Promise<DBShipmentOrder[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1078,6 +1101,7 @@ export async function getShipmentOrders(search = "", status = "All"): Promise<DB
 }
 
 export async function updateShipmentTracking(orderId: string, trackingNo: string, status: string): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1095,6 +1119,7 @@ export async function updateShipmentTracking(orderId: string, trackingNo: string
 }
 
 export async function deleteShipmentOrder(orderId: string): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1114,6 +1139,7 @@ export async function deleteShipmentOrder(orderId: string): Promise<boolean> {
 // ================================================================
 
 export async function getDashboardData() {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1251,6 +1277,7 @@ export async function getDashboardData() {
 // ================================================================
 
 export async function getStockMovements(search = "", type = "All"): Promise<DBStockMovement[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1308,6 +1335,7 @@ export async function getStockMovements(search = "", type = "All"): Promise<DBSt
 // ================================================================
 
 export async function getUnreadAlertCount(): Promise<number> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1321,6 +1349,7 @@ export async function getUnreadAlertCount(): Promise<number> {
 }
 
 export async function getLowStockAlerts() {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1348,6 +1377,7 @@ export async function getLowStockAlerts() {
 }
 
 export async function markAlertRead(alertId: string): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const pool = await getPool();
     await pool.request()
@@ -1360,6 +1390,7 @@ export async function markAlertRead(alertId: string): Promise<boolean> {
 }
 
 export async function markAllAlertsRead(): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1373,6 +1404,7 @@ export async function markAllAlertsRead(): Promise<boolean> {
 }
 
 export async function getSaleOrders(search = ""): Promise<DBSaleOrder[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1440,6 +1472,7 @@ export async function returnOrder(
   note?: string,
   createdBy = "system"
 ): Promise<{ success: boolean; error?: string }> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1496,10 +1529,12 @@ export async function returnOrder(
 }
 
 export async function getInventoryReport(): Promise<DBProduct[]> {
+  await ensureAuthenticated();
   return getProducts("", undefined, "all");
 }
 
 export async function getProfitReport(): Promise<DBProfitReportRow[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1532,6 +1567,7 @@ export async function getProfitReport(): Promise<DBProfitReportRow[]> {
 }
 
 export async function getSlowMovingItems(days = 30): Promise<DBSlowMovingRow[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1565,6 +1601,7 @@ export async function getSlowMovingItems(days = 30): Promise<DBSlowMovingRow[]> 
 }
 
 export async function getExpiringItems(daysAhead = 30): Promise<DBExpiringRow[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1596,6 +1633,7 @@ export async function getExpiringItems(daysAhead = 30): Promise<DBExpiringRow[]>
 }
 
 export async function getAlerts(): Promise<DBAlert[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1669,6 +1707,7 @@ export async function importProducts(
     notes: string;
   }[]
 ): Promise<{ success: boolean; importedCount: number; error?: string }> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1739,6 +1778,7 @@ export async function importProducts(
 // ================================================================
 
 export async function getProductVariants(productId: string): Promise<DBProductVariant[]> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1770,6 +1810,7 @@ export async function getProductVariants(productId: string): Promise<DBProductVa
 }
 
 export async function checkVariantSkuExists(sku: string): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1801,6 +1842,7 @@ export async function createProductVariant(variant: {
   stockQty: number;
   lowStockThreshold: number;
 }): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1841,6 +1883,7 @@ export async function updateProductVariant(
     lowStockThreshold: number;
   }>
 ): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1894,6 +1937,7 @@ export async function updateProductVariant(
 }
 
 export async function deleteProductVariant(id: string): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -1917,6 +1961,7 @@ export async function deleteProductVariant(id: string): Promise<boolean> {
 // ================================================================
 
 export async function getBundleComponents(bundleId: string): Promise<DBBundleComponent[]> {
+  await ensureAuthenticated();
   try {
     const pool = await getPool();
     const result = await pool.request()
@@ -1946,6 +1991,7 @@ export async function saveBundleComponents(
   bundleId: string,
   components: { componentId: string; qtyRequired: number }[]
 ): Promise<boolean> {
+  await ensureAuthenticated();
   try {
     const pool = await getPool();
     const transaction = new mssql.Transaction(pool);
@@ -1983,6 +2029,7 @@ export async function findProductOrVariantByBarcode(code: string): Promise<{
   product: DBProduct;
   variant: DBProductVariant | null;
 } | null> {
+  await ensureAuthenticated();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();

@@ -26,6 +26,23 @@ export default function Home() {
           <p className="text-slate-300 text-sm sm:text-base max-w-lg leading-relaxed">
             ระบบ Mini Stock ครบวงจรสำหรับร้านค้าออนไลน์ จัดการสินค้า หมวดหมู่ รับเข้า จ่ายออก จัดส่ง และรายงานกำไร-ขาดทุนครบในที่เดียว
           </p>
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <Link
+              href="/login"
+              className="inline-flex items-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-indigo-900 shadow-sm transition-colors hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-950"
+            >
+              เข้าสู่ระบบเพื่อเริ่มใช้งาน
+            </Link>
+            <a
+              href="#features"
+              className="inline-flex items-center rounded-xl px-4 py-2.5 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              ดูฟีเจอร์
+            </a>
+          </div>
+          <p className="text-xs text-slate-400">
+            เปิดดูฟีเจอร์ได้โดยไม่ต้องเข้าสู่ระบบ การใช้งานแต่ละหน้าต้องล็อกอินก่อน
+          </p>
         </div>
       </div>
 
@@ -45,11 +62,14 @@ export default function Home() {
       </div>
 
       {/* 6 Main Modules Interactive Grid */}
-      <div className="space-y-6">
+      <div id="features" className="scroll-mt-24 space-y-6">
         <h2 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2.5">
           <div className="h-2 w-2 rounded-full bg-indigo-500"></div>
           ระบบงานหลัก 6 โมดูล
         </h2>
+        <p className="-mt-4 text-sm text-slate-500">
+          เลือกดูรายละเอียดได้เลย เมื่อเลือกเข้าใช้งานระบบจะให้ล็อกอินก่อน
+        </p>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* 1. Product Management */}

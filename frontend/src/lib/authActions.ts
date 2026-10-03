@@ -3,36 +3,17 @@
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { getPool, getDemoMerchantId } from "./db";
+import { getCurrentUser as readCurrentUser, requireAdminUser, SESSION_COOKIE, type SessionUser } from "./session";
 import mssql from "mssql";
 
-// -------------------------------------------------------
-// AUTH TYPES
-// -------------------------------------------------------
-export type SessionUser = {
-  id: string;
-  username: string;
-  displayName: string;
-  role: "owner" | "staff" | string;
-  merchantId: string;
-};
+export type { SessionUser } from "./session";
 
-const SESSION_COOKIE = "meestock_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 วัน
 
 // Simple JWT-like session using base64 (ไม่ต้องติดตั้ง library เพิ่ม)
 function encodeSession(user: SessionUser): string {
   const payload = JSON.stringify({ ...user, exp: Date.now() + SESSION_MAX_AGE * 1000 });
   return Buffer.from(payload).toString("base64");
-}
-
-function decodeSession(token: string): SessionUser | null {
-  try {
-    const payload = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
-    if (payload.exp && Date.now() > payload.exp) return null;
-    return payload as SessionUser;
-  } catch {
-    return null;
-  }
 }
 
 // -------------------------------------------------------
@@ -99,14 +80,7 @@ export async function loginUser(
 // GET CURRENT USER (อ่านจาก cookie)
 // -------------------------------------------------------
 export async function getCurrentUser(): Promise<SessionUser | null> {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(SESSION_COOKIE)?.value;
-    if (!token) return null;
-    return decodeSession(token);
-  } catch {
-    return null;
-  }
+  return readCurrentUser();
 }
 
 // -------------------------------------------------------
@@ -129,6 +103,7 @@ export async function isAdmin(): Promise<boolean> {
 // GET USERS LIST (Admin only)
 // -------------------------------------------------------
 export async function getUsers() {
+  await requireAdminUser();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -168,6 +143,7 @@ export async function createUser(data: {
   displayName: string;
   role: string;
 }): Promise<{ success: boolean; error?: string }> {
+  await requireAdminUser();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
@@ -236,6 +212,7 @@ export async function createUser(data: {
 // TOGGLE USER ACTIVE STATUS
 // -------------------------------------------------------
 export async function toggleUserActive(userId: string, isActive: boolean): Promise<boolean> {
+  await requireAdminUser();
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();

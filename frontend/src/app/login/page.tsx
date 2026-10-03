@@ -7,7 +7,11 @@ import { loginUser } from "@/lib/authActions";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/";
+  const requestedRedirect = searchParams.get("redirect");
+  const redirect =
+    requestedRedirect?.startsWith("/") && !requestedRedirect.startsWith("//")
+      ? requestedRedirect
+      : "/dashboard";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

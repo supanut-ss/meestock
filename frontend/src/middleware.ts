@@ -3,14 +3,18 @@ import type { NextRequest } from "next/server";
 
 const SESSION_COOKIE = "meestock_session";
 
-// Routes ที่ไม่ต้อง login
-const PUBLIC_PATHS = ["/login"];
+// Public pages are limited to the feature overview and login form.
+const PUBLIC_PATHS = ["/", "/login"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ถ้าเป็น public path ข้ามไป
-  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
+  if (
+    PUBLIC_PATHS.some((path) =>
+      path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(`${path}/`)
+    )
+  ) {
     return NextResponse.next();
   }
 

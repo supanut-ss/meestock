@@ -236,6 +236,15 @@ export default function Navigation({ user }: { user?: NavUser }) {
 
           {/* Right side: User menu + Mobile toggle */}
           <div className="flex items-center gap-2 flex-shrink-0">
+            {!user && (
+              <Link
+                href="/login"
+                className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+              >
+                เข้าสู่ระบบ
+              </Link>
+            )}
+
             {/* Alerts Bell Icon */}
             {user && (
               <div className="relative">
