@@ -17,6 +17,9 @@ Mini stock management system for online sellers.
 ### Backend
 ```bash
 cd /home/runner/work/meestock/meestock/backend/src/MeeStock.Api
+# Provide the connection string (never commit it), e.g. via user-secrets:
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=...;Database=...;User Id=...;Password=...;Encrypt=True;TrustServerCertificate=True;"
+# or set the env var ConnectionStrings__DefaultConnection in other environments
 dotnet run
 ```
 
