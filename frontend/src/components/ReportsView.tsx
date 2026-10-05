@@ -25,6 +25,9 @@ import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import HourglassEmptyOutlinedIcon from "@mui/icons-material/HourglassEmptyOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 
+type ExportRow = Record<string, string | number | null | undefined>;
+type BestSellerRow = DBProfitReportRow & { rank: number };
+
 type ReportTab = "inventory" | "profit" | "best" | "slow" | "expiry";
 
 export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
@@ -85,7 +88,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
   }, [profit]);
 
   // Excel Export Logic
-  const handleExportExcel = (data: any[], fileName: string) => {
+  const handleExportExcel = (data: ExportRow[], fileName: string) => {
     if (data.length === 0) {
       notifyWarning("ไม่มีข้อมูลที่จะส่งออก");
       return;
@@ -101,7 +104,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
     const dateStr = new Date().toISOString().slice(0, 10);
     if (activeTab === "inventory") {
       const exportData = inventory.map((p) => {
-        const row: any = {
+        const row: ExportRow = {
           "SKU": p.sku,
           "บาร์โค้ด": p.barcode,
           "ชื่อสินค้า": p.name,
@@ -121,7 +124,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
       handleExportExcel(exportData, `รายงานสต็อกคงเหลือ_${dateStr}`);
     } else if (activeTab === "profit") {
       const exportData = profit.map((p) => {
-        const row: any = {
+        const row: ExportRow = {
           "SKU": p.sku,
           "ชื่อสินค้า": p.productName,
           "จำนวนที่ขายได้": p.qtySold,
@@ -145,7 +148,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
       handleExportExcel(exportData, `รายงานสินค้าขายดี10อันดับ_${dateStr}`);
     } else if (activeTab === "slow") {
       const exportData = slowMoving.map((p) => {
-        const row: any = {
+        const row: ExportRow = {
           "SKU": p.sku,
           "ชื่อสินค้า": p.name,
           "คงค้างสต็อก": p.stockQty,
@@ -391,7 +394,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
   }, [isAdmin]);
 
   // 3. Best Sellers Columns
-  const bestColumns = useMemo<GridColDef<any>[]>(
+  const bestColumns = useMemo<GridColDef<BestSellerRow>[]>(
     () => [
       {
         field: "rank",
@@ -399,7 +402,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
         minWidth: 90,
         headerAlign: "center",
         align: "center",
-        renderCell: (params: GridRenderCellParams<any, number>) => {
+        renderCell: (params: GridRenderCellParams<BestSellerRow, number>) => {
           const rank = params.value || 1;
           const medals: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
           return (
@@ -427,7 +430,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
         headerName: "SKU",
         minWidth: 140,
         flex: 1,
-        renderCell: (params: GridRenderCellParams<any, string>) => (
+        renderCell: (params: GridRenderCellParams<BestSellerRow, string>) => (
           <span className="font-mono text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
             {params.value}
           </span>
@@ -438,7 +441,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
         headerName: "ชื่อสินค้า",
         minWidth: 240,
         flex: 2,
-        renderCell: (params: GridRenderCellParams<any, string>) => (
+        renderCell: (params: GridRenderCellParams<BestSellerRow, string>) => (
           <span className="font-bold text-slate-800 text-xs truncate" title={params.value}>
             {params.value}
           </span>
@@ -451,7 +454,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
         minWidth: 140,
         headerAlign: "center",
         align: "center",
-        renderCell: (params: GridRenderCellParams<any, number>) => (
+        renderCell: (params: GridRenderCellParams<BestSellerRow, number>) => (
           <span className="font-extrabold text-indigo-600 text-xs bg-indigo-50 px-3 py-1 rounded-full">
             {params.value} ชิ้น
           </span>
@@ -464,7 +467,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
         minWidth: 150,
         headerAlign: "right",
         align: "right",
-        renderCell: (params: GridRenderCellParams<any, number>) => (
+        renderCell: (params: GridRenderCellParams<BestSellerRow, number>) => (
           <span className="font-bold text-slate-800 text-xs font-mono">
             ฿{(params.value || 0).toLocaleString()}
           </span>

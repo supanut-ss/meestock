@@ -957,7 +957,6 @@ export async function saveShipmentOrder(order: {
     await transaction.begin();
 
     try {
-      let customerId: string;
       const customerResult = await transaction.request()
         .input("merchantId", mssql.UniqueIdentifier, merchantId)
         .input("name", mssql.NVarChar, order.receiverName.trim())
@@ -979,7 +978,7 @@ export async function saveShipmentOrder(order: {
           SELECT @existingId as customerId;
         `);
 
-      customerId = customerResult.recordset[0].customerId.toString();
+      const customerId: string = customerResult.recordset[0].customerId.toString();
 
       await transaction.request()
         .input("merchantId", mssql.UniqueIdentifier, merchantId)
@@ -1848,7 +1847,7 @@ export async function updateProductVariant(
       .input("id", mssql.UniqueIdentifier, id)
       .input("merchantId", mssql.UniqueIdentifier, merchantId);
 
-    let setClause: string[] = [];
+    const setClause: string[] = [];
     if (variant.name !== undefined) {
       setClause.push("name = @name");
       request.input("name", mssql.NVarChar, variant.name.trim());

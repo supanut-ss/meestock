@@ -775,7 +775,7 @@ export default function OrdersHistoryView() {
                 <label className="text-xs font-semibold text-slate-600">สถานะคำสั่งซื้อ</label>
                 <select
                   value={statusInput}
-                  onChange={(e) => setStatusInput(e.target.value as any)}
+                  onChange={(e) => setStatusInput(e.target.value as "Confirmed" | "Shipped" | "Cancelled")}
                   className="mt-1 w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none bg-white font-semibold"
                 >
                   <option value="Confirmed">เตรียมจัดส่ง (Confirmed)</option>
