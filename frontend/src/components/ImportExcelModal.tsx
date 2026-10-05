@@ -4,10 +4,9 @@ import { useMemo, useState, useTransition } from "react";
 import * as XLSX from "xlsx";
 import { importProducts } from "@/lib/dbActions";
 import MeeDataGrid from "@/components/ui/MeeDataGrid";
-import StatusBadge from "@/components/ui/StatusBadge";
 import { useNotification } from "@/components/ui/NotificationProvider";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { Box, Chip, Tooltip } from "@mui/material";
+import { Tooltip } from "@mui/material";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 

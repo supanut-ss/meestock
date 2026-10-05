@@ -58,7 +58,7 @@ export default function StockInView() {
   }, []);
 
   const [variants, setVariants] = useState<DBProductVariant[]>([]);
-  const [loadingVariants, setLoadingVariants] = useState(false);
+  const [, setLoadingVariants] = useState(false);
 
   // Auto-fill cost price and fetch variants when product selected
   useEffect(() => {

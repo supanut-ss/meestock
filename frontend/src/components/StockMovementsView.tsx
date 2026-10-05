@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getStockMovements, DBStockMovement } from "@/lib/dbActions";
 import MeeDataGrid from "@/components/ui/MeeDataGrid";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { Box, Chip, Tooltip, IconButton } from "@mui/material";
+import { Chip, Tooltip, IconButton } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
@@ -210,7 +210,7 @@ export default function StockMovementsView() {
             ประวัติการรับเข้า-เบิกออกสินค้า
           </h1>
           <p className="text-slate-500 text-sm">
-            ตรวจสอบความเคลื่อนไหวสต็อกสินค้าคงคลัง การปรับปรุงสต็อก และประวัติการทำรายการผ่าน MUI X Data Grid
+            ตรวจสอบความเคลื่อนไหวสต็อกสินค้าคงคลัง การปรับปรุงสต็อก และประวัติการทำรายการ
           </p>
         </div>
 

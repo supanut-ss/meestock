@@ -53,8 +53,6 @@ const BLANK_PRODUCT = {
   categoryId: "" as string | null, imageUrl: "" as string | null,
 };
 
-type SortField = "sku" | "name" | "unitPrice" | "costPrice" | "stockQty";
-type SortDirection = "asc" | "desc";
 
 export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolean }) {
   const [products, setProducts] = useState<DBProduct[]>([]);
@@ -75,13 +73,6 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
   const [priceMin, setPriceMin] = useState<string>("");
   const [priceMax, setPriceMax] = useState<string>("");
 
-  // Sorting
-  const [sortField, setSortField] = useState<SortField | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
 
   // Add / Edit form
   const [showAddForm, setShowAddForm] = useState(false);
@@ -273,7 +264,6 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
     try {
       const data = await getProducts(searchTerm, categoryFilter || undefined, statusFilter || "active");
       setProducts(data);
-      setCurrentPage(1); // Reset page on query load
     } catch (err) {
       console.error("Failed to load products:", err);
     } finally {
@@ -470,7 +460,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
     }
   };
 
-  const { notifySuccess, notifyError, notifyWarning } = useNotification();
+  const { notifySuccess, notifyError } = useNotification();
   const [deleteTarget, setDeleteTarget] = useState<DBProduct | null>(null);
 
   const confirmDeleteProduct = async () => {
@@ -484,7 +474,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
       } else {
         notifyError(result.error || "ไม่สามารถปิดสินค้าได้");
       }
-    } catch (err) {
+    } catch {
       notifyError("เกิดข้อผิดพลาดในการปิดสินค้า");
     }
   };

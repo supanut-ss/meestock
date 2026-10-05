@@ -13,10 +13,9 @@ import {
   DBExpiringRow,
 } from "@/lib/dbActions";
 import MeeDataGrid from "@/components/ui/MeeDataGrid";
-import StatusBadge from "@/components/ui/StatusBadge";
 import { useNotification } from "@/components/ui/NotificationProvider";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { Box, Tooltip, IconButton, Chip } from "@mui/material";
+import { Box, Tooltip, IconButton } from "@mui/material";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -647,7 +646,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
             รายงานและสถิติคลังสินค้า
           </h1>
           <p className="text-slate-500 text-sm">
-            วิเคราะห์สต็อกสินค้าคงคลัง ข้อมูลงบกำไรขาดทุน สินค้าขายดี และแจ้งเตือนล็อตหมดอายุผ่าน MUI X Data Grid
+            วิเคราะห์สต็อกสินค้าคงคลัง ข้อมูลงบกำไรขาดทุน สินค้าขายดี และแจ้งเตือนล็อตหมดอายุ
           </p>
         </div>
 

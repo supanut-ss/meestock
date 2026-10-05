@@ -17,7 +17,7 @@ import StatusBadge from "@/components/ui/StatusBadge";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { useNotification } from "@/components/ui/NotificationProvider";
 import { GridColDef, GridRenderCellParams, GridRowSelectionModel } from "@mui/x-data-grid";
-import { Box, Tooltip, IconButton, Button, Chip } from "@mui/material";
+import { Box, Tooltip, IconButton, Button } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
@@ -521,7 +521,7 @@ export default function OrdersHistoryView() {
             ประวัติคำสั่งซื้อและการขาย
           </h1>
           <p className="text-slate-500 text-sm">
-            จัดการและติดตามรายการจัดส่งสินค้า (Shipments) และประวัติบิลการขาย (Sales & Returns) ผ่าน MUI X Data Grid
+            จัดการและติดตามรายการจัดส่งสินค้า (Shipments) และประวัติบิลการขาย (Sales & Returns)
           </p>
         </div>
 

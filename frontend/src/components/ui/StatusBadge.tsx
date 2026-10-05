@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Chip, ChipProps } from "@mui/material";
 
 export type StatusVariant =
   | "success"
@@ -70,8 +69,6 @@ const variantStyles: Record<
 export default function StatusBadge({
   label,
   variant = "default",
-  size = "small",
-  icon,
 }: StatusBadgeProps) {
   const styles = variantStyles[variant] || variantStyles.default;
 

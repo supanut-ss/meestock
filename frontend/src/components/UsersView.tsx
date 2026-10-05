@@ -7,7 +7,7 @@ import StatusBadge from "@/components/ui/StatusBadge";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { useNotification } from "@/components/ui/NotificationProvider";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { Box, Tooltip, IconButton, Button } from "@mui/material";
+import { Box, Tooltip, IconButton } from "@mui/material";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
@@ -188,7 +188,7 @@ export default function UsersView() {
             การจัดการผู้ใช้งานในระบบ
           </h1>
           <p className="text-slate-500 text-sm">
-            จัดการบัญชีผู้ใช้ สลับเปิด/ปิดสถานะ และมอบหมายสิทธิ์ Admin หรือ Staff ผ่าน MUI X Data Grid
+            จัดการบัญชีผู้ใช้ สลับเปิด/ปิดสถานะ และมอบหมายสิทธิ์ Admin หรือ Staff
           </p>
         </div>
 

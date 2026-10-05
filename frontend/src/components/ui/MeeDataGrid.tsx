@@ -280,6 +280,7 @@ export default function MeeDataGrid({
           },
           ...sx,
         }}
+        slotProps={slotProps}
         {...props}
       />
     </Box>

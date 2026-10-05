@@ -5,7 +5,6 @@ import { useReactToPrint } from "react-to-print";
 import { getProducts, createSaleOrder, getProductVariants, findProductOrVariantByBarcode, DBProduct, DBProductVariant } from "@/lib/dbActions";
 import { useNotification } from "@/components/ui/NotificationProvider";
 import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
-import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import CameraScannerModal from "./CameraScannerModal";
