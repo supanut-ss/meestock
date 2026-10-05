@@ -1451,7 +1451,7 @@ export async function returnOrder(
         .input("orderId", mssql.UniqueIdentifier, orderId)
         .input("merchantId", mssql.UniqueIdentifier, merchantId)
         .input("status", mssql.NVarChar, "Returned")
-        .query("UPDATE dbo.orders SET status = @status, updated_at = SYSUTCDATETIME() WHERE id = @orderId AND merchant_id = @merchantId");
+        .query("UPDATE dbo.orders SET status = @status WHERE id = @orderId AND merchant_id = @merchantId");
 
       // 2. Loop and return each item stock and add movement
       for (const item of items) {

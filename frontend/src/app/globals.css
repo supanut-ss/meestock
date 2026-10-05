@@ -173,3 +173,11 @@ p {
 .MuiDataGrid-cell, td, dd, .recharts-text {
   font-variant-numeric: tabular-nums;
 }
+
+/* Grid/flex children must be allowed to shrink so long option text cannot widen the page */
+@media (max-width: 1023px) {
+  main .grid > *,
+  main .flex > * {
+    min-width: 0;
+  }
+}
