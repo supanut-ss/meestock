@@ -23,6 +23,7 @@ dotnet run
 ### Frontend
 ```bash
 cd /home/runner/work/meestock/meestock/frontend
+cp .env.example .env.local   # then set DB_SERVER, DB_NAME, DB_USER, DB_PASSWORD
 npm install
 npm run dev
 ```

@@ -1,20 +1,31 @@
 import mssql from "mssql";
 
-const config: mssql.config = {
-  server: "94.237.76.153",
-  database: "thaipes_meestock",
-  user: "thaipes_dba",
-  password: "Soulmate@2108",
-  options: {
-    encrypt: true,
-    trustServerCertificate: true,
-  },
-  pool: {
-    max: 10,
-    min: 0,
-    idleTimeoutMillis: 30000,
-  },
-};
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing environment variable ${name}. Copy .env.example to .env.local and fill it in.`);
+  }
+  return value;
+}
+
+// Built lazily so a missing variable fails at first query, not at import/build time
+function buildConfig(): mssql.config {
+  return {
+    server: requireEnv("DB_SERVER"),
+    database: requireEnv("DB_NAME"),
+    user: requireEnv("DB_USER"),
+    password: requireEnv("DB_PASSWORD"),
+    options: {
+      encrypt: process.env.DB_ENCRYPT !== "false",
+      trustServerCertificate: process.env.DB_TRUST_SERVER_CERT !== "false",
+    },
+    pool: {
+      max: 10,
+      min: 0,
+      idleTimeoutMillis: 30000,
+    },
+  };
+}
 
 let poolPromise: Promise<mssql.ConnectionPool> | null = null;
 
@@ -142,7 +153,7 @@ async function runMigrations(pool: mssql.ConnectionPool) {
 
 export function getPool(): Promise<mssql.ConnectionPool> {
   if (!poolPromise) {
-    poolPromise = new mssql.ConnectionPool(config)
+    poolPromise = new mssql.ConnectionPool(buildConfig())
       .connect()
       .then(async (pool) => {
         console.log("⚡ SQL Server connected successfully");
