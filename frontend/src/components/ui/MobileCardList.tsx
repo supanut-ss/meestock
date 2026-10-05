@@ -114,13 +114,15 @@ export default function MobileCardList({
               <li key={id} className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   {checkboxSelection && (
-                    <input
-                      type="checkbox"
-                      checked={selected.has(id)}
-                      onChange={() => toggle(id)}
-                      aria-label="เลือกรายการ"
-                      className="mt-0.5 h-6 w-6 shrink-0 accent-indigo-600"
-                    />
+                    <label className="-m-2.5 flex shrink-0 cursor-pointer p-2.5">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(id)}
+                        onChange={() => toggle(id)}
+                        aria-label="เลือกรายการ"
+                        className="h-6 w-6 accent-indigo-600"
+                      />
+                    </label>
                   )}
                   <div className="min-w-0 flex-1 overflow-hidden text-sm font-semibold text-slate-900 [overflow-wrap:anywhere] [&_*]:min-w-0 [&_*]:max-w-full">
                     {titleCol && renderValue(titleCol, row, id)}
