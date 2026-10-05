@@ -53,7 +53,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   return null;
 };
 
-export default function DashboardView() {
+export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }) {
   const [data, setData] = useState<DashboardState | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -78,7 +78,7 @@ export default function DashboardView() {
 
   const cards = useMemo(() => {
     if (!data) return [];
-    return [
+    const all = [
       { 
         title: "ยอดขายรวมสะสม", 
         value: `฿${data.snapshot.total_sales.toLocaleString()}`, 
@@ -122,7 +122,9 @@ export default function DashboardView() {
         icon: <WarningAmberOutlinedIcon sx={{ fontSize: 20, color: data.snapshot.low_stock_count > 0 ? "#e11d48" : "#94a3b8" }} />
       },
     ];
-  }, [data]);
+    // Profit is derived from cost price, which only admins may see
+    return isAdmin ? all : all.filter((c) => c.title !== "กำไรรวมสะสม");
+  }, [data, isAdmin]);
 
   if (loading || !data) {
     return (

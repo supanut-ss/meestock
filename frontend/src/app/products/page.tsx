@@ -1,5 +1,6 @@
 import ProductManagement from "@/components/ProductManagement";
+import { isAdmin } from "@/lib/authActions";
 
-export default function ProductsPage() {
-  return <ProductManagement />;
+export default async function ProductsPage() {
+  return <ProductManagement isAdmin={await isAdmin()} />;
 }

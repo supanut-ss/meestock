@@ -159,8 +159,8 @@ export default function StockInView() {
     });
   };
 
-  const handleAddSupplier = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddSupplier = async (e?: React.SyntheticEvent) => {
+    e?.preventDefault();
     if (!newSupplier.name.trim()) return;
     setSavingSupplier(true);
     const result = await createSupplier(newSupplier);
@@ -345,12 +345,16 @@ export default function StockInView() {
               ))}
             </select>
 
-            {/* Add Supplier Inline Form */}
+            {/* Add Supplier inline panel. A div, not a <form>: it sits inside the stock-in form and nested forms are invalid HTML */}
             {showAddSupplier && (
-              <form onSubmit={handleAddSupplier} className="mt-2 rounded-2xl border border-indigo-100 bg-indigo-50/30 p-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
+              <div
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && e.target instanceof HTMLInputElement) void handleAddSupplier(e);
+                }}
+                className="mt-2 rounded-2xl border border-indigo-100 bg-indigo-50/30 p-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
                 <p className="text-xs font-bold text-indigo-700">เพิ่ม Supplier ใหม่</p>
                 <div className="grid grid-cols-2 gap-2">
-                  <input required type="text" className="col-span-2 px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none bg-white" placeholder="ชื่อ Supplier *" value={newSupplier.name} onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })} />
+                  <input type="text" aria-required="true" className="col-span-2 px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none bg-white" placeholder="ชื่อ Supplier *" value={newSupplier.name} onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })} />
                   <input type="text" className="px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none bg-white" placeholder="ชื่อผู้ติดต่อ" value={newSupplier.contactName} onChange={(e) => setNewSupplier({ ...newSupplier, contactName: e.target.value })} />
                   <input type="text" className="px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none bg-white" placeholder="เบอร์โทร" value={newSupplier.phone} onChange={(e) => setNewSupplier({ ...newSupplier, phone: e.target.value })} />
                   <input type="email" className="px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500/20 focus:outline-none bg-white" placeholder="อีเมล" value={newSupplier.email} onChange={(e) => setNewSupplier({ ...newSupplier, email: e.target.value })} />
@@ -358,11 +362,11 @@ export default function StockInView() {
                 </div>
                 <div className="flex items-center gap-2 justify-end">
                   <button type="button" onClick={() => setShowAddSupplier(false)} className="text-xs text-slate-400 hover:text-slate-600">ยกเลิก</button>
-                  <button type="submit" disabled={savingSupplier} className="py-1.5 px-4 rounded-xl bg-indigo-600 text-white text-xs font-semibold disabled:opacity-50">
+                  <button type="button" onClick={handleAddSupplier} disabled={savingSupplier} className="py-1.5 px-4 rounded-xl bg-indigo-600 text-white text-xs font-semibold disabled:opacity-50">
                     {savingSupplier ? "กำลังบันทึก..." : "บันทึก Supplier"}
                   </button>
                 </div>
-              </form>
+              </div>
             )}
           </div>
 
