@@ -1094,7 +1094,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
             <span className="h-2 w-2 rounded-full bg-indigo-500"></span>
             <span className="text-xs font-semibold text-slate-600">ทั้งหมด: {products.length} รายการ</span>
           </div>
-          <div className={`flex items-center gap-2 rounded-2xl border px-4 py-2.5 shadow-sm transition-all ${lowStockCount > 0 ? "bg-rose-50 border-rose-100 text-rose-700 animate-pulse" : "bg-emerald-50 border-emerald-100 text-emerald-700"}`}>
+          <div className={`flex items-center gap-2 rounded-2xl border px-4 py-2.5 shadow-sm transition-all ${lowStockCount > 0 ? "bg-rose-50 border-rose-100 text-rose-700" : "bg-emerald-50 border-emerald-100 text-emerald-700"}`}>
             <span className={`h-2 w-2 rounded-full ${lowStockCount > 0 ? "bg-rose-500" : "bg-emerald-500"}`}></span>
             <span className="text-xs font-semibold">สต็อกต่ำ: {lowStockCount} รายการ</span>
           </div>
@@ -1131,7 +1131,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
               {scannerValue && (
                 <div className="absolute right-3 top-3">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span className=" absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                   </span>
                 </div>
@@ -1231,7 +1231,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
 
           <button
             onClick={() => { setEditingProduct(null); setNewProduct({ ...BLANK_PRODUCT }); setShowAddForm(!showAddForm); }}
-            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-white text-xs font-semibold hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

@@ -199,7 +199,7 @@ export default function UsersView() {
               setNewUser({ ...BLANK_USER });
               setShowAddForm(!showAddForm);
             }}
-            className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-semibold hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+            className="py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
           >
             <PersonAddOutlinedIcon sx={{ fontSize: 16 }} />
             {showAddForm ? "ปิดฟอร์ม" : "เพิ่มผู้ใช้งานใหม่"}

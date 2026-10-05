@@ -11,7 +11,8 @@ import {
   GridToolbarDensitySelector,
   GridToolbarExport,
 } from "@mui/x-data-grid";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery } from "@mui/material";
+import MobileCardList from "@/components/ui/MobileCardList";
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import { thaiDataGridLocale } from "@/lib/dataGridLocale";
 
@@ -134,6 +135,8 @@ export interface MeeDataGridProps extends Omit<DataGridProps, "localeText"> {
   height?: number | string;
   pageSize?: number;
   autoHeight?: boolean;
+  /** Render rows as cards below 1024px (default true) */
+  mobileCards?: boolean;
 }
 
 export default function MeeDataGrid({
@@ -143,12 +146,32 @@ export default function MeeDataGrid({
   height,
   pageSize = 25,
   autoHeight,
+  mobileCards = true,
   sx,
   slots,
   slotProps,
   ...props
 }: MeeDataGridProps) {
+  const isCompact = useMediaQuery("(max-width:1023px)");
   const isAutoHeight = autoHeight ?? (!height || height === "auto");
+
+  if (mobileCards && isCompact) {
+    return (
+      <MobileCardList
+        rows={props.rows ?? []}
+        columns={props.columns}
+        getRowId={props.getRowId}
+        loading={props.loading}
+        searchPlaceholder={quickFilterPlaceholder}
+        extraActions={extraActions}
+        columnVisibilityModel={props.columnVisibilityModel}
+        checkboxSelection={props.checkboxSelection}
+        onSelectionChange={(ids) =>
+          props.onRowSelectionModelChange?.({ type: "include", ids } as never, {} as never)
+        }
+      />
+    );
+  }
 
   return (
     <Box

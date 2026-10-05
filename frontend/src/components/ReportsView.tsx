@@ -265,7 +265,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
           <span
             className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
               isLow
-                ? "text-rose-700 bg-rose-50 ring-1 ring-rose-600/20 animate-pulse"
+                ? "text-rose-700 bg-rose-50 ring-1 ring-rose-600/20"
                 : "text-slate-700 bg-slate-100"
             }`}
           >

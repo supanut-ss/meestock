@@ -78,7 +78,7 @@ export default function CameraScannerModal({
         <div className="flex items-center justify-between border-b border-slate-100 pb-3 z-10">
           <div>
             <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+              <span className="h-2 w-2 rounded-full bg-indigo-500"></span>
               กล้องสแกนบาร์โค้ด / QR Code
             </h3>
             <p className="text-[10px] text-slate-400 mt-0.5">ถือกล้องนิ่งๆ ส่องช่องสแกนให้ตรงกับบาร์โค้ด</p>

@@ -108,7 +108,7 @@ export default function DashboardView() {
         value: data.snapshot.total_stock_qty.toLocaleString(), 
         unit: "ชิ้น",
         trend: "ปริมาณสินค้าในคลัง",
-        bg: "from-emerald-500/5 to-emerald-600/5 border-emerald-100/70 text-emerald-600",
+        bg: "border-emerald-100/70 text-emerald-600",
         icon: <WarehouseOutlinedIcon sx={{ fontSize: 20, color: "#059669" }} />
       },
       { 
@@ -117,7 +117,7 @@ export default function DashboardView() {
         unit: "รายการ",
         trend: "ต้องจัดซื้อของเพิ่ม",
         bg: data.snapshot.low_stock_count > 0 
-          ? "from-rose-500/5 to-rose-600/5 border-rose-100/70 text-rose-600 animate-pulse" 
+          ? "border-rose-100/70 text-rose-600" 
           : "from-slate-500/5 to-slate-600/5 border-slate-100 text-slate-500",
         icon: <WarningAmberOutlinedIcon sx={{ fontSize: 20, color: data.snapshot.low_stock_count > 0 ? "#e11d48" : "#94a3b8" }} />
       },
@@ -138,7 +138,7 @@ export default function DashboardView() {
       {/* Key Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {cards.map((card) => (
-          <div key={card.title} className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br bg-white p-5 shadow-sm hover:shadow transition-all duration-300 ${card.bg}`}>
+          <div key={card.title} className={`relative overflow-hidden rounded-3xl border bg-white p-5 shadow-sm hover:shadow transition-all duration-300 ${card.bg}`}>
             <div className="flex justify-between items-start">
               <div className="space-y-2 min-w-0">
                 <p className="text-xxs font-bold text-slate-400 uppercase tracking-wider truncate" title={card.title}>{card.title}</p>
@@ -220,7 +220,7 @@ export default function DashboardView() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-bold text-slate-800 text-sm tracking-tight flex items-center gap-2">
                 <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span className=" absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
                 </span>
                 รายการสินค้าที่ระดับสต็อกต่ำกว่าเกณฑ์

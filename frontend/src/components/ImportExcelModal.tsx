@@ -363,7 +363,7 @@ export default function ImportExcelModal({
                 )}
               </div>
 
-              <MeeDataGrid
+              <MeeDataGrid mobileCards={false}
                 rows={rowsWithId}
                 columns={columns}
                 height={300}
@@ -387,7 +387,7 @@ export default function ImportExcelModal({
             type="button"
             onClick={handleImport}
             disabled={isPending || items.length === 0 || errorCount > 0}
-            className="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-semibold shadow-md transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            className="flex-1 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
           >
             {isPending ? "กำลังอัปโหลดข้อมูล..." : "บันทึกนำเข้าข้อมูลทั้งหมด"}
           </button>

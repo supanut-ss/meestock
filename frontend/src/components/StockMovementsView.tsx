@@ -255,7 +255,7 @@ export default function StockMovementsView() {
       {/* Metrics Card Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Total In */}
-        <div className="rounded-3xl border border-slate-200 bg-gradient-to-br bg-white p-5 shadow-sm hover:shadow transition-all duration-300 from-emerald-500/5 to-emerald-600/5 border-emerald-100/70 text-emerald-600">
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow transition-all duration-300 border-emerald-100/70 text-emerald-600">
           <div className="flex justify-between items-start">
             <div className="space-y-2">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -278,7 +278,7 @@ export default function StockMovementsView() {
         </div>
 
         {/* Total Out */}
-        <div className="rounded-3xl border border-slate-200 bg-gradient-to-br bg-white p-5 shadow-sm hover:shadow transition-all duration-300 from-rose-500/5 to-rose-600/5 border-rose-100/70 text-rose-600">
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow transition-all duration-300 border-rose-100/70 text-rose-600">
           <div className="flex justify-between items-start">
             <div className="space-y-2">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">

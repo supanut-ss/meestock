@@ -31,16 +31,33 @@ const salesLinks = [
   { href: "/reports", label: "รายงาน", desc: "สรุปยอดขายและกำไร", icon: "M9 17v-2a4 4 0 00-4-4H3m14 0h-2a4 4 0 00-4 4v2m4-6a2 2 0 10-4 0v4m0 0H5a2 2 0 00-2 2v2h14v-2a2 2 0 00-2-2h-3" },
 ];
 
+const tabLinks = [
+  { href: "/", label: "หน้าแรก", icon: mainLinks[0].icon },
+  { href: "/products", label: "สินค้า", icon: inventoryLinks[0].icon },
+  { href: "/stock-out", label: "จ่ายสินค้า", icon: inventoryLinks[3].icon },
+  { href: "/orders", label: "จัดส่ง", icon: salesLinks[0].icon },
+];
+const tabHrefs = new Set(tabLinks.map((t) => t.href));
+const allLinks = [...mainLinks, ...inventoryLinks, ...salesLinks, { href: "/users", label: "จัดการผู้ใช้งาน" }];
+const isTabActive = (href: string, pathname: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+
 export default function Navigation({ user }: { user?: NavUser }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const isInventoryActive = inventoryLinks.some(link => pathname === link.href);
   const isSalesActive = salesLinks.some(link => pathname === link.href);
+
+  const pageTitle = allLinks.find((l) => isTabActive(l.href, pathname))?.label ?? "MeeStock";
+  const moreActive = !!user && !tabLinks.some((t) => isTabActive(t.href, pathname));
+
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [pathname]);
 
   const [unreadCount, setUnreadCount] = useState(0);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -73,14 +90,18 @@ export default function Navigation({ user }: { user?: NavUser }) {
     ? "bg-indigo-500/10 text-indigo-300 ring-indigo-400/20"
     : "bg-emerald-500/10 text-emerald-300 ring-emerald-400/20";
 
+  if (pathname === "/login") return null;
+
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-slate-200/80 bg-white/70 backdrop-blur-md transition-all duration-300">
+    <>
+    <header className="sticky top-0 z-30 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md pt-[env(safe-area-inset-top)]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
+        <div className="flex h-14 items-center justify-between gap-3 lg:h-16 lg:gap-4">
           {/* Logo */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Link href="/" className="group flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 shadow-md shadow-indigo-200 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+            {user && <h1 className="truncate text-balance text-lg font-bold text-slate-900 lg:hidden">{pageTitle}</h1>}
+            <Link href="/" className={`group items-center gap-2.5 ${user ? "hidden lg:flex" : "flex"}`}>
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-white">
                   <path d="m7.5 4.27 9 5.15" />
                   <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
@@ -88,7 +109,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
                   <path d="M12 22V12" />
                 </svg>
               </div>
-              <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-lg font-bold tracking-tight text-transparent transition-all duration-300 group-hover:from-indigo-600 group-hover:to-violet-600">
+              <span className="text-lg font-bold text-slate-900">
                 MeeStock
               </span>
               <span className="inline-flex items-center rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
@@ -241,15 +262,15 @@ export default function Navigation({ user }: { user?: NavUser }) {
               <div className="relative">
                 <button
                   onClick={() => setAlertsOpen(!alertsOpen)}
-                  className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 relative transition-colors"
+                  aria-label="การแจ้งเตือน"
+                  className="tap-press flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 relative transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                   {unreadCount > 0 && (
                     <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
                     </span>
                   )}
                 </button>
@@ -257,7 +278,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
                 {alertsOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setAlertsOpen(false)} />
-                    <div className="absolute right-0 top-full mt-2 z-20 animate-in slide-in-from-top-2 duration-150">
+                    <div className="fixed inset-x-3 top-[calc(3.5rem+env(safe-area-inset-top))] z-20 animate-in slide-in-from-top-2 duration-150 sm:left-auto sm:w-96 lg:absolute lg:inset-x-auto lg:right-0 lg:top-full lg:mt-2">
                       <AlertsPanel onClose={() => setAlertsOpen(false)} />
                     </div>
                   </>
@@ -267,12 +288,12 @@ export default function Navigation({ user }: { user?: NavUser }) {
 
             {/* User Menu */}
             {user && (
-              <div className="relative">
+              <div className="relative hidden lg:block">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-slate-100 transition-colors"
                 >
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-500 to-violet-500 text-white text-xs font-bold">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white text-xs font-bold">
                     {user.displayName.charAt(0).toUpperCase()}
                   </div>
                   <div className="hidden sm:block text-left">
@@ -319,122 +340,134 @@ export default function Navigation({ user }: { user?: NavUser }) {
               </div>
             )}
 
-            {/* Mobile Menu Button */}
-            <div className="flex lg:hidden">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                type="button"
-                className="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus:outline-none transition-colors"
-              >
-                <span className="sr-only">เมนู</span>
-                {mobileMenuOpen ? (
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                ) : (
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                  </svg>
-                )}
-              </button>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu Panel */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-slate-200 bg-white/95 backdrop-blur-md animate-in slide-in-from-top duration-200">
-          <div className="space-y-4 px-4 py-4 max-h-[75vh] overflow-y-auto">
-            {/* ภาพรวม */}
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">ภาพรวม</p>
-              <div className="space-y-0.5 flex flex-col">
-                {mainLinks.map((link) => {
-                  const isActive = pathname === link.href;
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                        isActive
-                          ? "text-indigo-600 bg-indigo-50/80"
-                          : "text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
-                      </svg>
-                      {link.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* คลังสินค้า */}
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">คลังสินค้า</p>
-              <div className="space-y-0.5 flex flex-col">
-                {inventoryLinks.map((link) => {
-                  const isActive = pathname === link.href;
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-start gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
-                        isActive
-                          ? "text-indigo-600 bg-indigo-50/80"
-                          : "text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      <svg className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
-                      </svg>
-                      <div className="text-left">
-                        <p className="font-semibold text-xs leading-normal">{link.label}</p>
-                        <p className="text-[10px] text-slate-400 font-normal leading-normal">{link.desc}</p>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* ขาย & ขนส่ง */}
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">ขาย & ขนส่ง</p>
-              <div className="space-y-0.5 flex flex-col">
-                {salesLinks.map((link) => {
-                  const isActive = pathname === link.href;
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-start gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
-                        isActive
-                          ? "text-indigo-600 bg-indigo-50/80"
-                          : "text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      <svg className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
-                      </svg>
-                      <div className="text-left">
-                        <p className="font-semibold text-xs leading-normal">{link.label}</p>
-                        <p className="text-[10px] text-slate-400 font-normal leading-normal">{link.desc}</p>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
+
+      {user && (
+        <>
+          {/* Bottom tab bar (mobile/tablet) */}
+          <nav
+            aria-label="เมนูหลัก"
+            className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md lg:hidden"
+            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          >
+            <ul className="mx-auto grid max-w-2xl grid-cols-5">
+              {tabLinks.map((tab) => {
+                const active = isTabActive(tab.href, pathname);
+                return (
+                  <li key={tab.href}>
+                    <Link
+                      href={tab.href}
+                      aria-current={active ? "page" : undefined}
+                      className={`tap-press flex h-16 flex-col items-center justify-center gap-1 text-xs font-semibold ${
+                        active ? "text-indigo-600" : "text-slate-500"
+                      }`}
+                    >
+                      <span className={`flex h-7 w-14 items-center justify-center rounded-full transition-colors ${active ? "bg-indigo-100" : ""}`}>
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.4 : 1.8} aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />
+                        </svg>
+                      </span>
+                      {tab.label}
+                    </Link>
+                  </li>
+                );
+              })}
+              <li>
+                <button
+                  type="button"
+                  onClick={() => setMoreOpen(true)}
+                  aria-haspopup="dialog"
+                  aria-expanded={moreOpen}
+                  className={`tap-press flex h-16 w-full flex-col items-center justify-center gap-1 text-xs font-semibold ${
+                    moreActive ? "text-indigo-600" : "text-slate-500"
+                  }`}
+                >
+                  <span className={`flex h-7 w-14 items-center justify-center rounded-full transition-colors ${moreActive ? "bg-indigo-100" : ""}`}>
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                  </span>
+                  เพิ่มเติม
+                </button>
+              </li>
+            </ul>
+          </nav>
+
+          {/* "More" bottom sheet */}
+          {moreOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="เมนูเพิ่มเติม">
+              <div className="absolute inset-0 bg-slate-900/40 animate-in fade-in duration-150" onClick={() => setMoreOpen(false)} />
+              <div
+                className="absolute inset-x-0 bottom-0 mx-auto max-h-[85dvh] max-w-2xl overflow-y-auto overscroll-contain rounded-t-3xl bg-white p-4 shadow-2xl animate-in slide-in-from-bottom duration-200"
+                style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+              >
+                <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-slate-300" aria-hidden="true" />
+                {[
+                  { title: "คลังสินค้า", links: inventoryLinks.filter((l) => !tabHrefs.has(l.href)) },
+                  { title: "ขาย & ขนส่ง", links: salesLinks.filter((l) => !tabHrefs.has(l.href)) },
+                  { title: "ภาพรวม", links: mainLinks.filter((l) => !tabHrefs.has(l.href)) },
+                ]
+                  .filter((group) => group.links.length > 0)
+                  .map((group) => (
+                    <section key={group.title} className="mb-4">
+                      <h2 className="mb-2 px-1 text-xs font-bold text-slate-400">{group.title}</h2>
+                      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                        {group.links.map((link) => {
+                          const active = pathname === link.href;
+                          return (
+                            <Link
+                              key={link.href}
+                              href={link.href}
+                              onClick={() => setMoreOpen(false)}
+                              className={`tap-press flex min-h-[84px] flex-col items-center justify-center gap-2 rounded-2xl p-2 text-center text-xs font-semibold ${
+                                active ? "bg-indigo-50 text-indigo-600" : "bg-slate-50 text-slate-700"
+                              }`}
+                            >
+                              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
+                              </svg>
+                              {link.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  ))}
+                <div className="mb-3 flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-sm font-bold text-white">
+                    {user.displayName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-slate-800">{user.displayName}</p>
+                    <p className="text-xs text-slate-500">{roleLabel}</p>
+                  </div>
+                </div>
+                {(user.role === "owner" || user.role === "admin") && (
+                  <Link
+                    href="/users"
+                    onClick={() => setMoreOpen(false)}
+                    className="tap-press mb-2 flex h-12 items-center rounded-2xl bg-slate-50 px-4 text-sm font-semibold text-slate-700"
+                  >
+                    จัดการผู้ใช้งาน
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  disabled={isPending}
+                  className="tap-press flex h-12 w-full items-center justify-center rounded-2xl bg-rose-50 text-sm font-semibold text-rose-600 disabled:opacity-50"
+                >
+                  {isPending ? "กำลังออก..." : "ออกจากระบบ"}
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </>
   );
 }

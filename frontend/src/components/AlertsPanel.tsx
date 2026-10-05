@@ -59,7 +59,7 @@ export default function AlertsPanel({ onClose }: { onClose?: () => void }) {
   };
 
   return (
-    <div className="w-80 sm:w-96 rounded-3xl border border-slate-200 bg-white shadow-2xl overflow-hidden flex flex-col max-h-[480px]">
+    <div className="w-full sm:w-96 rounded-3xl border border-slate-200 bg-white shadow-2xl overflow-hidden flex flex-col max-h-[480px]">
       {/* Header */}
       <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
         <div className="flex items-center gap-2">

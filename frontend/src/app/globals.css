@@ -23,11 +23,45 @@ body, button, input, select, textarea, .MuiDataGrid-root, .MuiTypography-root, .
   font-family: "Prompt", "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
+  overscroll-behavior-y: none;
   background: var(--background);
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* App-like touch behaviour (tablet/mobile) */
+@media (max-width: 1023px) {
+  button, a, [role="button"], .MuiDataGrid-row {
+    touch-action: manipulation;
+  }
+  /* 16px prevents iOS zoom-on-focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  button, [role="button"], .MuiButtonBase-root {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Press feedback instead of hover */
+.tap-press {
+  transition: transform 120ms ease, background-color 120ms ease;
+}
+.tap-press:active {
+  transform: scale(0.95);
+  background-color: rgb(238 242 255 / 0.7);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tap-press { transition: none; }
+  .tap-press:active { transform: none; }
 }
 
 /* Glassmorphism utility */
@@ -69,3 +103,73 @@ body {
   }
 }
 
+
+/* Centered modals become bottom sheets on tablet/mobile */
+@media (max-width: 1023px) {
+  .fixed.inset-0.z-50.items-center {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .fixed.inset-0.z-50.items-center > .relative {
+    max-width: 42rem;
+    max-height: 92dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Touch targets and overflow guards (tablet/mobile) */
+@media (max-width: 1023px) {
+  select {
+    max-width: 100%;
+    min-width: 0;
+    text-overflow: ellipsis;
+  }
+  main button,
+  main select,
+  main input:not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+    min-height: 44px;
+  }
+  main button {
+    min-width: 44px;
+  }
+}
+
+@media (max-width: 1023px) {
+  html, body {
+    max-width: 100vw;
+    overflow-x: clip;
+  }
+  main {
+    min-width: 0;
+    overflow-x: clip;
+  }
+}
+
+/* Minimum readable text on tablet/mobile */
+@media (max-width: 1023px) {
+  main .text-\[9px\],
+  main .text-\[10px\],
+  main .text-\[11px\],
+  main .text-xxs {
+    font-size: 12px !important;
+    line-height: 1.4;
+  }
+  main .recharts-text {
+    font-size: 12px;
+  }
+}
+
+/* Typography baseline: balanced headings, tabular figures for data */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+.MuiDataGrid-cell, td, dd, .recharts-text {
+  font-variant-numeric: tabular-nums;
+}

@@ -4,14 +4,12 @@ export default function Home() {
   return (
     <div className="space-y-10 py-4">
       {/* Premium Hero Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-indigo-900 p-8 text-white shadow-xl shadow-indigo-950/20 sm:p-12">
-        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-indigo-500/10 blur-2xl"></div>
-        <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-violet-500/10 blur-2xl"></div>
+      <div className="relative overflow-hidden rounded-3xl bg-slate-900 p-8 text-white shadow-xl shadow-indigo-950/20 sm:p-12">
 
         <div className="relative max-w-2xl space-y-4">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-300 ring-1 ring-indigo-400/20">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className=" absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             พร้อมใช้งานสำหรับร้านค้าออนไลน์ของคุณ
@@ -19,7 +17,7 @@ export default function Home() {
           
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
             ระบบบริหารคลังสินค้า <br/>
-            <span className="bg-gradient-to-r from-indigo-300 to-violet-200 bg-clip-text text-transparent font-black">
+            <span className="text-indigo-300 font-black">
               MeeStock Pro
             </span>
           </h1>
