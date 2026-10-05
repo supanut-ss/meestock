@@ -1071,6 +1071,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
         renderCell: (params) => (
           <IconButton
             size="small"
+            aria-label="นำส่วนประกอบออกจากเซ็ต"
             onClick={() => actionsRef.current.handleRemoveBundleComponent(params.row.componentId)}
             sx={{ color: "#94a3b8", "&:hover": { color: "#dc2626" } }}
           >
