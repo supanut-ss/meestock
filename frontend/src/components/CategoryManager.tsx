@@ -321,7 +321,9 @@ export default function CategoryManager() {
                 {editingId ? "แก้ไขหมวดหมู่" : parentId ? "เพิ่มหมวดหมู่ย่อย" : "เพิ่มหมวดหมู่หลัก"}
               </h2>
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
+                aria-label="ปิดหน้าต่าง"
                 className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-50 rounded-lg transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -370,6 +372,7 @@ export default function CategoryManager() {
                 <div className="flex items-center gap-3">
                   <input
                     type="color"
+                    aria-label="เลือกสีหมวดหมู่"
                     className="w-10 h-10 rounded-xl border border-slate-200 cursor-pointer overflow-hidden p-0 bg-transparent flex-shrink-0"
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
@@ -390,7 +393,9 @@ export default function CategoryManager() {
                       key={pc.hex}
                       type="button"
                       onClick={() => setColor(pc.hex)}
-                      className={`h-7 rounded-xl border relative transition-all ${
+                      aria-label={`สี ${pc.label}`}
+                      aria-pressed={color.toLowerCase() === pc.hex.toLowerCase()}
+                      className={`h-11 rounded-xl border relative transition-all ${
                         color.toLowerCase() === pc.hex.toLowerCase()
                           ? "border-slate-800 scale-105 shadow-sm"
                           : "border-slate-100 hover:scale-105"

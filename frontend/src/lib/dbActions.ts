@@ -2,6 +2,7 @@
 
 import { getPool, getDemoMerchantId } from "./db";
 import mssql from "mssql";
+import { isAdmin } from "./authActions";
 
 // ================================================================
 // TYPES
@@ -165,6 +166,7 @@ export type DBAlert = {
 
 export async function getProducts(search = "", categoryId?: string, status = "active"): Promise<DBProduct[]> {
   try {
+    const showCost = await isAdmin(); // cost/profit are admin-only
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
     const request = pool.request();
@@ -219,7 +221,7 @@ export async function getProducts(search = "", categoryId?: string, status = "ac
       barcode: row.barcode,
       name: row.name,
       unitPrice: Number(row.unit_price),
-      costPrice: Number(row.cost_price ?? 0),
+      costPrice: showCost ? Number(row.cost_price ?? 0) : 0,
       stockQty: Number(row.calculated_stock_qty),
       lowStockThreshold: Number(row.low_stock_threshold),
       unit: row.unit ?? "ชิ้น",
@@ -331,6 +333,7 @@ export async function updateProduct(
 
     if (current.recordset.length === 0) return false;
     const prev = current.recordset[0];
+    const canEditCost = await isAdmin(); // staff may not change cost price
 
     const transaction = new mssql.Transaction(pool);
     await transaction.begin();
@@ -341,7 +344,7 @@ export async function updateProduct(
         .input("merchantId", mssql.UniqueIdentifier, merchantId)
         .input("name", mssql.NVarChar, product.name ?? prev.name)
         .input("unitPrice", mssql.Decimal(18, 2), product.unitPrice ?? Number(prev.unit_price))
-        .input("costPrice", mssql.Decimal(18, 2), product.costPrice ?? Number(prev.cost_price))
+        .input("costPrice", mssql.Decimal(18, 2), canEditCost ? (product.costPrice ?? Number(prev.cost_price)) : Number(prev.cost_price))
         .input("lowStockThreshold", mssql.Int, product.lowStockThreshold ?? prev.low_stock_threshold)
         .input("unit", mssql.NVarChar, product.unit ?? prev.unit)
         .input("notes", mssql.NVarChar, product.notes ?? prev.notes ?? "")
@@ -361,7 +364,7 @@ export async function updateProduct(
       const fieldsToAudit = [
         { field: "name", before: prev.name, after: product.name },
         { field: "unit_price", before: String(prev.unit_price), after: product.unitPrice !== undefined ? String(product.unitPrice) : undefined },
-        { field: "cost_price", before: String(prev.cost_price), after: product.costPrice !== undefined ? String(product.costPrice) : undefined },
+        { field: "cost_price", before: String(prev.cost_price), after: product.costPrice !== undefined && canEditCost ? String(product.costPrice) : undefined },
         { field: "status", before: prev.status, after: product.status },
       ];
 
@@ -1116,6 +1119,7 @@ export async function deleteShipmentOrder(orderId: string): Promise<boolean> {
 
 export async function getDashboardData() {
   try {
+    const showCost = await isAdmin(); // cost/profit are admin-only
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
 
@@ -1126,8 +1130,8 @@ export async function getDashboardData() {
           (SELECT COUNT(*) FROM dbo.products WHERE merchant_id = @merchantId AND is_active = 1 AND status = N'active') as total_products,
           (SELECT SUM(stock_qty) FROM dbo.products WHERE merchant_id = @merchantId AND is_active = 1) as total_stock_qty,
           (SELECT COUNT(*) FROM dbo.products WHERE merchant_id = @merchantId AND is_active = 1 AND stock_qty <= low_stock_threshold) as low_stock_count,
-          (SELECT SUM(total_amount) FROM dbo.orders WHERE merchant_id = @merchantId AND order_type = N'sale' AND status != N'Cancelled') as total_sales,
-          (SELECT SUM(total_amount - cost_total) FROM dbo.orders WHERE merchant_id = @merchantId AND order_type = N'sale' AND status != N'Cancelled') as total_profit
+          (SELECT SUM(total_amount) FROM dbo.orders WHERE merchant_id = @merchantId AND order_type = N'sale' AND status NOT IN (N'Cancelled', N'Returned')) as total_sales,
+          (SELECT SUM(total_amount - cost_total) FROM dbo.orders WHERE merchant_id = @merchantId AND order_type = N'sale' AND status NOT IN (N'Cancelled', N'Returned')) as total_profit
       `);
 
     const counts = countsResult.recordset[0];
@@ -1153,7 +1157,7 @@ export async function getDashboardData() {
       .query(`
         SELECT FORMAT(created_at, 'MM-dd') as date, SUM(total_amount) as amount
         FROM dbo.orders
-        WHERE merchant_id = @merchantId AND created_at >= DATEADD(day, -30, GETUTCDATE())
+        WHERE merchant_id = @merchantId AND status NOT IN (N'Cancelled', N'Returned') AND created_at >= DATEADD(day, -30, GETUTCDATE())
         GROUP BY FORMAT(created_at, 'MM-dd')
         ORDER BY date ASC
       `);
@@ -1171,7 +1175,7 @@ export async function getDashboardData() {
       .query(`
         SELECT FORMAT(created_at, 'MM') as month, SUM(total_amount) as amount
         FROM dbo.orders
-        WHERE merchant_id = @merchantId AND created_at >= DATEADD(month, -6, GETUTCDATE())
+        WHERE merchant_id = @merchantId AND status NOT IN (N'Cancelled', N'Returned') AND created_at >= DATEADD(month, -6, GETUTCDATE())
         GROUP BY FORMAT(created_at, 'MM')
         ORDER BY month ASC
       `);
@@ -1198,7 +1202,8 @@ export async function getDashboardData() {
         SELECT TOP 5 p.name, SUM(oi.qty) as total_qty, p.unit_price as price
         FROM dbo.order_items oi
         INNER JOIN dbo.products p ON oi.product_id = p.id
-        WHERE oi.merchant_id = @merchantId
+        INNER JOIN dbo.orders o ON oi.order_id = o.id
+        WHERE oi.merchant_id = @merchantId AND o.status NOT IN (N'Cancelled', N'Returned')
         GROUP BY p.name, p.unit_price
         ORDER BY total_qty DESC
       `);
@@ -1223,7 +1228,7 @@ export async function getDashboardData() {
         low_stock_count: counts.low_stock_count || 0,
         low_stock_items: lowStockItems,
         total_sales: Number(counts.total_sales ?? 0),
-        total_profit: Number(counts.total_profit ?? 0),
+        total_profit: showCost ? Number(counts.total_profit ?? 0) : 0,
       },
       daily: dailyData,
       monthly: monthlyData,
@@ -1253,6 +1258,7 @@ export async function getDashboardData() {
 
 export async function getStockMovements(search = "", type = "All"): Promise<DBStockMovement[]> {
   try {
+    const showCost = await isAdmin(); // cost/profit are admin-only
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
     const request = pool.request();
@@ -1294,7 +1300,7 @@ export async function getStockMovements(search = "", type = "All"): Promise<DBSt
       lotNo: row.lot_no ?? null,
       expiryDate: row.expiry_date ? new Date(row.expiry_date).toLocaleDateString("th-TH") : null,
       supplierName: row.supplierName ?? null,
-      costPrice: row.cost_price !== null ? Number(row.cost_price) : null,
+      costPrice: showCost && row.cost_price !== null ? Number(row.cost_price) : null,
       note: row.note ?? null,
       createdAt: new Date(row.created_at).toLocaleString("th-TH"),
     }));
@@ -1375,6 +1381,7 @@ export async function markAllAlertsRead(): Promise<boolean> {
 
 export async function getSaleOrders(search = ""): Promise<DBSaleOrder[]> {
   try {
+    const showCost = await isAdmin(); // cost/profit are admin-only
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
     const request = pool.request();
@@ -1415,7 +1422,7 @@ export async function getSaleOrders(search = ""): Promise<DBSaleOrder[]> {
         createdAt: new Date(row.created_at).toLocaleString("th-TH"),
         status: row.status,
         totalAmount: Number(row.total_amount),
-        costTotal: Number(row.cost_total ?? 0),
+        costTotal: showCost ? Number(row.cost_total ?? 0) : 0,
         note: row.note,
         items: itemsResult.recordset.map((item) => ({
           productId: item.product_id.toString(),
@@ -1423,7 +1430,7 @@ export async function getSaleOrders(search = ""): Promise<DBSaleOrder[]> {
           qty: Number(item.qty),
           unitPrice: Number(item.unit_price),
           lineAmount: Number(item.line_amount),
-          costPrice: Number(item.cost_price ?? 0),
+          costPrice: showCost ? Number(item.cost_price ?? 0) : 0,
         })),
       });
     }
@@ -1502,6 +1509,7 @@ export async function getInventoryReport(): Promise<DBProduct[]> {
 
 export async function getProfitReport(): Promise<DBProfitReportRow[]> {
   try {
+    const showCost = await isAdmin(); // cost/profit are admin-only
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
     const result = await pool.request()
@@ -1514,7 +1522,7 @@ export async function getProfitReport(): Promise<DBProfitReportRow[]> {
         FROM dbo.order_items oi
         INNER JOIN dbo.products p ON oi.product_id = p.id
         INNER JOIN dbo.orders o ON oi.order_id = o.id
-        WHERE o.merchant_id = @merchantId AND o.order_type = N'sale' AND o.status != N'Cancelled'
+        WHERE o.merchant_id = @merchantId AND o.order_type = N'sale' AND o.status NOT IN (N'Cancelled', N'Returned')
         GROUP BY p.sku, p.name
         ORDER BY profit DESC
       `);
@@ -1523,8 +1531,8 @@ export async function getProfitReport(): Promise<DBProfitReportRow[]> {
       productName: row.productName,
       qtySold: Number(row.qty_sold),
       salesTotal: Number(row.sales_total),
-      costTotal: Number(row.cost_total),
-      profit: Number(row.profit),
+      costTotal: showCost ? Number(row.cost_total) : 0,
+      profit: showCost ? Number(row.profit) : 0,
     }));
   } catch (err) {
     console.error("getProfitReport failed:", err);
@@ -1534,6 +1542,7 @@ export async function getProfitReport(): Promise<DBProfitReportRow[]> {
 
 export async function getSlowMovingItems(days = 30): Promise<DBSlowMovingRow[]> {
   try {
+    const showCost = await isAdmin(); // cost/profit are admin-only
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
     const result = await pool.request()
@@ -1556,7 +1565,7 @@ export async function getSlowMovingItems(days = 30): Promise<DBSlowMovingRow[]> 
       stockQty: Number(row.stock_qty),
       unit: row.unit ?? "ชิ้น",
       unitPrice: Number(row.unit_price),
-      costPrice: Number(row.cost_price ?? 0),
+      costPrice: showCost ? Number(row.cost_price ?? 0) : 0,
       lastMovement: row.last_movement ? new Date(row.last_movement).toLocaleDateString("th-TH") : null,
     }));
   } catch (err) {
@@ -1673,6 +1682,7 @@ export async function importProducts(
   try {
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
+    const canEditCost = await isAdmin(); // staff imports must not overwrite cost prices
 
     let count = 0;
     for (const item of items) {
@@ -1694,13 +1704,14 @@ export async function importProducts(
           .input("barcode", mssql.NVarChar, item.barcode?.trim() || "")
           .input("unitPrice", mssql.Decimal(18, 2), item.unitPrice)
           .input("costPrice", mssql.Decimal(18, 2), item.costPrice)
+          .input("canEditCost", mssql.Bit, canEditCost)
           .input("lowStockThreshold", mssql.Int, item.lowStockThreshold)
           .input("unit", mssql.NVarChar, item.unit || "ชิ้น")
           .input("notes", mssql.NVarChar, item.notes || "")
           .query(`
             UPDATE dbo.products
             SET name = @name, barcode = @barcode, unit_price = @unitPrice,
-                cost_price = @costPrice, low_stock_threshold = @lowStockThreshold,
+                cost_price = CASE WHEN @canEditCost = 1 THEN @costPrice ELSE cost_price END, low_stock_threshold = @lowStockThreshold,
                 unit = @unit, notes = @notes, updated_at = SYSUTCDATETIME()
             WHERE id = @id AND merchant_id = @merchantId
           `);
@@ -1741,6 +1752,7 @@ export async function importProducts(
 
 export async function getProductVariants(productId: string): Promise<DBProductVariant[]> {
   try {
+    const showCost = await isAdmin(); // cost/profit are admin-only
     const merchantId = await getDemoMerchantId();
     const pool = await getPool();
     const result = await pool.request()
@@ -1759,7 +1771,7 @@ export async function getProductVariants(productId: string): Promise<DBProductVa
       sku: row.sku,
       barcode: row.barcode,
       name: row.name,
-      costPrice: Number(row.cost_price),
+      costPrice: showCost ? Number(row.cost_price) : 0,
       unitPrice: Number(row.unit_price),
       stockQty: Number(row.stock_qty),
       lowStockThreshold: Number(row.low_stock_threshold),
@@ -1862,7 +1874,7 @@ export async function updateProductVariant(
       setClause.push("barcode = @barcode");
       request.input("barcode", mssql.NVarChar, variant.barcode.trim() || null);
     }
-    if (variant.costPrice !== undefined) {
+    if (variant.costPrice !== undefined && (await isAdmin())) {
       setClause.push("cost_price = @costPrice");
       request.input("costPrice", mssql.Decimal(18, 2), variant.costPrice);
     }
