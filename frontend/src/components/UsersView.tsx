@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { getUsers, createUser, toggleUserActive } from "@/lib/authActions";
 import MeeDataGrid from "@/components/ui/MeeDataGrid";
 import StatusBadge from "@/components/ui/StatusBadge";
@@ -34,7 +34,7 @@ export default function UsersView() {
   const [toggleTarget, setToggleTarget] = useState<UserRow | null>(null);
   const { notifySuccess, notifyError } = useNotification();
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getUsers();
@@ -45,11 +45,11 @@ export default function UsersView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [notifyError]);
 
   useEffect(() => {
     void loadUsers();
-  }, []);
+  }, [loadUsers]);
 
   const confirmToggleActive = async () => {
     if (!toggleTarget) return;

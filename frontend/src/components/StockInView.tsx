@@ -83,7 +83,7 @@ export default function StockInView() {
       setVariants([]);
       setForm((f) => ({ ...f, variantId: "", costPrice: 0 }));
     }
-  }, [form.productId]);
+  }, [form.productId, selectedProduct]);
 
   const handleBarcodeScanned = async (code: string) => {
     setError("");

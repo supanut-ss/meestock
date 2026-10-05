@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getStockMovements, DBStockMovement } from "@/lib/dbActions";
 import MeeDataGrid from "@/components/ui/MeeDataGrid";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
@@ -17,7 +17,7 @@ export default function StockMovementsView() {
   const [typeFilter, setTypeFilter] = useState<"All" | "In" | "Out">("All");
   const { notifySuccess, notifyWarning } = useNotification();
 
-  const loadMovements = async () => {
+  const loadMovements = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getStockMovements("", typeFilter);
@@ -27,11 +27,11 @@ export default function StockMovementsView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [typeFilter]);
 
   useEffect(() => {
     void loadMovements();
-  }, [typeFilter]);
+  }, [loadMovements]);
 
   // Aggregate metrics
   const stats = useMemo(() => {

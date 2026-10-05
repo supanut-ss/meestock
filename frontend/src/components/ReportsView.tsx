@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import {
   getInventoryReport,
@@ -45,7 +45,7 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
   // Expiry days control
   const [expiryDays, setExpiryDays] = useState(30);
 
-  const loadReportData = async () => {
+  const loadReportData = useCallback(async () => {
     setLoading(true);
     try {
       if (activeTab === "inventory") {
@@ -69,11 +69,11 @@ export default function ReportsView({ isAdmin = true }: { isAdmin?: boolean }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, slowDays, expiryDays]);
 
   useEffect(() => {
     void loadReportData();
-  }, [activeTab, slowDays, expiryDays]);
+  }, [loadReportData]);
 
   // Top 10 Best Sellers derived from Profit report
   const bestSellers = useMemo(() => {

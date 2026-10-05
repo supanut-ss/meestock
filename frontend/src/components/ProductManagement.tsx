@@ -54,6 +54,13 @@ const BLANK_PRODUCT = {
 };
 
 
+const fieldLabel: Record<string, string> = {
+  name: "ชื่อสินค้า",
+  unit_price: "ราคาขาย",
+  cost_price: "ราคาทุน",
+  status: "สถานะ",
+};
+
 export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolean }) {
   const [products, setProducts] = useState<DBProduct[]>([]);
   const [categories, setCategories] = useState<DBCategory[]>([]);
@@ -374,6 +381,12 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
     if (success) void loadProducts();
     else alert("ไม่สามารถปรับปรุงสต็อกได้");
   };
+
+  // Memoized grid columns call these through a ref so they never run with stale state
+  const actionsRef = useRef({ handleUpdateStock, handleDeleteVariant, handleRemoveBundleComponent });
+  useEffect(() => {
+    actionsRef.current = { handleUpdateStock, handleDeleteVariant, handleRemoveBundleComponent };
+  });
 
   // SKU real-time check (debounced)
   useEffect(() => {
@@ -700,7 +713,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
               <div className="inline-flex items-center rounded-lg border border-slate-200 bg-white shadow-2xs shrink-0 overflow-hidden">
                 <button
                   type="button"
-                  onClick={() => handleUpdateStock(p.id, -1)}
+                  onClick={() => actionsRef.current.handleUpdateStock(p.id, -1)}
                   disabled={p.stockQty <= 0}
                   className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border-r border-slate-100 disabled:opacity-25 disabled:cursor-not-allowed"
                   title="ลดสต็อก 1 ชิ้น"
@@ -709,7 +722,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleUpdateStock(p.id, 1)}
+                  onClick={() => actionsRef.current.handleUpdateStock(p.id, 1)}
                   className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer"
                   title="เพิ่มสต็อก 1 ชิ้น"
                 >
@@ -814,13 +827,6 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
   }, [isAdmin, categories]);
 
   const lowStockCount = useMemo(() => products.filter((p) => p.stockQty <= p.lowStockThreshold).length, [products]);
-
-  const fieldLabel: Record<string, string> = {
-    name: "ชื่อสินค้า",
-    unit_price: "ราคาขาย",
-    cost_price: "ราคาทุน",
-    status: "สถานะ",
-  };
 
   // History Columns
   const historyColumns = useMemo<GridColDef<DBProductAuditLog>[]>(
@@ -978,7 +984,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
               <Tooltip title="ลบตัวเลือก">
                 <IconButton
                   size="small"
-                  onClick={() => handleDeleteVariant(v.id)}
+                  onClick={() => actionsRef.current.handleDeleteVariant(v.id)}
                   sx={{ color: "#64748b", "&:hover": { color: "#dc2626" } }}
                 >
                   <DeleteOutlineOutlinedIcon sx={{ fontSize: 15 }} />
@@ -1060,7 +1066,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
         renderCell: (params) => (
           <IconButton
             size="small"
-            onClick={() => handleRemoveBundleComponent(params.row.componentId)}
+            onClick={() => actionsRef.current.handleRemoveBundleComponent(params.row.componentId)}
             sx={{ color: "#94a3b8", "&:hover": { color: "#dc2626" } }}
           >
             <DeleteOutlineOutlinedIcon sx={{ fontSize: 15 }} />

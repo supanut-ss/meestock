@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useReactToPrint } from "react-to-print";
 import ShippingLabel from "@/components/ShippingLabel";
 import {
@@ -73,7 +73,7 @@ export default function OrdersHistoryView() {
   });
 
   // Load Shipments
-  const loadShipments = async () => {
+  const loadShipments = useCallback(async () => {
     setLoading(true);
     try {
       const dbOrders = await getShipmentOrders("", statusFilter);
@@ -84,10 +84,10 @@ export default function OrdersHistoryView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, notifyError]);
 
   // Load Sales
-  const loadSales = async () => {
+  const loadSales = useCallback(async () => {
     setLoading(true);
     try {
       const dbSales = await getSaleOrders("");
@@ -98,7 +98,7 @@ export default function OrdersHistoryView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [notifyError]);
 
   // Run load on filter/tab changes
   useEffect(() => {
@@ -107,7 +107,7 @@ export default function OrdersHistoryView() {
     } else {
       void loadSales();
     }
-  }, [statusFilter, activeTab]);
+  }, [activeTab, loadShipments, loadSales]);
 
   // Open edit modal (Shipments)
   const openEditModal = (order: DBShipmentOrder) => {
@@ -190,6 +190,12 @@ export default function OrdersHistoryView() {
       }
     }, 100);
   };
+
+  // Memoized grid columns call these through a ref so they never run with stale state
+  const printRef = useRef({ handlePrintLabel, handlePrintReceipt });
+  useEffect(() => {
+    printRef.current = { handlePrintLabel, handlePrintReceipt };
+  });
 
   // Open Return Modal (Sales)
   const openReturnModal = (sale: DBSaleOrder) => {
@@ -343,7 +349,7 @@ export default function OrdersHistoryView() {
               <Tooltip title="พิมพ์ใบปะหน้า 100x150mm">
                 <IconButton
                   size="small"
-                  onClick={() => handlePrintLabel(o)}
+                  onClick={() => printRef.current.handlePrintLabel(o)}
                   sx={{
                     color: "#64748b",
                     border: "1px solid #e2e8f0",
@@ -482,7 +488,7 @@ export default function OrdersHistoryView() {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <button
                 type="button"
-                onClick={() => handlePrintReceipt(s)}
+                onClick={() => printRef.current.handlePrintReceipt(s)}
                 className="py-1 px-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-indigo-600 text-xs font-semibold transition-all shadow-sm flex items-center gap-1 cursor-pointer"
                 title="พิมพ์ใบเสร็จพิมพ์ซ้ำ"
               >
