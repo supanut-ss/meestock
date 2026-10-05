@@ -23,6 +23,7 @@ export type DBProduct = {
   categoryName: string | null;
   imageUrl: string | null;
   productType: "standard" | "bundle";
+  variantCount?: number;
 };
 
 export type DBProductVariant = {
@@ -228,6 +229,7 @@ export async function getProducts(search = "", categoryId?: string, status = "ac
       categoryName: row.category_name ?? null,
       imageUrl: row.image_url ?? null,
       productType: row.product_type ?? "standard",
+      variantCount: Number(row.variant_count ?? 0),
     }));
   } catch (err) {
     console.error("getProducts failed:", err);

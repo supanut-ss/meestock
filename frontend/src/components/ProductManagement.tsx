@@ -54,6 +54,9 @@ const BLANK_PRODUCT = {
 };
 
 
+// Stock of bundles and products with variants is derived, so quick +/- would only change a hidden base value
+const stockLockedHint = "สต็อกคำนวณจากตัวเลือกย่อย/ส่วนประกอบ กรุณาปรับที่เมนูจัดการตัวเลือกย่อย";
+
 const fieldLabel: Record<string, string> = {
   name: "ชื่อสินค้า",
   unit_price: "ราคาขาย",
@@ -681,6 +684,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
         renderCell: (params: GridRenderCellParams<DBProduct, number>) => {
           const p = params.row;
           const isLow = p.stockQty <= p.lowStockThreshold;
+          const stockLocked = p.productType === "bundle" || (p.variantCount ?? 0) > 0;
           const isOut = p.stockQty === 0;
           return (
             <div className="flex items-center justify-between gap-2 w-full max-w-[145px] mx-auto py-0.5">
@@ -714,17 +718,18 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                 <button
                   type="button"
                   onClick={() => actionsRef.current.handleUpdateStock(p.id, -1)}
-                  disabled={p.stockQty <= 0}
+                  disabled={p.stockQty <= 0 || stockLocked}
                   className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border-r border-slate-100 disabled:opacity-25 disabled:cursor-not-allowed"
-                  title="ลดสต็อก 1 ชิ้น"
+                  title={stockLocked ? stockLockedHint : "ลดสต็อก 1 ชิ้น"}
                 >
                   <span className="text-xs font-bold leading-none">−</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => actionsRef.current.handleUpdateStock(p.id, 1)}
-                  className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer"
-                  title="เพิ่มสต็อก 1 ชิ้น"
+                  disabled={stockLocked}
+                  className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed"
+                  title={stockLocked ? stockLockedHint : "เพิ่มสต็อก 1 ชิ้น"}
                 >
                   <span className="text-xs font-bold leading-none">+</span>
                 </button>
