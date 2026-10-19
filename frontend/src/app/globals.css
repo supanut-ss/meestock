@@ -269,3 +269,27 @@ main .rounded-\[2rem\] { border-radius: 1.25rem; }
   main .py-2\.5 { padding-block: 0.5rem; }
 }
 .surface-card { border-radius: 1.125rem; }
+
+/* Landing page motion (reduced-motion users get the global near-zero durations) */
+@keyframes landing-scan {
+  0%, 100% { top: 8%; }
+  50% { top: 88%; }
+}
+.landing-scan { animation: landing-scan 2.4s ease-in-out infinite; }
+
+@keyframes landing-draw {
+  from { stroke-dashoffset: 420; }
+  to { stroke-dashoffset: 0; }
+}
+.landing-draw { stroke-dasharray: 420; animation: landing-draw 1.6s ease-out 0.3s both; }
+
+@keyframes landing-blink {
+  50% { opacity: 0; }
+}
+.landing-caret { animation: landing-blink 1s steps(1) infinite; }
+
+@keyframes landing-float {
+  0%, 100% { transform: translateY(0) rotate(var(--landing-tilt, 0deg)); }
+  50% { transform: translateY(-8px) rotate(var(--landing-tilt, 0deg)); }
+}
+.landing-float { animation: landing-float 6s ease-in-out infinite; }

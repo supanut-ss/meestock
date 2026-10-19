@@ -4,7 +4,7 @@ test.describe("public access", () => {
   test("landing page is visible without logging in", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("MeeStock Pro");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("สต็อกตรง");
     await expect(page.getByRole("link", { name: "เข้าสู่ระบบ" }).first()).toHaveAttribute("href", "/login");
   });
 
