@@ -11,6 +11,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  bulkUpdateProducts,
   getCategoriesFlat,
   getProductHistory,
   checkSkuExists,
@@ -477,6 +478,29 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
   };
 
   const { notifySuccess, notifyError } = useNotification();
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkAction, setBulkAction] = useState<
+    { kind: "status"; status: "active" | "inactive" } | { kind: "category"; categoryId: string | null } | null
+  >(null);
+  const [bulkSaving, setBulkSaving] = useState(false);
+
+  const runBulkAction = async () => {
+    if (!bulkAction) return;
+    setBulkSaving(true);
+    const result = await bulkUpdateProducts(
+      selectedIds,
+      bulkAction.kind === "status" ? { status: bulkAction.status } : { categoryId: bulkAction.categoryId }
+    );
+    setBulkSaving(false);
+    if (result.success) {
+      notifySuccess(`อัปเดตสินค้า ${result.updated} รายการเรียบร้อยแล้ว`);
+      setSelectedIds([]);
+      setBulkAction(null);
+      void loadProducts();
+    } else {
+      notifyError(result.error ?? "ไม่สามารถอัปเดตสินค้าได้");
+    }
+  };
   const [deleteTarget, setDeleteTarget] = useState<DBProduct | null>(null);
 
   const confirmDeleteProduct = async () => {
@@ -1350,12 +1374,61 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
       )}
 
       {/* Products DataGrid */}
+      {selectedIds.length > 0 && (
+        <div
+          role="region"
+          aria-label="จัดการสินค้าที่เลือก"
+          className="flex flex-wrap items-center gap-2 rounded-2xl border border-indigo-200 bg-indigo-50 px-3 py-2"
+        >
+          <span className="text-sm font-semibold text-indigo-800">เลือก {selectedIds.length} รายการ</span>
+          <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+            <button type="button" onClick={() => setBulkAction({ kind: "status", status: "active" })} className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">เปิดใช้งาน</button>
+            <button type="button" onClick={() => setBulkAction({ kind: "status", status: "inactive" })} className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">ปิดใช้งาน</button>
+            <select
+              aria-label="ย้ายไปหมวดหมู่"
+              value=""
+              onChange={(e) => {
+                if (e.target.value) setBulkAction({ kind: "category", categoryId: e.target.value === "__none__" ? null : e.target.value });
+              }}
+              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700"
+            >
+              <option value="">ย้ายหมวดหมู่...</option>
+              <option value="__none__">ไม่ระบุหมวดหมู่</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.parentId ? `└ ${c.name}` : c.name}</option>
+              ))}
+            </select>
+            <button type="button" onClick={() => setSelectedIds([])} className="rounded-xl px-3 py-1.5 text-sm font-semibold text-slate-500 hover:bg-white">ล้างการเลือก</button>
+          </div>
+        </div>
+      )}
+
       <MeeDataGrid
         rows={processedProducts}
         columns={columns}
         loading={loading}
         quickFilterPlaceholder="ค้นหาชื่อสินค้า, SKU, บาร์โค้ด, หมวดหมู่..."
         autoHeight
+        checkboxSelection
+        rowSelectionModel={{ type: "include", ids: new Set(selectedIds) }}
+        onRowSelectionModelChange={(model) => {
+          const ids = [...model.ids].map(String);
+          setSelectedIds(model.type === "exclude" ? processedProducts.map((p) => p.id).filter((id) => !ids.includes(id)) : ids);
+        }}
+      />
+
+      <ConfirmDialog
+        open={bulkAction !== null}
+        title="ยืนยันการแก้ไขหลายรายการ"
+        message={
+          bulkAction?.kind === "status"
+            ? `ต้องการ${bulkAction.status === "active" ? "เปิดใช้งาน" : "ปิดใช้งาน"}สินค้า ${selectedIds.length} รายการหรือไม่?`
+            : `ต้องการย้ายสินค้า ${selectedIds.length} รายการไปหมวดหมู่ที่เลือกหรือไม่?`
+        }
+        confirmText="ยืนยัน"
+        loading={bulkSaving}
+        onConfirm={() => void runBulkAction()}
+        onClose={() => setBulkAction(null)}
       />
 
       {/* Barcode Modal */}

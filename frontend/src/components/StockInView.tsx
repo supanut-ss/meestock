@@ -16,6 +16,7 @@ import { useNotification } from "@/components/ui/NotificationProvider";
 import MoveToInboxOutlinedIcon from "@mui/icons-material/MoveToInboxOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import CameraScannerModal from "./CameraScannerModal";
+import ProductPicker from "@/components/ui/ProductPicker";
 
 export default function StockInView() {
   const [products, setProducts] = useState<DBProduct[]>([]);
@@ -224,17 +225,15 @@ export default function StockInView() {
                 </svg>
                 สแกนกล้อง
               </button>
-              <select
+              <ProductPicker
+                className="flex-1"
                 required
-                className="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                value={form.productId}
-                onChange={(e) => setForm({ ...form, productId: e.target.value })}
-              >
-                <option value="">— เลือกสินค้า —</option>
-                {products.filter((p) => p.productType !== "bundle").map((p) => (
-                  <option key={p.id} value={p.id}>{p.name} (SKU: {p.sku}) | สต็อก: {p.stockQty} {p.unit}</option>
-                ))}
-              </select>
+                products={products.filter((p) => p.productType !== "bundle")}
+                selectedId={form.productId}
+                placeholder="ค้นหาชื่อ/SKU/บาร์โค้ด แล้วกด Enter"
+                onSelect={(p) => setForm({ ...form, productId: p.id })}
+                onSubmitCode={(code) => void handleBarcodeScanned(code)}
+              />
             </div>
           </div>
 

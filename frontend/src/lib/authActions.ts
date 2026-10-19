@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { getPool, getDemoMerchantId } from "./db";
 import mssql from "mssql";
+import { signSession, verifySession, SESSION_MAX_AGE } from "./session";
 
 // -------------------------------------------------------
 // AUTH TYPES
@@ -17,23 +18,6 @@ export type SessionUser = {
 };
 
 const SESSION_COOKIE = "meestock_session";
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 วัน
-
-// Simple JWT-like session using base64 (ไม่ต้องติดตั้ง library เพิ่ม)
-function encodeSession(user: SessionUser): string {
-  const payload = JSON.stringify({ ...user, exp: Date.now() + SESSION_MAX_AGE * 1000 });
-  return Buffer.from(payload).toString("base64");
-}
-
-function decodeSession(token: string): SessionUser | null {
-  try {
-    const payload = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
-    if (payload.exp && Date.now() > payload.exp) return null;
-    return payload as SessionUser;
-  } catch {
-    return null;
-  }
-}
 
 // -------------------------------------------------------
 // LOGIN
@@ -78,7 +62,7 @@ export async function loginUser(
       merchantId: row.merchant_id.toString(),
     };
 
-    const token = encodeSession(user);
+    const token = await signSession(user);
     const cookieStore = await cookies();
     cookieStore.set(SESSION_COOKIE, token, {
       httpOnly: true,
@@ -103,7 +87,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     const cookieStore = await cookies();
     const token = cookieStore.get(SESSION_COOKIE)?.value;
     if (!token) return null;
-    return decodeSession(token);
+    return (await verifySession(token)) as SessionUser | null;
   } catch {
     return null;
   }

@@ -93,11 +93,11 @@ export default async function Home() {
               <span className="h-2 w-2 rounded-full bg-[#a8e6cb]" />
               พร้อมใช้งานสำหรับร้านค้าออนไลน์ของคุณ
             </div>
-            <h2 className="text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl">
+            <h1 className="text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl">
               ระบบบริหารคลังสินค้า
               <br />
               <span className="text-[#a8e6cb]">MeeStock Pro</span>
-            </h2>
+            </h1>
             <p className="max-w-lg text-sm leading-relaxed text-white/60 sm:text-base">
               ระบบ Mini Stock ครบวงจรสำหรับร้านค้าออนไลน์ จัดการสินค้า หมวดหมู่ รับเข้า จ่ายออก จัดส่ง และรายงานกำไร-ขาดทุนครบในที่เดียว
             </p>

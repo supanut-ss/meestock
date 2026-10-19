@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { verifySession } from "@/lib/session";
 
 const SESSION_COOKIE = "meestock_session";
 
@@ -19,7 +20,7 @@ function buildLoginUrl(request: NextRequest, redirectPath?: string): URL {
   return loginUrl;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname.replace(IISNODE_PIPE_PREFIX, "") || "/";
 
   // ถ้าเป็น public path ข้ามไป
@@ -43,16 +44,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(buildLoginUrl(request, pathname));
   }
 
-  // ตรวจสอบ session ไม่หมดอายุ (basic check)
-  try {
-    const payload = JSON.parse(Buffer.from(session, "base64").toString("utf-8"));
-    if (!payload.exp || Date.now() > payload.exp) {
-      const response = NextResponse.redirect(buildLoginUrl(request, pathname));
-      response.cookies.delete(SESSION_COOKIE);
-      return response;
-    }
-  } catch {
-    return NextResponse.redirect(buildLoginUrl(request));
+  // ตรวจลายเซ็นและวันหมดอายุของ session
+  const user = await verifySession(session);
+  if (!user) {
+    const response = NextResponse.redirect(buildLoginUrl(request, pathname));
+    response.cookies.delete(SESSION_COOKIE);
+    return response;
   }
 
   return NextResponse.next();

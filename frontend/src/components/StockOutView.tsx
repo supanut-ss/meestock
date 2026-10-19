@@ -8,6 +8,7 @@ import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import CameraScannerModal from "./CameraScannerModal";
+import ProductPicker from "@/components/ui/ProductPicker";
 
 type CartItem = {
   product: DBProduct;
@@ -46,6 +47,20 @@ export default function StockOutView() {
   const [variants, setVariants] = useState<DBProductVariant[]>([]);
   const [selectedVariantId, setSelectedVariantId] = useState("");
   const [loadingVariants, setLoadingVariants] = useState(false);
+
+  const pickerRef = useRef<HTMLInputElement>(null);
+
+  // F2 jumps to the product search from anywhere on the page
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "F2") {
+        e.preventDefault();
+        pickerRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
     getProducts("", undefined, "active").then((data) => {
@@ -132,6 +147,16 @@ export default function StockOutView() {
       console.error(err);
       setError("เกิดข้อผิดพลาดในการสแกนบาร์โค้ด");
     }
+  };
+
+  // Picking a product adds it straight away unless it has variants to choose from
+  const handlePickProduct = async (product: DBProduct) => {
+    const productVariants = await getProductVariants(product.id);
+    if (productVariants.length > 0) {
+      setAddProductId(product.id);
+      return;
+    }
+    addProductToCart(product, null);
   };
 
   const addToCart = () => {
@@ -301,18 +326,15 @@ export default function StockOutView() {
                 </svg>
                 สแกนกล้อง
               </button>
-              <select
-                className="flex-1 sm:min-w-[200px] px-4 py-2.5 rounded-2xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold text-slate-700"
-                value={addProductId}
-                onChange={(e) => setAddProductId(e.target.value)}
-              >
-                <option value="">— เลือกสินค้า —</option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} (คงเหลือ: {p.stockQty} {p.unit})
-                  </option>
-                ))}
-              </select>
+              <ProductPicker
+                className="flex-1 sm:min-w-[200px]"
+                products={products}
+                inputRef={pickerRef}
+                selectedId={addProductId}
+                placeholder="ค้นหาชื่อ/SKU/บาร์โค้ด แล้วกด Enter (F2)"
+                onSelect={(p) => void handlePickProduct(p)}
+                onSubmitCode={(code) => void handleBarcodeScanned(code)}
+              />
               <button
                 type="button"
                 onClick={addToCart}

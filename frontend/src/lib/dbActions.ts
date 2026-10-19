@@ -397,6 +397,74 @@ export async function updateProduct(
   }
 }
 
+export async function bulkUpdateProducts(
+  ids: string[],
+  changes: { status?: "active" | "inactive" | "discontinued"; categoryId?: string | null },
+  changedBy = "system"
+): Promise<{ success: boolean; updated: number; error?: string }> {
+  const unique = [...new Set(ids)].slice(0, 500);
+  const hasStatus = changes.status !== undefined;
+  const hasCategory = changes.categoryId !== undefined;
+  if (unique.length === 0 || (!hasStatus && !hasCategory)) return { success: false, updated: 0, error: "ไม่มีรายการหรือการเปลี่ยนแปลง" };
+  if (hasStatus && !["active", "inactive", "discontinued"].includes(changes.status!)) {
+    return { success: false, updated: 0, error: "สถานะไม่ถูกต้อง" };
+  }
+
+  try {
+    const merchantId = await getDemoMerchantId();
+    const pool = await getPool();
+    const transaction = new mssql.Transaction(pool);
+    await transaction.begin();
+    let updated = 0;
+    try {
+      for (const id of unique) {
+        const prev = await transaction.request()
+          .input("id", mssql.UniqueIdentifier, id)
+          .input("merchantId", mssql.UniqueIdentifier, merchantId)
+          .query("SELECT status FROM dbo.products WHERE id = @id AND merchant_id = @merchantId");
+        if (prev.recordset.length === 0) continue;
+
+        await transaction.request()
+          .input("id", mssql.UniqueIdentifier, id)
+          .input("merchantId", mssql.UniqueIdentifier, merchantId)
+          .input("setStatus", mssql.Bit, hasStatus ? 1 : 0)
+          .input("status", mssql.NVarChar, changes.status ?? null)
+          .input("setCategory", mssql.Bit, hasCategory ? 1 : 0)
+          .input("categoryId", mssql.UniqueIdentifier, changes.categoryId ?? null)
+          .query(`
+            UPDATE dbo.products
+            SET status = CASE WHEN @setStatus = 1 THEN @status ELSE status END,
+                category_id = CASE WHEN @setCategory = 1 THEN @categoryId ELSE category_id END,
+                updated_at = SYSUTCDATETIME()
+            WHERE id = @id AND merchant_id = @merchantId
+          `);
+
+        if (hasStatus && String(prev.recordset[0].status) !== changes.status) {
+          await transaction.request()
+            .input("merchantId", mssql.UniqueIdentifier, merchantId)
+            .input("productId", mssql.UniqueIdentifier, id)
+            .input("valueBefore", mssql.NVarChar, String(prev.recordset[0].status ?? ""))
+            .input("valueAfter", mssql.NVarChar, changes.status!)
+            .input("changedBy", mssql.NVarChar, changedBy)
+            .query(`
+              INSERT INTO dbo.product_audit_log (merchant_id, product_id, action, field_name, value_before, value_after, changed_by)
+              VALUES (@merchantId, @productId, N'updated', N'status', @valueBefore, @valueAfter, @changedBy)
+            `);
+        }
+        updated++;
+      }
+      await transaction.commit();
+    } catch (err) {
+      await transaction.rollback();
+      throw err;
+    }
+    return { success: true, updated };
+  } catch (err) {
+    console.error("bulkUpdateProducts failed:", err);
+    return { success: false, updated: 0, error: "เกิดข้อผิดพลาดในการอัปเดตสินค้า" };
+  }
+}
+
 export async function deleteProduct(id: string): Promise<{ success: boolean; error?: string }> {
   try {
     const merchantId = await getDemoMerchantId();
@@ -1117,7 +1185,8 @@ export async function deleteShipmentOrder(orderId: string): Promise<boolean> {
 // 6. DASHBOARD
 // ================================================================
 
-export async function getDashboardData() {
+export async function getDashboardData(days: number = 30) {
+  const rangeDays = [7, 30, 90].includes(days) ? days : 30;
   try {
     const showCost = await isAdmin(); // cost/profit are admin-only
     const merchantId = await getDemoMerchantId();
@@ -1154,21 +1223,16 @@ export async function getDashboardData() {
 
     const dailyResult = await pool.request()
       .input("merchantId", mssql.UniqueIdentifier, merchantId)
+      .input("rangeDays", mssql.Int, rangeDays)
       .query(`
         SELECT FORMAT(created_at, 'MM-dd') as date, SUM(total_amount) as amount
         FROM dbo.orders
-        WHERE merchant_id = @merchantId AND status NOT IN (N'Cancelled', N'Returned') AND created_at >= DATEADD(day, -30, GETUTCDATE())
+        WHERE merchant_id = @merchantId AND status NOT IN (N'Cancelled', N'Returned') AND created_at >= DATEADD(day, -@rangeDays, GETUTCDATE())
         GROUP BY FORMAT(created_at, 'MM-dd')
         ORDER BY date ASC
       `);
 
-    let dailyData = dailyResult.recordset.map((row) => ({ date: row.date, amount: Number(row.amount) }));
-    if (dailyData.length === 0) {
-      dailyData = [
-        { date: "05-18", amount: 1200 }, { date: "05-19", amount: 1450 },
-        { date: "05-20", amount: 980 }, { date: "05-21", amount: 2100 }, { date: "05-22", amount: 1750 },
-      ];
-    }
+    const dailyData = dailyResult.recordset.map((row) => ({ date: row.date, amount: Number(row.amount) }));
 
     const monthlyResult = await pool.request()
       .input("merchantId", mssql.UniqueIdentifier, merchantId)
@@ -1185,41 +1249,38 @@ export async function getDashboardData() {
       "07": "ก.ค.", "08": "ส.ค.", "09": "ก.ย.", "10": "ต.ค.", "11": "พ.ย.", "12": "ธ.ค."
     };
 
-    let monthlyData = monthlyResult.recordset.map((row) => ({
+    const monthlyData = monthlyResult.recordset.map((row) => ({
       month: monthNames[row.month] || row.month,
       amount: Number(row.amount),
     }));
-    if (monthlyData.length === 0) {
-      monthlyData = [
-        { month: "ม.ค.", amount: 26000 }, { month: "ก.พ.", amount: 30000 },
-        { month: "มี.ค.", amount: 35500 }, { month: "เม.ย.", amount: 39800 }, { month: "พ.ค.", amount: 42000 },
-      ];
-    }
 
     const bestSellersResult = await pool.request()
       .input("merchantId", mssql.UniqueIdentifier, merchantId)
+      .input("rangeDays", mssql.Int, rangeDays)
       .query(`
         SELECT TOP 5 p.name, SUM(oi.qty) as total_qty, p.unit_price as price
         FROM dbo.order_items oi
         INNER JOIN dbo.products p ON oi.product_id = p.id
         INNER JOIN dbo.orders o ON oi.order_id = o.id
-        WHERE oi.merchant_id = @merchantId AND o.status NOT IN (N'Cancelled', N'Returned')
+        WHERE oi.merchant_id = @merchantId AND o.status NOT IN (N'Cancelled', N'Returned') AND o.created_at >= DATEADD(day, -@rangeDays, GETUTCDATE())
         GROUP BY p.name, p.unit_price
         ORDER BY total_qty DESC
       `);
 
-    let bestSellersData = bestSellersResult.recordset.map((row) => ({
+    const bestSellersData = bestSellersResult.recordset.map((row) => ({
       name: row.name, total_qty: Number(row.total_qty), price: Number(row.price),
     }));
-    if (bestSellersData.length === 0) {
-      bestSellersData = [
-        { name: "เสื้อยืดสีขาว Premium", total_qty: 88, price: 199 },
-        { name: "กระเป๋าผ้า รักษ์โลก", total_qty: 73, price: 149 },
-        { name: "แก้วกาแฟ เซรามิกส์", total_qty: 58, price: 99 },
-        { name: "หมวกแก๊ป Minimal", total_qty: 41, price: 250 },
-        { name: "สมุดโน้ตปกหนัง", total_qty: 33, price: 120 },
-      ];
-    }
+
+    const pipelineResult = await pool.request()
+      .input("merchantId", mssql.UniqueIdentifier, merchantId)
+      .query(`
+        SELECT status, COUNT(*) as cnt
+        FROM dbo.orders
+        WHERE merchant_id = @merchantId AND order_type = N'sale'
+        GROUP BY status
+      `);
+    const pipeline: Record<string, number> = {};
+    for (const row of pipelineResult.recordset) pipeline[String(row.status)] = Number(row.cnt);
 
     return {
       snapshot: {
@@ -1233,6 +1294,7 @@ export async function getDashboardData() {
       daily: dailyData,
       monthly: monthlyData,
       bestSellers: bestSellersData,
+      pipeline,
     };
   } catch (err) {
     console.error("getDashboardData failed:", err);
@@ -1248,6 +1310,7 @@ export async function getDashboardData() {
       daily: [],
       monthly: [],
       bestSellers: [],
+      pipeline: {} as Record<string, number>,
     };
   }
 }

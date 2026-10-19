@@ -26,7 +26,26 @@ type DashboardState = {
   daily: { date: string; amount: number }[];
   monthly: { month: string; amount: number }[];
   bestSellers: { name: string; total_qty: number; price: number }[];
+  pipeline: Record<string, number>;
 };
+
+const RANGES = [7, 30, 90] as const;
+
+const PIPELINE_STEPS = [
+  { key: "Confirmed", label: "เตรียมจัดส่ง", href: "/orders", tone: "bg-amber-50 text-amber-700 ring-amber-200" },
+  { key: "Shipped", label: "จัดส่งแล้ว", href: "/orders", tone: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
+  { key: "Returned", label: "คืนสินค้า", href: "/orders", tone: "bg-slate-100 text-slate-600 ring-slate-200" },
+  { key: "Cancelled", label: "ยกเลิก", href: "/orders", tone: "bg-rose-50 text-rose-700 ring-rose-200" },
+] as const;
+
+function EmptyChart({ text }: { text: string }) {
+  return (
+    <div className="flex h-56 flex-col items-center justify-center gap-1 rounded-xl bg-slate-50 text-center">
+      <p className="text-sm font-semibold text-slate-500">{text}</p>
+      <p className="text-xs text-slate-400">ข้อมูลจะแสดงเมื่อมีการบันทึกการขาย</p>
+    </div>
+  );
+}
 
 type CustomTooltipProps = {
   active?: boolean;
@@ -55,10 +74,11 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }) {
   const [data, setData] = useState<DashboardState | null>(null);
   const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState<(typeof RANGES)[number]>(30);
 
-  const loadDashboard = async () => {
+  const loadDashboard = async (range: number) => {
     try {
-      const dbData = await getDashboardData();
+      const dbData = await getDashboardData(range);
       setTimeout(() => {
         setData(dbData);
         setLoading(false);
@@ -72,8 +92,8 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
   };
 
   useEffect(() => {
-    void loadDashboard();
-  }, []);
+    void loadDashboard(days);
+  }, [days]);
 
   const cards = useMemo(() => {
     if (!data) return [];
@@ -136,6 +156,27 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
 
   return (
     <div className="space-y-6">
+      <h1 className="sr-only">แดชบอร์ด</h1>
+      {/* Range selector */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-slate-500">ตัวเลขด้านบนเป็นยอดสะสมทั้งหมด กราฟและสินค้าขายดีแสดงตามช่วงเวลาที่เลือก</p>
+        <div role="group" aria-label="ช่วงเวลา" className="inline-flex rounded-full border border-slate-200 bg-white p-0.5">
+          {RANGES.map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setDays(r)}
+              aria-pressed={days === r}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                days === r ? "bg-[#173d42] text-white" : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              {r} วัน
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Key Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 max-lg:[&>*:last-child:nth-child(odd)]:col-span-2">
         {cards.map((card, idx) => {
@@ -165,13 +206,33 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
 
       {/* Charts and lists share one 12-column grid on wide screens */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+      <div className="surface-card p-4 xl:col-span-12 xl:order-first">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="font-bold text-slate-800 text-sm tracking-tight">สถานะออเดอร์</h3>
+          <a href="/orders" className="text-xs font-semibold text-indigo-600 hover:underline">ดูทั้งหมด</a>
+        </div>
+        <ul className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+          {PIPELINE_STEPS.map((step) => (
+            <li key={step.key}>
+              <a
+                href={step.href}
+                className={`flex items-center justify-between rounded-xl px-3 py-2.5 ring-1 ring-inset transition-opacity hover:opacity-80 ${step.tone}`}
+              >
+                <span className="text-sm font-semibold">{step.label}</span>
+                <span className="text-xl font-extrabold tabular-nums">{data.pipeline[step.key] ?? 0}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
       <div className="contents">
         {/* Daily Sales Chart */}
         <div className="surface-card p-4 space-y-3 xl:col-span-8 xl:order-1">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 className="font-bold text-slate-800 text-sm tracking-tight">รายงานยอดขายรายวัน (THB)</h3>
-            <span className="text-xxs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">ข้อมูลจริง</span>
+            <span className="text-xxs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">{days} วันล่าสุด</span>
           </div>
+          {data.daily.length === 0 ? <EmptyChart text={`ยังไม่มียอดขายใน ${days} วันที่ผ่านมา`} /> : (
           <div className="h-56 pr-2">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.daily} margin={{ top: 10, right: 5, left: -20, bottom: 0 }}>
@@ -189,6 +250,7 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
               </AreaChart>
             </ResponsiveContainer>
           </div>
+          )}
         </div>
 
         {/* Monthly Sales Chart */}
@@ -197,6 +259,7 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
             <h3 className="font-bold text-slate-800 text-sm tracking-tight">รายงานยอดขายสะสมรายเดือน (THB)</h3>
             <span className="text-xxs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">สะสม</span>
           </div>
+          {data.monthly.length === 0 ? <EmptyChart text="ยังไม่มียอดขายใน 6 เดือนที่ผ่านมา" /> : (
           <div className="h-56 pr-2">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.monthly} margin={{ top: 10, right: 5, left: -20, bottom: 0 }} barSize={32}>
@@ -214,6 +277,7 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
               </BarChart>
             </ResponsiveContainer>
           </div>
+          )}
         </div>
       </div>
 
@@ -279,12 +343,15 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 className="font-bold text-slate-800 text-sm tracking-tight flex items-center gap-2">
               <EmojiEventsOutlinedIcon sx={{ fontSize: 18, color: "#f59e0b" }} />
-              สินค้าขายดี 5 อันดับแรก (วิเคราะห์ยอดขายสะสม)
+              {`สินค้าขายดี 5 อันดับแรก (${days} วันที่ผ่านมา)`}
             </h3>
             <span className="text-xxs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">สถิติท็อปฮิต</span>
           </div>
 
           <div className="divide-y divide-slate-100 text-xs">
+            {data.bestSellers.length === 0 && (
+              <p className="py-8 text-center text-sm font-semibold text-slate-400">ยังไม่มีสินค้าที่ขายได้ในช่วงนี้</p>
+            )}
             {data.bestSellers.map((item, idx) => {
               // Ranked styled bullets
               let badgeColor = "bg-slate-100 text-slate-600";

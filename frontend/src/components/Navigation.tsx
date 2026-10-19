@@ -75,6 +75,13 @@ export default function Navigation({ user }: { user?: NavUser }) {
   const [alertsOpen, setAlertsOpen] = useState(false);
 
   const pageTitle = allLinks.find((l) => isTabActive(l.href, pathname))?.label ?? "MeeStock";
+  const groupLabel = inventoryLinks.some((l) => isTabActive(l.href, pathname))
+    ? "คลังสินค้า"
+    : salesLinks.some((l) => isTabActive(l.href, pathname))
+      ? "ขาย & ขนส่ง"
+      : pathname.startsWith("/users")
+        ? "ผู้ดูแลระบบ"
+        : "ภาพรวม";
   const moreActive = !!user && !tabLinks.some((t) => isTabActive(t.href, pathname));
   const isAdminUser = user?.role === "owner" || user?.role === "admin";
 
@@ -182,7 +189,12 @@ export default function Navigation({ user }: { user?: NavUser }) {
                 <>
                   <div className="lg:hidden"><BrandMark size="h-8 w-8" /></div>
                   <div className="min-w-0">
-                    <h1 className="truncate text-lg font-bold tracking-tight text-slate-900 lg:text-xl">{pageTitle}</h1>
+                    <p className="truncate text-lg font-bold tracking-tight text-slate-900 lg:hidden">{pageTitle}</p>
+                    <nav aria-label="ตำแหน่งปัจจุบัน" className="hidden items-center gap-1.5 text-sm lg:flex">
+                      <span className="text-slate-500">{groupLabel}</span>
+                      <span className="text-slate-300" aria-hidden="true">/</span>
+                      <span className="font-semibold text-slate-900" aria-current="page">{pageTitle}</span>
+                    </nav>
                     
                   </div>
                 </>
