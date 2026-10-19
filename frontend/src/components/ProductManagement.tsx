@@ -598,7 +598,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
         flex: 1,
         renderCell: (params: GridRenderCellParams<DBProduct, string>) => {
           const cat = categories.find((c) => c.name === params.value);
-          const dotColor = cat?.color || "#6366f1";
+          const dotColor = cat?.color || "#65a30d";
           return params.value ? (
             <span
               className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
@@ -981,7 +981,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                     });
                     setShowVariantForm(true);
                   }}
-                  sx={{ color: "#64748b", "&:hover": { color: "#4f46e5" } }}
+                  sx={{ color: "#64748b", "&:hover": { color: "#4d7c0f" } }}
                 >
                   <EditOutlinedIcon sx={{ fontSize: 15 }} />
                 </IconButton>

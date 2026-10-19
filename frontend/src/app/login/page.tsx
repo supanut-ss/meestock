@@ -29,13 +29,13 @@ function LoginForm() {
   };
 
   return (
-    <div className="relative overflow-hidden min-h-dvh bg-slate-900 flex items-center justify-center p-4">
+    <div className="relative overflow-hidden min-h-dvh bg-[#111312] flex items-center justify-center p-4">
 
       <div className="relative w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-indigo-600 shadow-2xl shadow-indigo-500/40 mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white">
+          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#c6f432] shadow-2xl shadow-lime-400/30 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-[#111312]">
               <path d="m7.5 4.27 9 5.15" />
               <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
               <path d="m3.3 7 8.7 5 8.7-5" />
@@ -68,7 +68,7 @@ function LoginForm() {
                   autoComplete="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 h-12 rounded-xl bg-white/10 border border-white/10 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+                  className="w-full pl-10 pr-4 h-12 rounded-xl bg-white/10 border border-white/10 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#c6f432]/50 focus:border-[#c6f432]/50 transition-all"
                   placeholder="username"
                 />
               </div>
@@ -90,7 +90,7 @@ function LoginForm() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 h-12 rounded-xl bg-white/10 border border-white/10 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+                  className="w-full pl-10 pr-4 h-12 rounded-xl bg-white/10 border border-white/10 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#c6f432]/50 focus:border-[#c6f432]/50 transition-all"
                   placeholder="••••••••"
                 />
               </div>
@@ -110,7 +110,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-500/30 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full h-12 rounded-xl bg-[#c6f432] hover:bg-[#d4ff4a] text-[#111312] font-bold text-sm shadow-lg shadow-lime-400/20 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isPending ? (
                 <>
@@ -146,8 +146,8 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="relative overflow-hidden min-h-dvh bg-slate-900 flex items-center justify-center">
-          <svg className="animate-spin h-8 w-8 text-indigo-400" fill="none" viewBox="0 0 24 24">
+        <div className="relative overflow-hidden min-h-dvh bg-[#111312] flex items-center justify-center">
+          <svg className="animate-spin h-8 w-8 text-[#c6f432]" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>

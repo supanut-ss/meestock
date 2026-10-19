@@ -4,13 +4,13 @@ export const meestockTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#4f46e5", // Indigo 600
-      light: "#6366f1",
-      dark: "#4338ca",
+      main: "#4d7c0f", // Indigo 600
+      light: "#65a30d",
+      dark: "#3f6212",
       contrastText: "#ffffff",
     },
     secondary: {
-      main: "#7c3aed", // Violet 600
+      main: "#111312", // Violet 600
       light: "#8b5cf6",
       dark: "#6d28d9",
       contrastText: "#ffffff",
@@ -34,7 +34,7 @@ export const meestockTheme = createTheme({
       contrastText: "#ffffff",
     },
     background: {
-      default: "#f8fafc", // Slate 50
+      default: "#f3f4f1", // Slate 50
       paper: "#ffffff",
     },
     text: {

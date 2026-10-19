@@ -17,7 +17,7 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 import CircularProgress from "@mui/material/CircularProgress";
 
 const PRESET_COLORS = [
-  { hex: "#6366f1", label: "Indigo" },
+  { hex: "#65a30d", label: "Indigo" },
   { hex: "#8b5cf6", label: "Violet" },
   { hex: "#ec4899", label: "Pink" },
   { hex: "#f43f5e", label: "Rose" },
@@ -46,7 +46,7 @@ export default function CategoryManager() {
   const [name, setName] = useState("");
   const [parentId, setParentId] = useState("");
   const [code, setCode] = useState("");
-  const [color, setColor] = useState("#6366f1");
+  const [color, setColor] = useState("#65a30d");
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
@@ -71,7 +71,7 @@ export default function CategoryManager() {
     setName("");
     setParentId(pId);
     setCode("");
-    setColor("#6366f1");
+    setColor("#65a30d");
     setError("");
     setSuccessMsg("");
     setIsOpen(true);
@@ -180,7 +180,7 @@ export default function CategoryManager() {
 
       {loading ? (
         <div className="flex justify-center py-24">
-          <CircularProgress size={36} sx={{ color: "#4f46e5" }} />
+          <CircularProgress size={36} sx={{ color: "#4d7c0f" }} />
         </div>
       ) : categories.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50/50 p-16 flex flex-col items-center gap-3 text-slate-400">

@@ -70,7 +70,7 @@ export function MeeDataGridToolbar({
               backgroundColor: "#ffffff",
             },
             "&.Mui-focused": {
-              borderColor: "#6366f1",
+              borderColor: "#65a30d",
               boxShadow: "0 0 0 3px rgba(99, 102, 241, 0.12)",
               backgroundColor: "#ffffff",
             },
@@ -255,6 +255,7 @@ export default function MeeDataGrid({
             borderColor: "#f1f5f9",
             px: 1.5,
             overflow: "hidden",
+            lineHeight: 1.4,
             "&:focus, &:focus-within": {
               outline: "none",
             },
@@ -275,7 +276,7 @@ export default function MeeDataGrid({
           "& .MuiCheckbox-root": {
             color: "#94a3b8",
             "&.Mui-checked": {
-              color: "#4f46e5",
+              color: "#4d7c0f",
             },
           },
           ...sx,

@@ -220,7 +220,7 @@ export default function UsersView() {
               <RefreshIcon
                 sx={{
                   fontSize: 18,
-                  color: loading ? "#6366f1" : "#64748b",
+                  color: loading ? "#65a30d" : "#64748b",
                   animation: loading ? "spin 1s linear infinite" : "none",
                   "@keyframes spin": {
                     "0%": { transform: "rotate(0deg)" },

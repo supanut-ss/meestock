@@ -289,7 +289,7 @@ export default function StockOutView() {
           {/* Add Item */}
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
             <h3 className="text-sm font-bold text-slate-700">เพิ่มสินค้าในรายการ</h3>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() => setShowScanner(true)}
@@ -302,7 +302,7 @@ export default function StockOutView() {
                 สแกนกล้อง
               </button>
               <select
-                className="flex-1 px-4 py-2.5 rounded-2xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold text-slate-700"
+                className="flex-1 sm:min-w-[200px] px-4 py-2.5 rounded-2xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold text-slate-700"
                 value={addProductId}
                 onChange={(e) => setAddProductId(e.target.value)}
               >

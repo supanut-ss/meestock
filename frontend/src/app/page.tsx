@@ -1,224 +1,205 @@
 import Link from "next/link";
 
+type Module = {
+  href: string;
+  title: string;
+  cta: string;
+  desc: string;
+  icon: string;
+};
+
+const modules: Module[] = [
+  {
+    href: "/products",
+    title: "จัดการสินค้า & สต็อก",
+    cta: "เข้าสู่ระบบสินค้า",
+    desc: "เพิ่ม/แก้ไข/ลบสินค้า รหัสสินค้า บาร์โค้ด กำหนดจุดแจ้งเตือนสต็อกต่ำ และดูประวัติราคาทุนแยกตาม role ได้",
+    icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+  },
+  {
+    href: "/stock-in",
+    title: "รับสินค้าเข้า (Stock In)",
+    cta: "บันทึกสินค้าเข้า",
+    desc: "บันทึกสินค้าเข้าคลังแยกตาม Lot, วันหมดอายุ, ข้อมูล Supplier และปรับต้นทุนราคาสินค้าเฉลี่ยอัตโนมัติ",
+    icon: "M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z",
+  },
+  {
+    href: "/stock-out",
+    title: "จ่ายสินค้าออก / บันทึกขาย",
+    cta: "ทำรายการขายสินค้า",
+    desc: "เพิ่มรายการสินค้าในบิลเดียวแบบตะกร้าสินค้า ตัดสต็อก Real-time พิมพ์ใบเสร็จ/Invoice ขนาด 80มม. ได้ทันที",
+    icon: "M15 13l-3 3m0 0l-3-3m3 3V8m0-5a9 9 0 110 18 9 9 0 010-18z",
+  },
+  {
+    href: "/movements",
+    title: "ประวัติและรายการเคลื่อนไหว",
+    cta: "ตรวจสอบความเคลื่อนไหว",
+    desc: "ตรวจสอบความเคลื่อนไหวคลังสินค้า (Stock Movements) เข้า-ออก-คืนสินค้า พร้อมเหตุผลการปรับคลังสินค้าแบบละเอียด",
+    icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+  },
+  {
+    href: "/shipping",
+    title: "ปะหน้ากล่อง & จัดส่ง",
+    cta: "แกะที่อยู่และปะหน้ากล่อง",
+    desc: "แกะข้อมูลที่อยู่ลูกค้าอัจฉริยะ (Airway Bill Parser) จากข้อความยาวๆ พร้อมระบบพิมพ์ใบปะหน้าและบันทึกเลขพัสดุ",
+    icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+  },
+  {
+    href: "/dashboard",
+    title: "แดชบอร์ด & รายงานยอดขาย",
+    cta: "วิเคราะห์รายงานธุรกิจ",
+    desc: "ดูสถิติวิเคราะห์ ยอดขายรายวันและรายเดือน สินค้ายอดนิยมอันดับต้นๆ และวิเคราะห์อัตราการหมุนเวียนสินค้า",
+    icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+  },
+];
+
+const highlights = [
+  { label: "รายการสินค้า", value: "พร้อมใช้งาน" },
+  { label: "รับเข้า / จ่ายออก", value: "Real-time" },
+  { label: "แกะที่อยู่อัจฉริยะ", value: "พิมพ์ใบปะหน้า" },
+  { label: "รายงานยอดขาย", value: "กำไร-ขาดทุน" },
+];
+
+const steps = [
+  { n: "01", title: "รับสินค้า", desc: "บันทึก Lot และต้นทุน" },
+  { n: "02", title: "ขาย / จ่ายออก", desc: "ตัดสต็อกทันที" },
+  { n: "03", title: "จัดส่ง", desc: "แกะที่อยู่ พิมพ์ใบปะหน้า" },
+  { n: "04", title: "สรุปผล", desc: "ยอดขายและกำไร" },
+];
+
+// Static preview bars for the hero mock chart (decorative only)
+const bars = [38, 56, 44, 72, 52, 86, 64, 94];
+
+function Arrow({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6l6 6-6 6" />
+    </svg>
+  );
+}
+
 export default function Home() {
   return (
-    <div className="space-y-10 py-4">
-      {/* Premium Hero Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-slate-900 p-8 text-white shadow-xl shadow-indigo-950/20 sm:p-12">
-
-        <div className="relative max-w-2xl space-y-4">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-300 ring-1 ring-indigo-400/20">
-            <span className="relative flex h-2 w-2">
-              <span className=" absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            พร้อมใช้งานสำหรับร้านค้าออนไลน์ของคุณ
+    <div className="space-y-6">
+      {/* Hero bento */}
+      <section className="grid gap-4 lg:grid-cols-12">
+        <div className="dot-grid relative overflow-hidden rounded-[2rem] bg-[#111312] p-7 text-white sm:p-10 lg:col-span-8">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#c6f432]/20 blur-3xl" />
+          <div className="relative max-w-xl space-y-5">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/80 ring-1 ring-white/10">
+              <span className="h-2 w-2 rounded-full bg-[#c6f432]" />
+              พร้อมใช้งานสำหรับร้านค้าออนไลน์ของคุณ
+            </div>
+            <h2 className="text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl">
+              ระบบบริหารคลังสินค้า
+              <br />
+              <span className="text-[#c6f432]">MeeStock Pro</span>
+            </h2>
+            <p className="max-w-lg text-sm leading-relaxed text-white/60 sm:text-base">
+              ระบบ Mini Stock ครบวงจรสำหรับร้านค้าออนไลน์ จัดการสินค้า หมวดหมู่ รับเข้า จ่ายออก จัดส่ง และรายงานกำไร-ขาดทุนครบในที่เดียว
+            </p>
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Link
+                href="/stock-out"
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-[#c6f432] px-6 text-sm font-bold text-[#111312] transition-transform hover:scale-[1.03]"
+              >
+                เริ่มบันทึกขาย
+                <Arrow />
+              </Link>
+              <Link
+                href="/dashboard"
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-white/10 px-6 text-sm font-semibold text-white ring-1 ring-white/15 transition-colors hover:bg-white/15"
+              >
+                ดูแดชบอร์ด
+              </Link>
+            </div>
           </div>
-          
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
-            ระบบบริหารคลังสินค้า <br/>
-            <span className="text-indigo-300 font-black">
-              MeeStock Pro
-            </span>
-          </h1>
-          <p className="text-slate-300 text-sm sm:text-base max-w-lg leading-relaxed">
-            ระบบ Mini Stock ครบวงจรสำหรับร้านค้าออนไลน์ จัดการสินค้า หมวดหมู่ รับเข้า จ่ายออก จัดส่ง และรายงานกำไร-ขาดทุนครบในที่เดียว
-          </p>
         </div>
-      </div>
 
-      {/* Highlights Quick Counters */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "รายการสินค้าทั้งหมด", value: "พร้อมใช้งาน", color: "border-indigo-100 text-indigo-600 bg-indigo-50/30" },
-          { label: "ระบบรับเข้า/จ่ายออก", value: "Real-time", color: "border-violet-100 text-violet-600 bg-violet-50/30" },
-          { label: "แกะที่อยู่อัจฉริยะ", value: "พิมพ์ใบปะหน้า", color: "border-emerald-100 text-emerald-600 bg-emerald-50/30" },
-          { label: "รายงานยอดขาย", value: "กำไร-ขาดทุน", color: "border-sky-100 text-sky-600 bg-sky-50/30" },
-        ].map((item, idx) => (
-          <div key={idx} className={`rounded-2xl border p-4 text-center transition-all duration-300 hover:shadow-sm ${item.color}`}>
-            <p className="text-xs text-slate-500 font-medium mb-1">{item.label}</p>
-            <p className="text-base sm:text-lg font-bold">{item.value}</p>
+        {/* Decorative preview card */}
+        <div className="surface-card hidden flex-col justify-between p-6 md:flex lg:col-span-4" aria-hidden="true">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-medium text-slate-500">ยอดขายสัปดาห์นี้</p>
+              <p className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">฿ 48,250</p>
+            </div>
+            <span className="rounded-full bg-[#c6f432] px-2.5 py-1 text-[11px] font-bold text-[#111312]">+12.4%</span>
+          </div>
+          <div className="mt-6 flex h-32 items-end gap-2">
+            {bars.map((h, i) => (
+              <div
+                key={i}
+                style={{ height: `${h}%` }}
+                className={`flex-1 rounded-t-lg ${i === bars.length - 1 ? "bg-[#c6f432]" : "bg-slate-200"}`}
+              />
+            ))}
+          </div>
+          <p className="mt-3 text-[11px] text-slate-400">ตัวอย่างการแสดงผล</p>
+        </div>
+      </section>
+
+      {/* Highlights */}
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {highlights.map((item) => (
+          <div key={item.label} className="surface-card px-5 py-4">
+            <p className="text-xs font-medium text-slate-500">{item.label}</p>
+            <p className="mt-1 text-base font-bold text-slate-900 sm:text-lg">{item.value}</p>
           </div>
         ))}
-      </div>
+      </section>
 
-      {/* 6 Main Modules Interactive Grid */}
-      <div className="space-y-6">
-        <h2 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2.5">
-          <div className="h-2 w-2 rounded-full bg-indigo-500"></div>
-          ระบบงานหลัก 6 โมดูล
-        </h2>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* 1. Product Management */}
-          <Link 
-            href="/products" 
-            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-md hover:shadow-indigo-100/40"
-          >
-            <div className="space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 transition-colors duration-300 group-hover:bg-indigo-600 group-hover:text-white">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-800 text-lg group-hover:text-indigo-600 transition-colors">
-                  📦 จัดการสินค้า & สต็อก
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  เพิ่ม/แก้ไข/ลบสินค้า รหัสสินค้า บาร์โค้ด กำหนดจุดแจ้งเตือนสต็อกต่ำ และดูประวัติราคาทุนแยกตาม role ได้
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex items-center text-xs font-semibold text-indigo-600 gap-1">
-              เข้าสู่ระบบสินค้า
-              <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </Link>
-
-          {/* 2. Stock In */}
-          <Link 
-            href="/stock-in" 
-            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-violet-200 hover:shadow-md hover:shadow-violet-100/40"
-          >
-            <div className="space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 transition-colors duration-300 group-hover:bg-violet-600 group-hover:text-white">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z" />
-                </svg>
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-800 text-lg group-hover:text-violet-600 transition-colors">
-                  📥 รับสินค้าเข้า (Stock In)
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  บันทึกสินค้าเข้าคลังแยกตาม Lot, วันหมดอายุ, ข้อมูล Supplier และปรับต้นทุนราคาสินค้าเฉลี่ยอัตโนมัติ
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex items-center text-xs font-semibold text-violet-600 gap-1">
-              บันทึกสินค้าเข้า
-              <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </Link>
-
-          {/* 3. Stock Out / Sale */}
-          <Link 
-            href="/stock-out" 
-            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-pink-200 hover:shadow-md hover:shadow-pink-100/40"
-          >
-            <div className="space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pink-50 text-pink-600 transition-colors duration-300 group-hover:bg-pink-600 group-hover:text-white">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 13l-3 3m0 0l-3-3m3 3V8m0-5a9 9 0 110 18 9 9 0 010-18z" />
-                </svg>
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-800 text-lg group-hover:text-pink-600 transition-colors">
-                  📤 จ่ายสินค้าออก / บันทึกขาย
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  เพิ่มรายการสินค้าในบิลเดียวแบบตระกร้าสินค้า ตัดสต็อก Real-time พิมพ์ใบเสร็จ/Invoice ขนาด 80มม. ได้ทันที
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex items-center text-xs font-semibold text-pink-600 gap-1">
-              ทำรายการขายสินค้า
-              <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </Link>
-
-          {/* 4. Stock Movements */}
-          <Link 
-            href="/movements" 
-            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-amber-200 hover:shadow-md hover:shadow-amber-100/40"
-          >
-            <div className="space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-colors duration-300 group-hover:bg-amber-600 group-hover:text-white">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-800 text-lg group-hover:text-amber-600 transition-colors">
-                  📃 ประวัติและรายการเคลื่อนไหว
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  ตรวจสอบความเคลื่อนไหวคลังสินค้า (Stock Movements) เข้า-ออก-คืนสินค้า พร้อมเหตุผลการปรับคลังสินค้าแบบละเอียด
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex items-center text-xs font-semibold text-amber-600 gap-1">
-              ตรวจสอบความเคลื่อนไหว
-              <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </Link>
-
-          {/* 5. Smart Airway Bill Parser */}
-          <Link 
-            href="/shipping" 
-            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-100/40"
-          >
-            <div className="space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-colors duration-300 group-hover:bg-emerald-600 group-hover:text-white">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-800 text-lg group-hover:text-emerald-600 transition-colors">
-                  🚚 ปะหน้ากล่อง & จัดส่ง
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  แกะข้อมูลที่อยู่ลูกค้าอัจฉริยะ (Airway Bill Parser) จากข้อความยาวๆ พร้อมระบบพิมพ์ใบปะหน้าและบันทึกเลขพัสดุ
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex items-center text-xs font-semibold text-emerald-600 gap-1">
-              แกะที่อยู่และปะหน้ากล่อง
-              <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </Link>
-
-          {/* 6. Dashboard & Reports */}
-          <Link 
-            href="/dashboard" 
-            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-md hover:shadow-sky-100/40"
-          >
-            <div className="space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 transition-colors duration-300 group-hover:bg-sky-600 group-hover:text-white">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-800 text-lg group-hover:text-sky-600 transition-colors">
-                  📊 แดชบอร์ด & รายงานยอดขาย
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  ดูสถิติวิเคราะห์ ยอดขายรายวันและรายเดือน สินค้ายอดนิยมอันดับต้นๆ และวิเคราะห์อัตราการหมุนเวียนสินค้า
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex items-center text-xs font-semibold text-sky-600 gap-1">
-              วิเคราะห์รายงานธุรกิจ
-              <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </Link>
+      {/* Modules */}
+      <section className="space-y-4">
+        <div className="flex items-end justify-between">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-slate-900">ระบบงานหลัก 6 โมดูล</h2>
+            <p className="text-sm text-slate-500">เลือกโมดูลที่ต้องการเพื่อเริ่มทำงาน</p>
+          </div>
         </div>
-      </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {modules.map((m, i) => (
+            <Link
+              key={m.href}
+              href={m.href}
+              className="surface-card group relative flex flex-col justify-between p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#c6f432] hover:shadow-lg"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-900 transition-colors duration-300 group-hover:bg-[#c6f432]">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d={m.icon} />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-bold tabular-nums text-slate-300">{String(i + 1).padStart(2, "0")}</span>
+                </div>
+                <div className="space-y-1.5">
+                  <h3 className="text-lg font-bold text-slate-900">{m.title}</h3>
+                  <p className="text-sm leading-relaxed text-slate-500">{m.desc}</p>
+                </div>
+              </div>
+              <div className="mt-6 flex items-center gap-1.5 text-sm font-semibold text-slate-900">
+                {m.cta}
+                <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Workflow */}
+      <section className="surface-card p-6 sm:p-8">
+        <h2 className="mb-5 text-lg font-bold tracking-tight text-slate-900">ขั้นตอนการทำงาน</h2>
+        <ol className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {steps.map((s) => (
+            <li key={s.n} className="rounded-2xl bg-slate-50 p-4">
+              <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-[#111312] px-2 text-xs font-bold text-[#c6f432]">{s.n}</span>
+              <p className="mt-3 font-bold text-slate-900">{s.title}</p>
+              <p className="text-sm text-slate-500">{s.desc}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }

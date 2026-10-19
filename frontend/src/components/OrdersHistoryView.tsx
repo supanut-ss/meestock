@@ -339,7 +339,7 @@ export default function OrdersHistoryView() {
                     color: "#64748b",
                     border: "1px solid #e2e8f0",
                     borderRadius: "8px",
-                    "&:hover": { color: "#4f46e5", backgroundColor: "#eef2ff" },
+                    "&:hover": { color: "#4d7c0f", backgroundColor: "#eef2ff" },
                   }}
                 >
                   <EditOutlinedIcon sx={{ fontSize: 16 }} />
@@ -541,7 +541,7 @@ export default function OrdersHistoryView() {
               startIcon={<PrintOutlinedIcon />}
               sx={{
                 fontWeight: 600,
-                color: "#4f46e5",
+                color: "#4d7c0f",
                 borderColor: "#c7d2fe",
                 backgroundColor: "#eef2ff",
                 "&:hover": { backgroundColor: "#e0e7ff" },
@@ -566,7 +566,7 @@ export default function OrdersHistoryView() {
               <RefreshIcon
                 sx={{
                   fontSize: 18,
-                  color: loading ? "#6366f1" : "#64748b",
+                  color: loading ? "#65a30d" : "#64748b",
                   animation: loading ? "spin 1s linear infinite" : "none",
                   "@keyframes spin": {
                     "0%": { transform: "rotate(0deg)" },

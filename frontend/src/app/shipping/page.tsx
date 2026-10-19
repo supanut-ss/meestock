@@ -113,7 +113,7 @@ export default function ShippingPage() {
               <p className="text-xxs text-slate-400">ระบบจะทำการคัดกรองเบอร์โทรศัพท์และแยกแยะชื่อ-ที่อยู่ออกจากกัน</p>
               <button 
                 onClick={onParse} 
-                className="py-2.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-100 hover:shadow-lg active:scale-95 transition-all flex items-center gap-1.5"
+                className="shrink-0 whitespace-nowrap py-2.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-100 hover:shadow-lg active:scale-95 transition-all flex items-center gap-1.5"
               >
                 <span>ดึงข้อมูลอัจฉริยะ</span>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
