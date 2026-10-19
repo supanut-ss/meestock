@@ -7,7 +7,9 @@ import { loginUser } from "@/lib/authActions";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/";
+  const requestedRedirect = searchParams.get("redirect") || "/";
+  // Only allow same-site relative paths (blocks "//host" open redirects)
+  const redirect = /^\/(?!\/)/.test(requestedRedirect) ? requestedRedirect : "/";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
