@@ -357,17 +357,17 @@ export default function StockOutView() {
               <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/60">
                 <p className="text-xs font-bold text-slate-600">{cart.length} รายการ</p>
               </div>
-              <div className="divide-y divide-slate-100">
+              <div className="@container divide-y divide-slate-100">
                 {cart.map((item) => {
                   const itemKey = item.variant ? `${item.product.id}-${item.variant.id}` : item.product.id;
                   const maxStock = item.variant ? item.variant.stockQty : item.product.stockQty;
                   return (
-                    <div key={itemKey} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    <div key={itemKey} className="p-4 flex flex-col @lg:flex-row @lg:items-center gap-3 @lg:gap-4">
                       {/* Top section: Title, Variant, SKU & Remove Button on Mobile */}
-                      <div className="flex items-start justify-between sm:flex-1 min-w-0 gap-2">
+                      <div className="flex items-start justify-between @lg:flex-1 min-w-0 gap-2">
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <p className="font-semibold text-slate-800 text-sm truncate max-w-[200px] sm:max-w-none">{item.product.name}</p>
+                            <p className="font-semibold text-slate-800 text-sm truncate max-w-[200px] @lg:max-w-none">{item.product.name}</p>
                             {item.variant && (
                               <span className="inline-flex items-center rounded-md bg-indigo-50 px-1.5 py-0.5 text-[9px] font-bold text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
                                 {item.variant.name}
@@ -379,13 +379,13 @@ export default function StockOutView() {
                           </p>
                         </div>
                         {/* Remove button (Only visible on mobile here, hidden on desktop here) */}
-                        <button type="button" onClick={() => removeFromCart(itemKey)} className="text-slate-300 hover:text-rose-500 transition-colors p-1 sm:hidden cursor-pointer" title="ลบออกจากรายการ">
+                        <button type="button" onClick={() => removeFromCart(itemKey)} className="text-slate-300 hover:text-rose-500 transition-colors p-1 @lg:hidden cursor-pointer" title="ลบออกจากรายการ">
                           <DeleteOutlineOutlinedIcon sx={{ fontSize: 16 }} />
                         </button>
                       </div>
 
                       {/* Bottom section (controls): Qty, Price, Line Total, and Remove Button on Desktop */}
-                      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+                      <div className="flex items-center justify-between @lg:justify-end gap-3 @lg:gap-4 w-full @lg:w-auto flex-wrap @lg:flex-nowrap">
                         {/* Qty */}
                         <div className="flex items-center gap-1 border border-slate-200 rounded-xl px-1 py-0.5 bg-slate-50">
                           <button type="button" onClick={() => updateQty(itemKey, item.qty - 1)} className="w-6 h-6 rounded-lg bg-white text-slate-600 hover:bg-slate-100 text-xs font-bold border border-slate-200 transition-all cursor-pointer">-</button>
@@ -399,26 +399,26 @@ export default function StockOutView() {
                         </div>
 
                         {/* Price & Line total Group */}
-                        <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="flex items-center gap-3 @lg:gap-4">
                           {/* Price */}
                           <div className="flex items-center gap-1 text-sm">
                             <span className="text-slate-400 text-xs">฿</span>
                             <input
                               type="number" min="0" step="1"
-                              className="w-16 sm:w-20 text-right font-bold text-slate-800 bg-transparent border-b border-slate-200 focus:outline-none focus:border-violet-500 text-sm py-0.5 transition-all"
+                              className="w-16 @lg:w-20 text-right font-bold text-slate-800 bg-transparent border-b border-slate-200 focus:outline-none focus:border-violet-500 text-sm py-0.5 transition-all"
                               value={item.unitPrice}
                               onChange={(e) => updatePrice(itemKey, Number(e.target.value))}
                             />
                           </div>
 
                           {/* Line total */}
-                          <span className="text-sm font-bold text-violet-700 w-16 sm:w-20 text-right">
+                          <span className="text-sm font-bold text-violet-700 w-16 @lg:w-20 text-right">
                             ฿{(item.qty * item.unitPrice).toLocaleString()}
                           </span>
                         </div>
 
                         {/* Remove Button for Desktop */}
-                        <button type="button" onClick={() => removeFromCart(itemKey)} className="text-slate-300 hover:text-rose-500 transition-colors p-1 hidden sm:block cursor-pointer" title="ลบออกจากรายการ">
+                        <button type="button" onClick={() => removeFromCart(itemKey)} className="text-slate-300 hover:text-rose-500 transition-colors p-1 hidden @lg:block cursor-pointer" title="ลบออกจากรายการ">
                           <DeleteOutlineOutlinedIcon sx={{ fontSize: 16 }} />
                         </button>
                       </div>
