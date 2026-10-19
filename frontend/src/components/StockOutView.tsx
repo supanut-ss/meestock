@@ -238,8 +238,8 @@ export default function StockOutView() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 border border-violet-100">
+        <h1 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600 border border-violet-100">
             <PointOfSaleOutlinedIcon sx={{ fontSize: 22 }} />
           </div>
           บันทึกการขาย / จ่ายสินค้าออก

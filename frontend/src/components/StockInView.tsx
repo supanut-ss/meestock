@@ -186,11 +186,11 @@ export default function StockInView() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+        <h1 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
             <MoveToInboxOutlinedIcon sx={{ fontSize: 22 }} />
           </div>
           รับสินค้าเข้าคลัง
@@ -207,8 +207,8 @@ export default function StockInView() {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="p-6 space-y-5">
+      <form onSubmit={handleSubmit} className="grid gap-4 lg:grid-cols-[1fr_320px] items-start">
+        <div className="surface-card p-4 space-y-4">
           {/* Product Select */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-600">เลือกสินค้า *</label>
@@ -226,7 +226,7 @@ export default function StockInView() {
               </button>
               <select
                 required
-                className="flex-1 px-4 py-3 rounded-2xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                className="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 value={form.productId}
                 onChange={(e) => setForm({ ...form, productId: e.target.value })}
               >
@@ -244,7 +244,7 @@ export default function StockInView() {
               <label className="text-xs font-bold text-slate-600">เลือกตัวเลือกย่อย *</label>
               <select
                 required
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-semibold text-slate-700"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-semibold text-slate-700"
                 value={form.variantId}
                 onChange={(e) => {
                   const selectedVar = variants.find((v) => v.id === e.target.value);
@@ -260,27 +260,13 @@ export default function StockInView() {
             </div>
           )}
 
-          {/* Selected Product Info */}
-          {selectedProduct && (
-            <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-3">
-              <div className="flex-1">
-                <p className="text-sm font-bold text-emerald-800">{selectedProduct.name}</p>
-                <p className="text-xs text-emerald-600">สต็อกปัจจุบัน: <span className="font-bold">{selectedProduct.stockQty} {selectedProduct.unit}</span></p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-emerald-600">ราคาขาย</p>
-                <p className="text-sm font-bold text-emerald-800">฿{selectedProduct.unitPrice}</p>
-              </div>
-            </div>
-          )}
-
           {/* Qty + Cost */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-600">จำนวนรับเข้า *</label>
               <input
                 required type="number" min="1"
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 placeholder="จำนวน"
                 value={form.qty}
                 onChange={(e) => setForm({ ...form, qty: Number(e.target.value) })}
@@ -290,7 +276,7 @@ export default function StockInView() {
               <label className="text-xs font-bold text-slate-600">ราคาทุน / หน่วย (฿)</label>
               <input
                 type="number" min="0" step="0.01"
-                className="w-full px-4 py-3 rounded-2xl border border-indigo-100 bg-indigo-50/30 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                className="w-full px-3 py-2 rounded-xl border border-indigo-100 bg-indigo-50/30 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                 placeholder="0.00"
                 value={form.costPrice}
                 onChange={(e) => setForm({ ...form, costPrice: Number(e.target.value) })}
@@ -299,12 +285,12 @@ export default function StockInView() {
           </div>
 
           {/* Lot + Expiry */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-600">Lot Number</label>
               <input
                 type="text"
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 placeholder="LOT-2025-001 (optional)"
                 value={form.lotNo}
                 onChange={(e) => setForm({ ...form, lotNo: e.target.value })}
@@ -314,7 +300,7 @@ export default function StockInView() {
               <label className="text-xs font-bold text-slate-600">วันหมดอายุ</label>
               <input
                 type="date"
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 value={form.expiryDate}
                 onChange={(e) => setForm({ ...form, expiryDate: e.target.value })}
               />
@@ -335,7 +321,7 @@ export default function StockInView() {
               </button>
             </div>
             <select
-              className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
               value={form.supplierId}
               onChange={(e) => setForm({ ...form, supplierId: e.target.value })}
             >
@@ -375,12 +361,31 @@ export default function StockInView() {
             <label className="text-xs font-bold text-slate-600">หมายเหตุ</label>
             <textarea
               rows={2}
-              className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none"
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none"
               placeholder="หมายเหตุเพิ่มเติม (optional)"
               value={form.note}
               onChange={(e) => setForm({ ...form, note: e.target.value })}
             />
           </div>
+
+        </div>
+
+        <div className="surface-card overflow-hidden lg:sticky lg:top-20">
+          <div className="p-4 space-y-3">
+          {!selectedProduct && (<p className="text-sm text-slate-400">เลือกสินค้าเพื่อดูสต็อกปัจจุบันและสรุปการรับเข้า</p>)}
+          {/* Selected Product Info */}
+          {selectedProduct && (
+            <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-3">
+              <div className="flex-1">
+                <p className="text-sm font-bold text-emerald-800">{selectedProduct.name}</p>
+                <p className="text-xs text-emerald-600">สต็อกปัจจุบัน: <span className="font-bold">{selectedProduct.stockQty} {selectedProduct.unit}</span></p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-emerald-600">ราคาขาย</p>
+                <p className="text-sm font-bold text-emerald-800">฿{selectedProduct.unitPrice}</p>
+              </div>
+            </div>
+          )}
 
           {/* Error */}
           {error && (
@@ -389,8 +394,7 @@ export default function StockInView() {
               {error}
             </div>
           )}
-        </div>
-
+          </div>
         {/* Summary bar */}
         {selectedProduct && form.qty > 0 && (
           <div className="border-t border-slate-100 bg-slate-50 px-6 py-3 flex items-center justify-between text-xs">
@@ -417,6 +421,7 @@ export default function StockInView() {
               </>
             )}
           </button>
+        </div>
         </div>
       </form>
 

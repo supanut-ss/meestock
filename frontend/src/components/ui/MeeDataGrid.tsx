@@ -70,7 +70,7 @@ export function MeeDataGridToolbar({
               backgroundColor: "#ffffff",
             },
             "&.Mui-focused": {
-              borderColor: "#65a30d",
+              borderColor: "#2a9a78",
               boxShadow: "0 0 0 3px rgba(99, 102, 241, 0.12)",
               backgroundColor: "#ffffff",
             },
@@ -189,8 +189,8 @@ export default function MeeDataGrid({
         localeText={thaiDataGridLocale}
         disableRowSelectionOnClick
         autoHeight={isAutoHeight}
-        rowHeight={props.rowHeight || 64}
-        columnHeaderHeight={46}
+        rowHeight={props.rowHeight || 56}
+        columnHeaderHeight={40}
         pageSizeOptions={[10, 25, 50, 100]}
         initialState={{
           pagination: {
@@ -276,7 +276,7 @@ export default function MeeDataGrid({
           "& .MuiCheckbox-root": {
             color: "#94a3b8",
             "&.Mui-checked": {
-              color: "#4d7c0f",
+              color: "#0f766e",
             },
           },
           ...sx,

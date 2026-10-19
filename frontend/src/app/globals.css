@@ -1,37 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3f4f1;
+  --background: #f1f5f3;
   --foreground: #0f172a;
-  --ink: #111312;
-  --accent: #c6f432;
+  --ink: #173d42;
+  --accent: #a8e6cb;
 
-  --primary-start: #4d7c0f;
-  --primary-end: #65a30d;
+  --primary-start: #0f766e;
+  --primary-end: #2a9a78;
   --success: #059669;
   --warning: #f97316;
   --card-bg: rgba(255, 255, 255, 0.8);
   --border-light: rgba(228, 228, 231, 0.6);
 }
 
-/* Brand palette: the "indigo" scale is remapped to a lime/olive scale so every existing utility follows the new identity */
+/* Brand palette: the "indigo" scale is remapped to a teal scale so every existing utility follows the new identity */
 @theme {
-  --color-indigo-50: #f7fee7;
-  --color-indigo-100: #ecfccb;
-  --color-indigo-200: #d9f99d;
-  --color-indigo-300: #bef264;
-  --color-indigo-400: #a3e635;
-  --color-indigo-500: #65a30d;
-  --color-indigo-600: #4d7c0f;
-  --color-indigo-700: #3f6212;
-  --color-indigo-800: #365314;
-  --color-indigo-900: #1a2e05;
-  --color-indigo-950: #0f1a03;
-  --color-slate-50: #f6f7f5;
-  --color-slate-100: #eceeea;
-  --color-slate-200: #dfe2dc;
-  --color-slate-900: #151816;
-  --color-slate-950: #0c0e0d;
+  --color-indigo-50: #effaf6;
+  --color-indigo-100: #d5f2e6;
+  --color-indigo-200: #aee4cf;
+  --color-indigo-300: #7dcfb2;
+  --color-indigo-400: #4fb894;
+  --color-indigo-500: #2a9a78;
+  --color-indigo-600: #0f766e;
+  --color-indigo-700: #115e59;
+  --color-indigo-800: #134e4a;
+  --color-indigo-900: #133f3c;
+  --color-indigo-950: #0b2a28;
+  --color-slate-50: #f3f7f5;
+  --color-slate-100: #e8efec;
+  --color-slate-200: #d8e2de;
+  --color-slate-900: #14282a;
+  --color-slate-950: #0d1c1e;
 }
 
 @theme inline {
@@ -79,7 +79,7 @@ body {
 }
 .tap-press:active {
   transform: scale(0.95);
-  background-color: rgb(236 252 203 / 0.7);
+  background-color: rgb(213 242 230 / 0.7);
 }
 @media (prefers-reduced-motion: reduce) {
   .tap-press { transition: none; }
@@ -200,7 +200,7 @@ p {
 /* Dashboard-style surfaces */
 .surface-card {
   background: #fff;
-  border: 1px solid rgb(226 232 224 / 0.9);
+  border: 1px solid rgb(216 226 222 / 0.9);
   border-radius: 1.5rem;
   box-shadow: 0 1px 2px rgb(16 24 16 / 0.04), 0 8px 24px -12px rgb(16 24 16 / 0.08);
 }
@@ -214,11 +214,11 @@ p {
 @layer base {
   /* Visible keyboard focus on every platform */
   :where(a, button, [role="button"], summary):focus-visible {
-    outline: 2px solid #4d7c0f;
+    outline: 2px solid #0f766e;
     outline-offset: 2px;
   }
   aside :where(a, button):focus-visible {
-    outline-color: #c6f432;
+    outline-color: #a8e6cb;
   }
 
   /* Long option text must never widen its container on any breakpoint */
@@ -242,3 +242,30 @@ p {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Compact density: tighten generous spacing used across pages (unlayered so it overrides utilities inside <main>) */
+main .p-10 { padding: 1.75rem; }
+main .p-8 { padding: 1.5rem; }
+main .p-7 { padding: 1.25rem; }
+main .p-6 { padding: 1.125rem; }
+main .p-5 { padding: 1rem; }
+main .px-6 { padding-inline: 1.125rem; }
+main .py-6 { padding-block: 1rem; }
+main .py-8 { padding-block: 1.25rem; }
+main .gap-8 { gap: 1.25rem; }
+main .gap-6 { gap: 0.875rem; }
+main .gap-5 { gap: 0.75rem; }
+main .space-y-8 > :not(:last-child) { margin-block-end: 1.25rem; }
+main .space-y-6 > :not(:last-child) { margin-block-end: 0.875rem; }
+main .space-y-5 > :not(:last-child) { margin-block-end: 0.75rem; }
+main .space-y-4 > :not(:last-child) { margin-block-end: 0.625rem; }
+main .mb-8 { margin-bottom: 1.25rem; }
+main .mb-6 { margin-bottom: 1rem; }
+main .mt-6 { margin-top: 1rem; }
+main .rounded-3xl { border-radius: 1.125rem; }
+main .rounded-\[2rem\] { border-radius: 1.25rem; }
+@media (min-width: 1024px) {
+  main .py-3 { padding-block: 0.625rem; }
+  main .py-2\.5 { padding-block: 0.5rem; }
+}
+.surface-card { border-radius: 1.125rem; }

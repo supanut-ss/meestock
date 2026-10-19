@@ -128,7 +128,7 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
   if (loading || !data) {
     return (
       <div className="p-24 flex flex-col items-center justify-center gap-3">
-        <CircularProgress size={36} sx={{ color: "#4d7c0f" }} />
+        <CircularProgress size={36} sx={{ color: "#0f766e" }} />
         <p className="text-xs font-semibold text-slate-400">กำลังดึงข้อมูลวิเคราะห์และการเงินเชิงลึก...</p>
       </div>
     );
@@ -137,72 +137,73 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
   return (
     <div className="space-y-6">
       {/* Key Metric Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 max-lg:[&>*:last-child:nth-child(odd)]:col-span-2">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 max-lg:[&>*:last-child:nth-child(odd)]:col-span-2">
         {cards.map((card, idx) => {
           const dark = idx === 0;
           return (
             <div
               key={card.title}
-              className={`relative overflow-hidden rounded-3xl p-5 transition-all duration-300 hover:-translate-y-0.5 ${
-                dark ? "bg-[#111312] text-white shadow-lg shadow-black/10" : "surface-card"
+              className={`relative overflow-hidden rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5 ${
+                dark ? "bg-[#173d42] text-white shadow-lg shadow-black/10" : "surface-card"
               }`}
             >
               <div className="flex items-start justify-between gap-2">
                 <p className={`text-xs font-medium truncate ${dark ? "text-white/60" : "text-slate-500"}`} title={card.title}>{card.title}</p>
-                <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl ${dark ? "bg-[#c6f432] text-[#111312]" : "bg-slate-100 text-slate-700"}`}>
+                <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl ${dark ? "bg-[#a8e6cb] text-[#173d42]" : "bg-slate-100 text-slate-700"}`}>
                   {card.icon}
                 </div>
               </div>
-              <div className="mt-4 flex flex-wrap items-baseline gap-1.5">
+              <div className="mt-3 flex flex-wrap items-baseline gap-1.5">
                 <span className={`break-all text-2xl font-extrabold tracking-tight ${dark ? "text-white" : "text-slate-900"}`}>{card.value}</span>
                 {card.unit && <span className={`text-xs font-semibold ${dark ? "text-white/50" : "text-slate-500"}`}>{card.unit}</span>}
               </div>
-              <p className={`mt-2 text-xs ${dark ? "text-[#c6f432]" : "text-slate-400"}`}>{card.trend}</p>
+              <p className={`mt-2 text-xs ${dark ? "text-[#a8e6cb]" : "text-slate-400"}`}>{card.trend}</p>
             </div>
           );
         })}
       </div>
 
-      {/* Recharts Analytics Charts View */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      {/* Charts and lists share one 12-column grid on wide screens */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+      <div className="contents">
         {/* Daily Sales Chart */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="surface-card p-4 space-y-3 xl:col-span-8 xl:order-1">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 className="font-bold text-slate-800 text-sm tracking-tight">รายงานยอดขายรายวัน (THB)</h3>
             <span className="text-xxs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">ข้อมูลจริง</span>
           </div>
-          <div className="h-64 pr-2">
+          <div className="h-56 pr-2">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.daily} margin={{ top: 10, right: 5, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorDaily" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#84cc16" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#65a30d" stopOpacity={0.005}/>
+                    <stop offset="5%" stopColor="#34b38f" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#2a9a78" stopOpacity={0.005}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="date" tickLine={false} axisLine={false} style={{ fontSize: "10px", fill: "#94a3b8", fontWeight: 600 }} />
                 <YAxis tickLine={false} axisLine={false} style={{ fontSize: "10px", fill: "#94a3b8", fontWeight: 600 }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="amount" stroke="#4d7c0f" strokeWidth={2.5} fillOpacity={1} fill="url(#colorDaily)" />
+                <Area type="monotone" dataKey="amount" stroke="#0f766e" strokeWidth={2.5} fillOpacity={1} fill="url(#colorDaily)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Monthly Sales Chart */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="surface-card p-4 space-y-3 xl:col-span-6 xl:order-3">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 className="font-bold text-slate-800 text-sm tracking-tight">รายงานยอดขายสะสมรายเดือน (THB)</h3>
             <span className="text-xxs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">สะสม</span>
           </div>
-          <div className="h-64 pr-2">
+          <div className="h-56 pr-2">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.monthly} margin={{ top: 10, right: 5, left: -20, bottom: 0 }} barSize={32}>
                 <defs>
                   <linearGradient id="colorMonthly" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#111312" stopOpacity={0.95}/>
-                    <stop offset="95%" stopColor="#111312" stopOpacity={0.75}/>
+                    <stop offset="5%" stopColor="#173d42" stopOpacity={0.95}/>
+                    <stop offset="95%" stopColor="#173d42" stopOpacity={0.75}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -217,9 +218,9 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
       </div>
 
       {/* Leaderboard Lists Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="contents">
         {/* Low Stock Warning Feed */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4 flex flex-col justify-between">
+        <div className="surface-card p-4 space-y-3 flex flex-col justify-between xl:col-span-4 xl:order-2">
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-bold text-slate-800 text-sm tracking-tight flex items-center gap-2">
@@ -227,9 +228,9 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
                   <span className=" absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
                 </span>
-                รายการสินค้าที่ระดับสต็อกต่ำกว่าเกณฑ์
+                สินค้าสต็อกต่ำกว่าเกณฑ์
               </h3>
-              <span className="text-xxs text-rose-500 font-semibold bg-rose-50 px-2 py-0.5 rounded-md">ระดับวิกฤตสต็อก</span>
+              <span className="text-xxs text-rose-500 font-semibold bg-rose-50 px-2 py-0.5 rounded-md whitespace-nowrap">ต้องเติมสต็อก</span>
             </div>
 
             <div className="divide-y divide-slate-100 text-xs">
@@ -274,7 +275,7 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
         </div>
 
         {/* Best Sellers Leaderboard */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="surface-card p-4 space-y-3 xl:col-span-6 xl:order-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 className="font-bold text-slate-800 text-sm tracking-tight flex items-center gap-2">
               <EmojiEventsOutlinedIcon sx={{ fontSize: 18, color: "#f59e0b" }} />
@@ -308,6 +309,7 @@ export default function DashboardView({ isAdmin = false }: { isAdmin?: boolean }
             })}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

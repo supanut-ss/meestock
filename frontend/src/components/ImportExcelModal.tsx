@@ -273,7 +273,7 @@ export default function ImportExcelModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-100">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-100">
               <CloudUploadOutlinedIcon sx={{ fontSize: 22 }} />
             </div>
             <div>
@@ -308,7 +308,7 @@ export default function ImportExcelModal({
               onClick={handleDownloadTemplate}
               className="py-2 px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
-              <FileDownloadOutlinedIcon sx={{ fontSize: 16, color: "#65a30d" }} />
+              <FileDownloadOutlinedIcon sx={{ fontSize: 16, color: "#2a9a78" }} />
               ดาวน์โหลด Template (.xlsx)
             </button>
           </div>
@@ -322,7 +322,7 @@ export default function ImportExcelModal({
               className="absolute inset-0 opacity-0 cursor-pointer"
             />
             <CloudUploadOutlinedIcon
-              sx={{ fontSize: 36, color: "#94a3b8", "&:hover": { color: "#65a30d" } }}
+              sx={{ fontSize: 36, color: "#94a3b8", "&:hover": { color: "#2a9a78" } }}
             />
             <p className="font-bold text-slate-700 text-sm">
               คลิกเพื่อเลือกไฟล์ หรือลากวางไฟล์ที่นี่

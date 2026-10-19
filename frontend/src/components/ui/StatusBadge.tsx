@@ -50,7 +50,7 @@ const variantStyles: Record<
     bg: "#eef2ff",
     text: "#3730a3",
     border: "#c7d2fe",
-    dot: "#65a30d",
+    dot: "#2a9a78",
   },
   purple: {
     bg: "#faf5ff",

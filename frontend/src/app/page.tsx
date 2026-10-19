@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/authActions";
 
 type Module = {
   href: string;
@@ -78,39 +79,41 @@ function Arrow({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
+  const primaryHref = user ? "/stock-out" : "/login";
   return (
     <div className="space-y-6">
       {/* Hero bento */}
       <section className="grid gap-4 lg:grid-cols-12">
-        <div className="dot-grid relative overflow-hidden rounded-[2rem] bg-[#111312] p-7 text-white sm:p-10 lg:col-span-8">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#c6f432]/20 blur-3xl" />
+        <div className="dot-grid relative overflow-hidden rounded-[2rem] bg-[#173d42] p-6 text-white sm:p-8 lg:col-span-8">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#a8e6cb]/20 blur-3xl" />
           <div className="relative max-w-xl space-y-5">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/80 ring-1 ring-white/10">
-              <span className="h-2 w-2 rounded-full bg-[#c6f432]" />
+              <span className="h-2 w-2 rounded-full bg-[#a8e6cb]" />
               พร้อมใช้งานสำหรับร้านค้าออนไลน์ของคุณ
             </div>
-            <h2 className="text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl">
+            <h2 className="text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl">
               ระบบบริหารคลังสินค้า
               <br />
-              <span className="text-[#c6f432]">MeeStock Pro</span>
+              <span className="text-[#a8e6cb]">MeeStock Pro</span>
             </h2>
             <p className="max-w-lg text-sm leading-relaxed text-white/60 sm:text-base">
               ระบบ Mini Stock ครบวงจรสำหรับร้านค้าออนไลน์ จัดการสินค้า หมวดหมู่ รับเข้า จ่ายออก จัดส่ง และรายงานกำไร-ขาดทุนครบในที่เดียว
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               <Link
-                href="/stock-out"
-                className="inline-flex h-12 items-center gap-2 rounded-full bg-[#c6f432] px-6 text-sm font-bold text-[#111312] transition-transform hover:scale-[1.03]"
+                href={primaryHref}
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-[#a8e6cb] px-6 text-sm font-bold text-[#173d42] transition-transform hover:scale-[1.03]"
               >
-                เริ่มบันทึกขาย
+                {user ? "เริ่มบันทึกขาย" : "เข้าสู่ระบบ"}
                 <Arrow />
               </Link>
               <Link
-                href="/dashboard"
+                href={user ? "/dashboard" : "#modules"}
                 className="inline-flex h-12 items-center gap-2 rounded-full bg-white/10 px-6 text-sm font-semibold text-white ring-1 ring-white/15 transition-colors hover:bg-white/15"
               >
-                ดูแดชบอร์ด
+                {user ? "ดูแดชบอร์ด" : "ดูฟีเจอร์ทั้งหมด"}
               </Link>
             </div>
           </div>
@@ -123,14 +126,14 @@ export default function Home() {
               <p className="text-xs font-medium text-slate-500">ยอดขายสัปดาห์นี้</p>
               <p className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">฿ 48,250</p>
             </div>
-            <span className="rounded-full bg-[#c6f432] px-2.5 py-1 text-[11px] font-bold text-[#111312]">+12.4%</span>
+            <span className="rounded-full bg-[#a8e6cb] px-2.5 py-1 text-[11px] font-bold text-[#173d42]">+12.4%</span>
           </div>
           <div className="mt-6 flex h-32 items-end gap-2">
             {bars.map((h, i) => (
               <div
                 key={i}
                 style={{ height: `${h}%` }}
-                className={`flex-1 rounded-t-lg ${i === bars.length - 1 ? "bg-[#c6f432]" : "bg-slate-200"}`}
+                className={`flex-1 rounded-t-lg ${i === bars.length - 1 ? "bg-[#a8e6cb]" : "bg-slate-200"}`}
               />
             ))}
           </div>
@@ -149,7 +152,7 @@ export default function Home() {
       </section>
 
       {/* Modules */}
-      <section className="space-y-4">
+      <section id="modules" className="scroll-mt-24 space-y-4">
         <div className="flex items-end justify-between">
           <div>
             <h2 className="text-xl font-bold tracking-tight text-slate-900">ระบบงานหลัก 6 โมดูล</h2>
@@ -162,11 +165,11 @@ export default function Home() {
             <Link
               key={m.href}
               href={m.href}
-              className="surface-card group relative flex flex-col justify-between p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#c6f432] hover:shadow-lg"
+              className="surface-card group relative flex flex-col justify-between p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#a8e6cb] hover:shadow-lg"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-900 transition-colors duration-300 group-hover:bg-[#c6f432]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-900 transition-colors duration-300 group-hover:bg-[#a8e6cb]">
                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d={m.icon} />
                     </svg>
@@ -193,7 +196,7 @@ export default function Home() {
         <ol className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {steps.map((s) => (
             <li key={s.n} className="rounded-2xl bg-slate-50 p-4">
-              <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-[#111312] px-2 text-xs font-bold text-[#c6f432]">{s.n}</span>
+              <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-[#173d42] px-2 text-xs font-bold text-[#a8e6cb]">{s.n}</span>
               <p className="mt-3 font-bold text-slate-900">{s.title}</p>
               <p className="text-sm text-slate-500">{s.desc}</p>
             </li>

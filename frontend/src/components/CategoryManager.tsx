@@ -17,7 +17,7 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 import CircularProgress from "@mui/material/CircularProgress";
 
 const PRESET_COLORS = [
-  { hex: "#65a30d", label: "Indigo" },
+  { hex: "#2a9a78", label: "Indigo" },
   { hex: "#8b5cf6", label: "Violet" },
   { hex: "#ec4899", label: "Pink" },
   { hex: "#f43f5e", label: "Rose" },
@@ -46,7 +46,7 @@ export default function CategoryManager() {
   const [name, setName] = useState("");
   const [parentId, setParentId] = useState("");
   const [code, setCode] = useState("");
-  const [color, setColor] = useState("#65a30d");
+  const [color, setColor] = useState("#2a9a78");
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
@@ -71,7 +71,7 @@ export default function CategoryManager() {
     setName("");
     setParentId(pId);
     setCode("");
-    setColor("#65a30d");
+    setColor("#2a9a78");
     setError("");
     setSuccessMsg("");
     setIsOpen(true);
@@ -160,8 +160,8 @@ export default function CategoryManager() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100">
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100">
               <CategoryOutlinedIcon sx={{ fontSize: 22 }} />
             </div>
             จัดการหมวดหมู่สินค้า
@@ -180,7 +180,7 @@ export default function CategoryManager() {
 
       {loading ? (
         <div className="flex justify-center py-24">
-          <CircularProgress size={36} sx={{ color: "#4d7c0f" }} />
+          <CircularProgress size={36} sx={{ color: "#0f766e" }} />
         </div>
       ) : categories.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50/50 p-16 flex flex-col items-center gap-3 text-slate-400">
@@ -189,7 +189,7 @@ export default function CategoryManager() {
           <p className="text-xs">กดปุ่มด้านบนเพื่อเพิ่มหมวดหมู่สินค้าชิ้นแรก</p>
         </div>
       ) : (
-        <div className="grid gap-6">
+        <div className="grid gap-3 xl:grid-cols-2 items-start">
           {categories.map((parent) => (
             <div
               key={parent.id}

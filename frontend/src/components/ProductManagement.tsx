@@ -598,7 +598,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
         flex: 1,
         renderCell: (params: GridRenderCellParams<DBProduct, string>) => {
           const cat = categories.find((c) => c.name === params.value);
-          const dotColor = cat?.color || "#65a30d";
+          const dotColor = cat?.color || "#2a9a78";
           return params.value ? (
             <span
               className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
@@ -981,7 +981,7 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
                     });
                     setShowVariantForm(true);
                   }}
-                  sx={{ color: "#64748b", "&:hover": { color: "#4d7c0f" } }}
+                  sx={{ color: "#64748b", "&:hover": { color: "#0f766e" } }}
                 >
                   <EditOutlinedIcon sx={{ fontSize: 15 }} />
                 </IconButton>
@@ -1086,181 +1086,159 @@ export default function ProductManagement({ isAdmin = true }: { isAdmin?: boolea
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">คลังสินค้าและการจัดการสต็อก</h1>
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">คลังสินค้าและการจัดการสต็อก</h1>
           <p className="text-slate-500 text-sm">จัดการรายการสินค้า ปรับปรุงสต็อก และพิมพ์บาร์โค้ดสินค้าแบบเรียลไทม์</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-2xl bg-white border border-slate-200 px-4 py-2.5 shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 rounded-full bg-white border border-slate-200 px-3 py-1.5">
             <span className="h-2 w-2 rounded-full bg-indigo-500"></span>
-            <span className="text-xs font-semibold text-slate-600">ทั้งหมด: {products.length} รายการ</span>
+            <span className="text-xs font-semibold text-slate-600">ทั้งหมด {products.length} รายการ</span>
           </div>
-          <div className={`flex items-center gap-2 rounded-2xl border px-4 py-2.5 shadow-sm transition-all ${lowStockCount > 0 ? "bg-rose-50 border-rose-100 text-rose-700" : "bg-emerald-50 border-emerald-100 text-emerald-700"}`}>
+          <div className={`flex items-center gap-2 rounded-full border px-3 py-1.5 ${lowStockCount > 0 ? "bg-rose-50 border-rose-100 text-rose-700" : "bg-emerald-50 border-emerald-100 text-emerald-700"}`}>
             <span className={`h-2 w-2 rounded-full ${lowStockCount > 0 ? "bg-rose-500" : "bg-emerald-500"}`}></span>
-            <span className="text-xs font-semibold">สต็อกต่ำ: {lowStockCount} รายการ</span>
+            <span className="text-xs font-semibold">สต็อกต่ำ {lowStockCount} รายการ</span>
           </div>
         </div>
       </div>
 
-      {/* Operations */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Scanner */}
-        <div className="lg:col-span-2 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h3 className="font-bold text-slate-800 text-sm tracking-tight flex items-center gap-2">
-              <svg className="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+      {/* Toolbar: scanner, search, filters and actions in one card */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm space-y-3">
+        {/* Row 1: scanner */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
               </svg>
-              จำลองการสแกนบาร์โค้ด
-            </h3>
-            <span className="text-[10px] font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-md">Scanner Ready</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_180px] gap-4">
-            <div className="relative">
-              <input
-                type="text"
-                className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all"
-                placeholder="วาง Barcode/SKU เพื่อสแกน..."
-                value={scannerValue}
-                onChange={(e) => setScannerValue(e.target.value)}
-              />
-              <div className="absolute left-4 top-3.5 text-slate-400">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              {scannerValue && (
-                <div className="absolute right-3 top-3">
-                  <span className="relative flex h-2 w-2">
-                    <span className=" absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                  </span>
-                </div>
-              )}
             </div>
+            <input
+              type="text"
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all"
+              placeholder="วาง Barcode/SKU เพื่อสแกน..."
+              value={scannerValue}
+              onChange={(e) => setScannerValue(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => {
                 setScannerTarget("stock_adjust");
                 setShowScanner(true);
               }}
-              className="py-2.5 px-4 rounded-2xl border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-sm font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
+              className="py-2 px-3 rounded-xl border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
               title="สแกนด้วยกล้องถ่ายภาพ"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
               </svg>
               สแกนกล้อง
             </button>
-            <div className="flex items-center border border-slate-200 rounded-2xl px-2 py-1 bg-slate-50">
-              <button onClick={() => setAdjustQty(Math.max(1, adjustQty - 1))} className="w-8 h-8 flex items-center justify-center rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 transition-colors">-</button>
-              <input type="number" className="w-full text-center bg-transparent border-none text-sm font-semibold focus:outline-none" value={adjustQty} onChange={(e) => setAdjustQty(Number(e.target.value) || 1)} />
-              <button onClick={() => setAdjustQty(adjustQty + 1)} className="w-8 h-8 flex items-center justify-center rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 transition-colors">+</button>
+            <div className="flex items-center border border-slate-200 rounded-xl px-1 py-0.5 bg-slate-50">
+              <button type="button" aria-label="ลดจำนวน" onClick={() => setAdjustQty(Math.max(1, adjustQty - 1))} className="w-7 h-7 flex items-center justify-center rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 transition-colors">-</button>
+              <input type="number" aria-label="จำนวนที่ปรับ" className="w-12 text-center bg-transparent border-none text-sm font-semibold focus:outline-none" value={adjustQty} onChange={(e) => setAdjustQty(Number(e.target.value) || 1)} />
+              <button type="button" aria-label="เพิ่มจำนวน" onClick={() => setAdjustQty(adjustQty + 1)} className="w-7 h-7 flex items-center justify-center rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 transition-colors">+</button>
             </div>
           </div>
         </div>
 
-        {/* Search & Filters */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
-          <div className="space-y-3">
-            <h3 className="font-bold text-slate-800 text-sm">ค้นหา & กรอง</h3>
-            
-            <input
-              type="text"
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs"
-              placeholder="ค้นหาชื่อสินค้า, SKU, บาร์โค้ด..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="border-t border-slate-100" />
 
-            <div className="grid grid-cols-2 gap-2">
-              <select
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="">ทุกหมวดหมู่</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.parentId ? `└ ${c.name}` : c.name}</option>
-                ))}
-              </select>
-
-              <select
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="active">ใช้งาน</option>
-                <option value="inactive">ปิดใช้งาน</option>
-                <option value="discontinued">ยกเลิก</option>
-                <option value="all">สถานะทั้งหมด</option>
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <select
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
-                value={stockLevelFilter}
-                onChange={(e) => setStockLevelFilter(e.target.value as "all" | "normal" | "low" | "out")}
-              >
-                <option value="all">ระดับสต็อกทั้งหมด</option>
-                <option value="normal">สต็อกปกติ</option>
-                <option value="low">สต็อกต่ำกว่าเกณฑ์</option>
-                <option value="out">สินค้าหมด</option>
-              </select>
-
-              <div className="flex gap-1.5 items-center">
-                <input
-                  type="number"
-                  placeholder="Min ฿"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  value={priceMin}
-                  onChange={(e) => setPriceMin(e.target.value)}
-                />
-                <span className="text-slate-300 text-xs">-</span>
-                <input
-                  type="number"
-                  placeholder="Max ฿"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  value={priceMax}
-                  onChange={(e) => setPriceMax(e.target.value)}
-                />
-              </div>
+        {/* Row 2: search, filters, actions */}
+        <div className="flex flex-col gap-2 xl:flex-row xl:items-center">
+          <input
+            type="text"
+            className="w-full xl:w-64 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+            placeholder="ค้นหาชื่อสินค้า, SKU, บาร์โค้ด..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-1">
+            <select
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              aria-label="หมวดหมู่"
+            >
+              <option value="">ทุกหมวดหมู่</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.parentId ? `└ ${c.name}` : c.name}</option>
+              ))}
+            </select>
+            <select
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label="สถานะ"
+            >
+              <option value="active">ใช้งาน</option>
+              <option value="inactive">ปิดใช้งาน</option>
+              <option value="discontinued">ยกเลิก</option>
+              <option value="all">สถานะทั้งหมด</option>
+            </select>
+            <select
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+              value={stockLevelFilter}
+              onChange={(e) => setStockLevelFilter(e.target.value as "all" | "normal" | "low" | "out")}
+              aria-label="ระดับสต็อก"
+            >
+              <option value="all">ระดับสต็อกทั้งหมด</option>
+              <option value="normal">สต็อกปกติ</option>
+              <option value="low">สต็อกต่ำกว่าเกณฑ์</option>
+              <option value="out">สินค้าหมด</option>
+            </select>
+            <div className="flex gap-1.5 items-center">
+              <input
+                type="number"
+                placeholder="Min ฿"
+                aria-label="ราคาต่ำสุด"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                value={priceMin}
+                onChange={(e) => setPriceMin(e.target.value)}
+              />
+              <span className="text-slate-300 text-xs">-</span>
+              <input
+                type="number"
+                placeholder="Max ฿"
+                aria-label="ราคาสูงสุด"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                value={priceMax}
+                onChange={(e) => setPriceMax(e.target.value)}
+              />
             </div>
           </div>
-
-          <button
-            onClick={() => { setEditingProduct(null); setNewProduct({ ...BLANK_PRODUCT }); setShowAddForm(!showAddForm); }}
-            className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            เพิ่มสินค้าใหม่
-          </button>
-
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex items-center gap-2">
             <button
               onClick={handleExportExcel}
               type="button"
-              className="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              className="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h7a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
               </svg>
-              ส่งออก Excel
+              ส่งออก
             </button>
             <button
               onClick={() => setShowImportModal(true)}
               type="button"
-              className="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              className="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
-              นำเข้า Excel
+              นำเข้า
+            </button>
+            <button
+              onClick={() => { setEditingProduct(null); setNewProduct({ ...BLANK_PRODUCT }); setShowAddForm(!showAddForm); }}
+              className="py-2 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              เพิ่มสินค้าใหม่
             </button>
           </div>
         </div>

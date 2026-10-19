@@ -206,7 +206,7 @@ export default function StockMovementsView() {
       {/* Header and Quick Stats */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">
             ประวัติการรับเข้า-เบิกออกสินค้า
           </h1>
           <p className="text-slate-500 text-sm">
@@ -239,7 +239,7 @@ export default function StockMovementsView() {
               <RefreshIcon
                 sx={{
                   fontSize: 18,
-                  color: loading ? "#65a30d" : "#64748b",
+                  color: loading ? "#2a9a78" : "#64748b",
                   animation: loading ? "spin 1s linear infinite" : "none",
                   "@keyframes spin": {
                     "0%": { transform: "rotate(0deg)" },

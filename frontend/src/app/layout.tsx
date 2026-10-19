@@ -14,7 +14,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#111312",
+  themeColor: "#173d42",
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -31,15 +31,15 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full bg-[#f3f4f1] text-slate-900 font-sans selection:bg-indigo-500 selection:text-white flex flex-col">
+      <body className="min-h-full bg-[#f1f5f3] text-slate-900 font-sans selection:bg-indigo-500 selection:text-white flex flex-col">
         <ThemeProvider>
           <NotificationProvider>
             {/* Modern Navigation Header */}
             <Navigation user={navUser} />
 
             {/* Core Content Layout */}
-            <div className={`flex flex-grow flex-col ${navUser ? "lg:pl-64" : ""}`}>
-              <main className={`mx-auto w-full max-w-[88rem] flex-grow px-4 sm:px-6 lg:px-8 lg:py-6 ${navUser ? "pt-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-8" : ""}`}>
+            <div className={`flex flex-grow flex-col ${navUser ? "lg:pl-60" : ""}`}>
+              <main className={`mx-auto w-full max-w-[96rem] flex-grow px-4 sm:px-5 lg:px-6 lg:py-4 ${navUser ? "pt-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-8" : "pt-4 pb-8"}`}>
                 <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
                   {children}
                 </div>

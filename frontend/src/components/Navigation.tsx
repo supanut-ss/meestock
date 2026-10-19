@@ -55,7 +55,7 @@ function Icon({ d, className = "h-5 w-5", strokeWidth = 1.8 }: { d: string; clas
 
 function BrandMark({ size = "h-10 w-10" }: { size?: string }) {
   return (
-    <div className={`flex ${size} items-center justify-center rounded-xl bg-[#c6f432] text-[#111312]`}>
+    <div className={`flex ${size} items-center justify-center rounded-xl bg-[#a8e6cb] text-[#173d42]`}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
         <path d="m7.5 4.27 9 5.15" />
         <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
@@ -113,7 +113,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
     <>
       {/* Desktop sidebar */}
       {user && (
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-[#111312] p-4 text-white lg:flex">
+        <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col bg-[#173d42] p-4 text-white lg:flex">
           <Link href="/" className="mb-6 flex items-center gap-3 px-2 pt-1">
             <BrandMark />
             <div className="leading-tight">
@@ -122,7 +122,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
             </div>
           </Link>
 
-          <nav className="sidebar-scroll -mr-2 flex-1 space-y-5 overflow-y-auto pr-2" aria-label="เมนูหลัก">
+          <nav className="sidebar-scroll -mr-2 flex-1 space-y-4 overflow-y-auto pr-2" aria-label="เมนูหลัก">
             {sidebarGroups.map((group) => (
               <div key={group.title}>
                 <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">{group.title}</p>
@@ -134,8 +134,8 @@ export default function Navigation({ user }: { user?: NavUser }) {
                         <Link
                           href={link.href}
                           aria-current={active ? "page" : undefined}
-                          className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                            active ? "bg-[#c6f432] text-[#111312]" : "text-white/65 hover:bg-white/[0.07] hover:text-white"
+                          className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                            active ? "bg-[#a8e6cb] text-[#173d42]" : "text-white/65 hover:bg-white/[0.07] hover:text-white"
                           }`}
                         >
                           <Icon d={link.icon} className="h-[18px] w-[18px] flex-shrink-0" strokeWidth={active ? 2.2 : 1.8} />
@@ -152,7 +152,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
           {/* User card */}
           <div className="mt-4 rounded-2xl bg-white/[0.06] p-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#c6f432] text-sm font-bold text-[#111312]">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#a8e6cb] text-sm font-bold text-[#173d42]">
                 {user.displayName.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
@@ -174,16 +174,16 @@ export default function Navigation({ user }: { user?: NavUser }) {
       )}
 
       {/* Top bar */}
-      <header className={`sticky top-0 z-30 w-full border-b border-slate-200/70 bg-[#f3f4f1]/85 backdrop-blur-md pt-[env(safe-area-inset-top)] ${user ? "lg:pl-64" : ""}`}>
+      <header className={`sticky top-0 z-30 w-full border-b border-slate-200/70 bg-[#f1f5f3]/85 backdrop-blur-md pt-[env(safe-area-inset-top)] ${user ? "lg:pl-60" : ""}`}>
         <div className="mx-auto max-w-[88rem] px-4 sm:px-6 lg:px-8">
-          <div className="flex h-14 items-center justify-between gap-3 lg:h-[4.25rem]">
+          <div className="flex h-14 items-center justify-between gap-3 lg:h-14">
             <div className="flex min-w-0 items-center gap-3">
               {user ? (
                 <>
                   <div className="lg:hidden"><BrandMark size="h-8 w-8" /></div>
                   <div className="min-w-0">
                     <h1 className="truncate text-lg font-bold tracking-tight text-slate-900 lg:text-xl">{pageTitle}</h1>
-                    <p className="hidden text-xs text-slate-500 lg:block">MeeStock · ระบบจัดการสต็อกร้านค้าออนไลน์</p>
+                    
                   </div>
                 </>
               ) : (
@@ -194,10 +194,19 @@ export default function Navigation({ user }: { user?: NavUser }) {
               )}
             </div>
 
+            {!user && (
+              <Link
+                href="/login"
+                className="inline-flex h-11 items-center rounded-full bg-[#173d42] px-5 text-sm font-semibold text-[#a8e6cb] transition-colors hover:bg-[#1f4a50]"
+              >
+                เข้าสู่ระบบ
+              </Link>
+            )}
+
             {user && (
               <div className="flex flex-shrink-0 items-center gap-2">
                 <span className={`hidden items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset sm:inline-flex ${
-                  isAdminUser ? "bg-slate-900 text-[#c6f432] ring-slate-900" : "bg-white text-slate-600 ring-slate-200"
+                  isAdminUser ? "bg-slate-900 text-[#a8e6cb] ring-slate-900" : "bg-white text-slate-600 ring-slate-200"
                 }`}>
                   {user.displayName} · {roleLabel}
                 </span>
@@ -231,7 +240,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
           {/* Bottom tab bar (mobile/tablet) */}
           <nav
             aria-label="เมนูหลัก"
-            className="fixed inset-x-3 bottom-3 z-40 rounded-3xl bg-[#111312]/95 shadow-2xl shadow-black/25 backdrop-blur-md lg:hidden"
+            className="fixed inset-x-3 bottom-3 z-40 rounded-3xl bg-[#173d42]/95 shadow-2xl shadow-black/25 backdrop-blur-md lg:hidden"
             style={{ marginBottom: "env(safe-area-inset-bottom)" }}
           >
             <ul className="mx-auto grid max-w-2xl grid-cols-5">
@@ -242,7 +251,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
                     <Link
                       href={tab.href}
                       aria-current={active ? "page" : undefined}
-                      className={`tap-press flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${active ? "text-[#c6f432]" : "text-white/55"}`}
+                      className={`tap-press flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${active ? "text-[#a8e6cb]" : "text-white/55"}`}
                     >
                       <span className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${active ? "bg-white/10" : ""}`}>
                         <Icon d={tab.icon} strokeWidth={active ? 2.2 : 1.8} />
@@ -258,7 +267,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
                   onClick={() => setMoreOpen(true)}
                   aria-haspopup="dialog"
                   aria-expanded={moreOpen}
-                  className={`tap-press flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-semibold ${moreActive ? "text-[#c6f432]" : "text-white/55"}`}
+                  className={`tap-press flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-semibold ${moreActive ? "text-[#a8e6cb]" : "text-white/55"}`}
                 >
                   <span className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${moreActive ? "bg-white/10" : ""}`}>
                     <Icon d="M4 6h16M4 12h16M4 18h16" strokeWidth={2} />
@@ -296,7 +305,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
                               href={link.href}
                               onClick={() => setMoreOpen(false)}
                               className={`tap-press flex min-h-[84px] flex-col items-center justify-center gap-2 rounded-2xl p-2 text-center text-xs font-semibold ${
-                                active ? "bg-[#111312] text-[#c6f432]" : "bg-slate-50 text-slate-700"
+                                active ? "bg-[#173d42] text-[#a8e6cb]" : "bg-slate-50 text-slate-700"
                               }`}
                             >
                               <Icon d={link.icon} className="h-6 w-6" />
@@ -308,7 +317,7 @@ export default function Navigation({ user }: { user?: NavUser }) {
                     </section>
                   ))}
                 <div className="mb-3 flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#111312] text-sm font-bold text-[#c6f432]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#173d42] text-sm font-bold text-[#a8e6cb]">
                     {user.displayName.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0">

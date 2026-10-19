@@ -5,6 +5,8 @@ const SESSION_COOKIE = "meestock_session";
 
 // Routes ที่ไม่ต้อง login
 const PUBLIC_PATHS = ["/login"];
+// Landing page is public (exact match only)
+const PUBLIC_EXACT = ["/"];
 
 // iisnode serves over a named pipe, so Next may see paths as "//pipe/<guid>/login"
 const IISNODE_PIPE_PREFIX = /^\/\/pipe\/[^/]+/;
@@ -21,7 +23,7 @@ export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname.replace(IISNODE_PIPE_PREFIX, "") || "/";
 
   // ถ้าเป็น public path ข้ามไป
-  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
+  if (PUBLIC_EXACT.includes(pathname) || PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 

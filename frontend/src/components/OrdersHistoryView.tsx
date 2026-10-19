@@ -339,7 +339,7 @@ export default function OrdersHistoryView() {
                     color: "#64748b",
                     border: "1px solid #e2e8f0",
                     borderRadius: "8px",
-                    "&:hover": { color: "#4d7c0f", backgroundColor: "#eef2ff" },
+                    "&:hover": { color: "#0f766e", backgroundColor: "#eef2ff" },
                   }}
                 >
                   <EditOutlinedIcon sx={{ fontSize: 16 }} />
@@ -523,7 +523,7 @@ export default function OrdersHistoryView() {
       {/* Header and Quick Stats */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">
             ประวัติคำสั่งซื้อและการขาย
           </h1>
           <p className="text-slate-500 text-sm">
@@ -541,7 +541,7 @@ export default function OrdersHistoryView() {
               startIcon={<PrintOutlinedIcon />}
               sx={{
                 fontWeight: 600,
-                color: "#4d7c0f",
+                color: "#0f766e",
                 borderColor: "#c7d2fe",
                 backgroundColor: "#eef2ff",
                 "&:hover": { backgroundColor: "#e0e7ff" },
@@ -566,7 +566,7 @@ export default function OrdersHistoryView() {
               <RefreshIcon
                 sx={{
                   fontSize: 18,
-                  color: loading ? "#65a30d" : "#64748b",
+                  color: loading ? "#2a9a78" : "#64748b",
                   animation: loading ? "spin 1s linear infinite" : "none",
                   "@keyframes spin": {
                     "0%": { transform: "rotate(0deg)" },

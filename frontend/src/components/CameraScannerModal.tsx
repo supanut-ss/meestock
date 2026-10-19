@@ -118,7 +118,7 @@ export default function CameraScannerModal({
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                 <div className="relative w-64 h-36 border border-white/20 rounded-xl overflow-hidden shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
                   {/* Glowing Laser Scanline */}
-                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_10px_#65a30d] animate-[scan_2s_infinite_linear]" />
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_10px_#2a9a78] animate-[scan_2s_infinite_linear]" />
                   
                   {/* Viewfinder bracket corners */}
                   <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-indigo-500 rounded-tl" />
