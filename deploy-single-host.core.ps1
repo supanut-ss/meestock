@@ -412,6 +412,13 @@ const currentPort = /^\d+$/.test(rawPort) ? parseInt(rawPort, 10) : rawPort
     $archiveName = ".meestock-release-$releaseId.tar.gz"
     $archiveUrl = "ftp://$serverValue/$remoteBasePath/$archiveName"
     $bootstrapPath = Join-Path $temporaryRoot "app.js"
+    # Runtime app settings (e.g. DB_*) come from MEESTOCK_APP_* process variables, never from git.
+    $appEnvInjection = ""
+    foreach ($appEnvVar in Get-ChildItem Env: | Where-Object { $_.Name -like "MEESTOCK_APP_*" }) {
+        $appEnvName = $appEnvVar.Name.Substring("MEESTOCK_APP_".Length)
+        $appEnvValue = ConvertTo-Json -InputObject ([string]$appEnvVar.Value) -Compress
+        $appEnvInjection += "process.env.$appEnvName = $appEnvValue;" + [Environment]::NewLine
+    }
     $bootstrapSource = @"
 const fs = require("node:fs");
 const path = require("node:path");
@@ -439,6 +446,7 @@ if (fs.existsSync(archivePath)) {
 if (!fs.existsSync(serverPath)) {
   throw new Error("The MeeStock standalone server is missing.");
 }
+$appEnvInjection
 if (!process.env.HOSTNAME) {
   process.env.HOSTNAME = "0.0.0.0";
 }
