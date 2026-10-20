@@ -36,15 +36,11 @@ function LoginForm() {
       <div className="relative w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#a8e6cb] shadow-2xl shadow-teal-400/20 mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-[#173d42]">
-              <path d="m7.5 4.27 9 5.15" />
-              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-              <path d="m3.3 7 8.7 5 8.7-5" />
-              <path d="M12 22V12" />
-            </svg>
+          <div className="flex h-24 w-24 items-center justify-center rounded-[28px] bg-gradient-to-br from-[#a8e6cb]/35 via-[#a8e6cb]/12 to-white/5 p-3 shadow-[0_16px_48px_-8px_rgba(168,230,203,0.5)] ring-1 ring-[#a8e6cb]/40 mb-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-mark.png" alt="MeeStock" className="h-full w-full object-contain drop-shadow-[0_3px_6px_rgba(0,0,0,0.35)]" />
           </div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">MeeStock</h1>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight">Mee<span className="text-[#a8e6cb]">Stock</span></h1>
           <p className="text-slate-400 text-sm mt-1">ระบบจัดการสต็อกร้านค้า</p>
         </div>
 

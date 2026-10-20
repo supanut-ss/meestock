@@ -53,15 +53,11 @@ function Icon({ d, className = "h-5 w-5", strokeWidth = 1.8 }: { d: string; clas
   );
 }
 
-function BrandMark({ size = "h-10 w-10" }: { size?: string }) {
+function BrandMark({ size = "h-12 w-12" }: { size?: string }) {
   return (
-    <div className={`flex ${size} items-center justify-center rounded-xl bg-[#a8e6cb] text-[#173d42]`}>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-        <path d="m7.5 4.27 9 5.15" />
-        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-        <path d="m3.3 7 8.7 5 8.7-5" />
-        <path d="M12 22V12" />
-      </svg>
+    <div className={`relative flex ${size} shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#a8e6cb]/35 via-[#a8e6cb]/12 to-white/5 p-1.5 shadow-[0_8px_24px_-6px_rgba(168,230,203,0.45)] ring-1 ring-[#a8e6cb]/40`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-mark.png" alt="MeeStock" className="h-full w-full object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" />
     </div>
   );
 }
@@ -124,8 +120,8 @@ export default function Navigation({ user }: { user?: NavUser }) {
           <Link href="/" className="mb-6 flex items-center gap-3 px-2 pt-1">
             <BrandMark />
             <div className="leading-tight">
-              <p className="text-base font-bold tracking-tight">MeeStock</p>
-              <p className="text-[11px] font-medium text-white/40">Inventory Suite</p>
+              <p className="text-lg font-extrabold tracking-tight text-white">Mee<span className="text-[#a8e6cb]">Stock</span></p>
+              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/50">Inventory Suite</p>
             </div>
           </Link>
 
